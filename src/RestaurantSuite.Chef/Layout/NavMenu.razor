@@ -1,0 +1,96 @@
+﻿<!-- Brand Section -->
+<div id="chef-nav-brand-section" class="h-16 px-5 border-b border-neutral-200 flex items-center justify-between bg-gradient-to-r from-white to-neutral-50">
+    <div id="chef-nav-brand-content" class="flex items-center gap-3">
+        <!-- Brand Icon -->
+        <div id="chef-nav-brand-icon" class="flex-shrink-0">
+            <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L3 7V17C3 18.1046 3.89543 19 5 19H19C20.1046 19 21 18.1046 21 17V7L12 2Z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22V19"/>
+                <circle cx="12" cy="12" r="2" fill="currentColor"/>
+            </svg>
+        </div>
+        <!-- Brand Name -->
+        <div id="chef-nav-brand-text" class="flex flex-col">
+            <span id="chef-nav-brand-restaurant" class="text-lg font-bold text-neutral-900 leading-tight">Restaurant</span>
+            <span id="chef-nav-brand-suite" class="text-xs font-medium text-primary-600 leading-tight">Chef Suite</span>
+        </div>
+    </div>
+
+    <!-- Mobile Close Button -->
+    <button
+        id="chef-nav-close-btn"
+        @onclick="ToggleNavMenu"
+        class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all duration-200"
+        aria-label="Close menu">
+        <svg id="chef-nav-close-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+</div>
+
+<!-- Navigation Menu -->
+<nav id="chef-nav-menu" class="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-thin" aria-label="Main navigation">
+    <!-- Dashboard -->
+    <NavLink id="chef-nav-dashboard" href="/" Match="NavLinkMatch.All" class="@GetNavLinkClasses()">
+        <svg id="chef-nav-dashboard-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span id="chef-nav-dashboard-text" class="font-medium">Dashboard</span>
+    </NavLink>
+
+    <!-- Kitchen Orders -->
+    <NavLink id="chef-nav-kitchen" href="kitchen" class="@GetNavLinkClasses()">
+        <svg id="chef-nav-kitchen-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6z"/>
+            <line stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="6" y1="17" x2="18" y2="17"/>
+        </svg>
+        <span id="chef-nav-kitchen-text" class="font-medium">Kitchen Orders</span>
+    </NavLink>
+</nav>
+
+<!-- Footer Section -->
+<div id="chef-nav-footer" class="px-5 py-4 border-t border-neutral-200 bg-gradient-to-r from-neutral-50 to-white">
+    <AuthorizeView>
+        <Authorized>
+            <button id="chef-nav-logout-btn" @onclick="HandleLogout" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                <svg id="chef-nav-logout-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                <span id="chef-nav-logout-text" class="font-medium">Logout</span>
+            </button>
+        </Authorized>
+    </AuthorizeView>
+    <div id="chef-nav-version" class="flex items-center gap-2 text-xs text-neutral-500 mt-2">
+        <svg id="chef-nav-version-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke-width="2"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"/>
+        </svg>
+        <span id="chef-nav-version-text">Chef Portal v1.0.0</span>
+    </div>
+</div>
+
+@inject AuthService AuthService
+@inject CustomAuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        AuthStateProvider.NotifyUserLogout();
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+
+    private string GetNavLinkClasses()
+    {
+        return "group flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-700 rounded-lg hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition-all duration-200 active:bg-primary-50 active:text-primary-700 active:font-semibold active:shadow-inner-soft";
+    }
+}

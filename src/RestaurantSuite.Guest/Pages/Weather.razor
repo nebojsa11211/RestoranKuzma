@@ -1,0 +1,36 @@
+﻿@page "/weather"
+
+<PageTitle>Weather</PageTitle>
+
+<h1 class="weather-title">Weather</h1>
+
+<p class="weather-description">This component demonstrates fetching data from the server.</p>
+
+@if (forecasts == null)
+{
+    <p class="weather-loading"><em>Loading...</em></p>
+}
+else
+{
+    <table class="weather-table">
+        <thead class="weather-table-head">
+            <tr>
+                <th class="weather-table-header">Date</th>
+                <th class="weather-table-header" aria-label="Temperature in Celsius">Temp. (C)</th>
+                <th class="weather-table-header" aria-label="Temperature in Farenheit">Temp. (F)</th>
+                <th class="weather-table-header">Summary</th>
+            </tr>
+        </thead>
+        <tbody class="weather-table-body">
+            @foreach (var forecast in forecasts)
+            {
+                <tr class="weather-table-row">
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

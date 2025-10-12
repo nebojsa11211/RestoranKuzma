@@ -1,0 +1,209 @@
+/* Settings Component Styles */
+
+/* Page Header */
+#settings-header[b-4edn4a09uk] {
+    margin-bottom: 2rem;
+}
+
+#settings-header-text[b-4edn4a09uk] {
+    /* Header text container */
+}
+
+#settings-title[b-4edn4a09uk] {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+#settings-subtitle[b-4edn4a09uk] {
+    color: #475569;
+    margin-top: 0.5rem;
+}
+
+/* Settings Tabs */
+#settings-tabs[b-4edn4a09uk] {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 2rem;
+}
+
+#settings-tabs-header[b-4edn4a09uk] {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+#settings-tabs-nav[b-4edn4a09uk] {
+    display: flex;
+    gap: 2rem;
+    padding: 0 1.5rem;
+}
+
+.settings-tab[b-4edn4a09uk] {
+    padding: 1rem 0.25rem;
+    border-bottom: 2px solid transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #64748b;
+    transition: all 0.2s;
+}
+
+.settings-tab:hover[b-4edn4a09uk] {
+    color: #334155;
+    border-bottom-color: #cbd5e1;
+}
+
+.settings-tab.active[b-4edn4a09uk] {
+    border-bottom-color: #2563eb;
+    color: #2563eb;
+}
+
+/* General Settings */
+.space-y-8 > * + *[b-4edn4a09uk] {
+    margin-top: 2rem;
+}
+
+.settings-card[b-4edn4a09uk] {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    padding: 1.5rem;
+}
+
+.settings-section-title[b-4edn4a09uk] {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 1.5rem;
+}
+
+.settings-form-grid[b-4edn4a09uk] {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .settings-form-grid[b-4edn4a09uk] {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.form-group[b-4edn4a09uk] {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label[b-4edn4a09uk] {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 0.5rem;
+}
+
+.form-input[b-4edn4a09uk] {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    outline: none;
+}
+
+.form-input:focus[b-4edn4a09uk] {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.form-select[b-4edn4a09uk] {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    outline: none;
+}
+
+.form-select:focus[b-4edn4a09uk] {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.md-col-span-2[b-4edn4a09uk] {
+    grid-column: span 2;
+}
+
+/* Checkbox styling */
+.checkbox-container[b-4edn4a09uk] {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-input[b-4edn4a09uk] {
+    border-radius: 0.25rem;
+    border: 1px solid #cbd5e1;
+    color: #2563eb;
+    outline: none;
+}
+
+.checkbox-input:focus[b-4edn4a09uk] {
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.checkbox-label[b-4edn4a09uk] {
+    margin-left: 0.5rem;
+    font-size: 0.875rem;
+    color: #334155;
+}
+
+/* Button styling */
+.button-group[b-4edn4a09uk] {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn-secondary[b-4edn4a09uk] {
+    padding: 0.5rem 1.5rem;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.btn-secondary:hover[b-4edn4a09uk] {
+    background-color: #f8fafc;
+}
+
+.btn-primary[b-4edn4a09uk] {
+    padding: 0.5rem 1.5rem;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover[b-4edn4a09uk] {
+    background-color: #1d4ed8;
+}
+
+/* Responsive grid for 3 columns */
+@media (min-width: 768px) {
+    .md-grid-cols-3[b-4edn4a09uk] {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Margin utilities */
+.mt-6[b-4edn4a09uk] {
+    margin-top: 1.5rem;
+}
+
+.mt-4[b-4edn4a09uk] {
+    margin-top: 1rem;
+}
+
+/* Space between checkboxes */
+.space-y-4 > * + *[b-4edn4a09uk] {
+    margin-top: 1rem;
+}

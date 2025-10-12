@@ -1,0 +1,230 @@
+@page "/orders"
+
+<PageTitle>Orders - Restaurant Suite</PageTitle>
+
+<!-- Page Header -->
+<div id="orders-header">
+    <div id="orders-header-content">
+        <div id="orders-header-text">
+            <h1 id="orders-title">Orders</h1>
+            <p id="orders-subtitle">Manage and track all restaurant orders.</p>
+        </div>
+        <button id="new-order-btn">
+            <svg id="new-order-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            New Order
+        </button>
+    </div>
+</div>
+
+<!-- Order Stats -->
+<div id="order-stats">
+    <div id="total-orders-card" class="order-stat-card">
+        <div class="order-stat-content">
+            <div>
+                <p class="order-stat-label">Total Orders</p>
+                <p class="order-stat-value">247</p>
+                <p id="total-orders-note" class="order-stat-note">+12% today</p>
+            </div>
+            <div id="total-orders-icon" class="order-stat-icon">
+                <svg id="total-orders-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="pending-orders-card" class="order-stat-card">
+        <div class="order-stat-content">
+            <div>
+                <p class="order-stat-label">Pending</p>
+                <p class="order-stat-value">18</p>
+                <p id="pending-orders-note" class="order-stat-note">Awaiting action</p>
+            </div>
+            <div id="pending-orders-icon" class="order-stat-icon">
+                <svg id="pending-orders-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="in-kitchen-orders-card" class="order-stat-card">
+        <div class="order-stat-content">
+            <div>
+                <p class="order-stat-label">In Kitchen</p>
+                <p class="order-stat-value">12</p>
+                <p id="in-kitchen-orders-note" class="order-stat-note">Being prepared</p>
+            </div>
+            <div id="in-kitchen-orders-icon" class="order-stat-icon">
+                <svg id="in-kitchen-orders-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="revenue-card" class="order-stat-card">
+        <div class="order-stat-content">
+            <div>
+                <p class="order-stat-label">Revenue</p>
+                <p class="order-stat-value">RSD 125k</p>
+                <p id="revenue-note" class="order-stat-note">+8.2% today</p>
+            </div>
+            <div id="revenue-icon" class="order-stat-icon">
+                <svg id="revenue-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters and Search -->
+<div id="orders-filters">
+    <div id="orders-filters-content">
+        <div id="orders-search-container">
+            <div id="orders-search-wrapper">
+                <input type="text" id="orders-search-input" placeholder="Search orders...">
+                <svg id="orders-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+        </div>
+        <select id="orders-status-filter">
+            <option id="orders-status-all" value="">All Status</option>
+            <option id="orders-status-pending" value="pending">Pending</option>
+            <option id="orders-status-in-kitchen" value="in-kitchen">In Kitchen</option>
+            <option id="orders-status-ready" value="ready">Ready</option>
+            <option id="orders-status-completed" value="completed">Completed</option>
+        </select>
+        <select id="orders-table-filter">
+            <option id="orders-table-all" value="">All Tables</option>
+            <option id="orders-table-1" value="1">Table 1</option>
+            <option id="orders-table-2" value="2">Table 2</option>
+            <option id="orders-table-3" value="3">Table 3</option>
+            <option id="orders-table-4" value="4">Table 4</option>
+            <option id="orders-table-5" value="5">Table 5</option>
+        </select>
+        <button id="orders-export-btn">Export</button>
+    </div>
+</div>
+
+<!-- Orders Table -->
+<div id="orders-table-container">
+    <div id="orders-table-wrapper">
+        <table id="orders-table">
+            <thead id="orders-table-head">
+                <tr id="orders-table-header-row">
+                    <th id="orders-table-header-order-id">Order ID</th>
+                    <th id="orders-table-header-table">Table</th>
+                    <th id="orders-table-header-customer">Customer</th>
+                    <th id="orders-table-header-items">Items</th>
+                    <th id="orders-table-header-total">Total</th>
+                    <th id="orders-table-header-status">Status</th>
+                    <th id="orders-table-header-time">Time</th>
+                    <th id="orders-table-header-actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="orders-table-body">
+                <tr id="order-row-1247" class="order-row">
+                    <td id="order-1247-id">#1247</td>
+                    <td id="order-1247-table">Table 5</td>
+                    <td id="order-1247-customer">John Smith</td>
+                    <td id="order-1247-items">3 items</td>
+                    <td id="order-1247-total">RSD 2,850</td>
+                    <td id="order-1247-status">
+                        <span id="order-1247-status-badge" class="order-status-badge">
+                            Completed
+                        </span>
+                    </td>
+                    <td id="order-1247-time">2 min ago</td>
+                    <td id="order-1247-actions" class="order-actions">
+                        <button id="order-1247-view-btn">View</button>
+                    </td>
+                </tr>
+                <tr id="order-row-1246" class="order-row">
+                    <td id="order-1246-id">#1246</td>
+                    <td id="order-1246-table">Table 12</td>
+                    <td id="order-1246-customer">Sarah Johnson</td>
+                    <td id="order-1246-items">2 items</td>
+                    <td id="order-1246-total">RSD 1,650</td>
+                    <td id="order-1246-status">
+                        <span id="order-1246-status-badge" class="order-status-badge">
+                            In Kitchen
+                        </span>
+                    </td>
+                    <td id="order-1246-time">5 min ago</td>
+                    <td id="order-1246-actions" class="order-actions">
+                        <button id="order-1246-view-btn">View</button>
+                    </td>
+                </tr>
+                <tr id="order-row-1245" class="order-row">
+                    <td id="order-1245-id">#1245</td>
+                    <td id="order-1245-table">Table 8</td>
+                    <td id="order-1245-customer">Mike Davis</td>
+                    <td id="order-1245-items">4 items</td>
+                    <td id="order-1245-total">RSD 3,200</td>
+                    <td id="order-1245-status">
+                        <span id="order-1245-status-badge" class="order-status-badge">
+                            Ready
+                        </span>
+                    </td>
+                    <td id="order-1245-time">8 min ago</td>
+                    <td id="order-1245-actions" class="order-actions">
+                        <button id="order-1245-view-btn">View</button>
+                    </td>
+                </tr>
+                <tr id="order-row-1244" class="order-row">
+                    <td id="order-1244-id">#1244</td>
+                    <td id="order-1244-table">Table 3</td>
+                    <td id="order-1244-customer">Emma Wilson</td>
+                    <td id="order-1244-items">5 items</td>
+                    <td id="order-1244-total">RSD 4,100</td>
+                    <td id="order-1244-status">
+                        <span id="order-1244-status-badge" class="order-status-badge">
+                            Served
+                        </span>
+                    </td>
+                    <td id="order-1244-time">12 min ago</td>
+                    <td id="order-1244-actions" class="order-actions">
+                        <button id="order-1244-view-btn">View</button>
+                    </td>
+                </tr>
+                <tr id="order-row-1243" class="order-row">
+                    <td id="order-1243-id">#1243</td>
+                    <td id="order-1243-table">Table 7</td>
+                    <td id="order-1243-customer">Robert Brown</td>
+                    <td id="order-1243-items">2 items</td>
+                    <td id="order-1243-total">RSD 1,400</td>
+                    <td id="order-1243-status">
+                        <span id="order-1243-status-badge" class="order-status-badge">
+                            Pending
+                        </span>
+                    </td>
+                    <td id="order-1243-time">15 min ago</td>
+                    <td id="order-1243-actions" class="order-actions">
+                        <button id="order-1243-process-btn">Process</button>
+                    </td>
+                </tr>
+                <tr id="order-row-1242" class="order-row">
+                    <td id="order-1242-id">#1242</td>
+                    <td id="order-1242-table">Table 9</td>
+                    <td id="order-1242-customer">Lisa Anderson</td>
+                    <td id="order-1242-items">3 items</td>
+                    <td id="order-1242-total">RSD 2,100</td>
+                    <td id="order-1242-status">
+                        <span id="order-1242-status-badge" class="order-status-badge">
+                            Completed
+                        </span>
+                    </td>
+                    <td id="order-1242-time">18 min ago</td>
+                    <td id="order-1242-actions" class="order-actions">
+                        <button id="order-1242-view-btn">View</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

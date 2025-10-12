@@ -1,0 +1,86 @@
+/* TestButton Component Styles */
+
+/* Container */
+.test-button-container[b-jxur49wl5m] {
+    padding: 2rem;
+}
+
+/* Title */
+.test-title[b-jxur49wl5m] {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.test-section-title[b-jxur49wl5m] {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* Button groups */
+.button-group[b-jxur49wl5m] {
+    margin-bottom: 1rem;
+}
+
+.button-group:last-child[b-jxur49wl5m] {
+    margin-bottom: 0;
+}
+
+.button-row[b-jxur49wl5m] {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Button styles */
+.primary-button[b-jxur49wl5m] {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.primary-button:hover[b-jxur49wl5m] {
+    background-color: #1d4ed8;
+}
+
+.test-button[b-jxur49wl5m] {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.test-button:hover[b-jxur49wl5m] {
+    background-color: #1d4ed8;
+}
+
+/* Button states */
+.state-button[b-jxur49wl5m] {
+    padding: 0.5rem 1rem;
+    color: white;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.state-button-normal[b-jxur49wl5m] {
+    background-color: #2563eb;
+}
+
+.state-button-normal:hover[b-jxur49wl5m] {
+    background-color: #1d4ed8;
+}
+
+.state-button-hover[b-jxur49wl5m] {
+    background-color: #1d4ed8;
+}
+
+.state-button-light[b-jxur49wl5m] {
+    background-color: #3b82f6;
+}

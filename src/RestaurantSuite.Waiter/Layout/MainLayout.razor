@@ -1,0 +1,82 @@
+@inherits LayoutComponentBase
+
+<PageTitle>Restaurant Suite - Waiter Portal</PageTitle>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<div class="flex min-h-screen bg-neutral-50">
+    <!-- Sidebar - Desktop -->
+    <aside class="@GetSidebarClasses()" @onclick:stopPropagation="true">
+        <NavMenu />
+    </aside>
+
+    <!-- Mobile Overlay -->
+    @if (sidebarOpen)
+    {
+        <div class="sidebar-overlay" @onclick="ToggleSidebar" aria-label="Close menu"></div>
+    }
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-h-screen lg:ml-64">
+        <!-- Top Navigation Bar -->
+        <header class="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-neutral-200 shadow-soft">
+            <div class="h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                <!-- Left Section -->
+                <div class="flex items-center gap-3">
+                    <!-- Mobile Menu Button -->
+                    <button
+                        @onclick="ToggleSidebar"
+                        class="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-lg text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 transition-all duration-200"
+                        aria-label="Toggle navigation menu"
+                        aria-expanded="@sidebarOpen">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+
+                    <!-- Page Title -->
+                    <h1 class="text-base sm:text-lg font-semibold text-neutral-900">Waiter Portal</h1>
+                </div>
+
+                <!-- Right Section -->
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <!-- Help Link -->
+                    <a
+                        href="https://learn.microsoft.com/aspnet/core/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 transition-all duration-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v-4m0-4h.01"/>
+                        </svg>
+                        <span class="hidden sm:inline">Help</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main id="main-content" class="flex-1 p-4 sm:p-6 lg:p-8 animate-slide-in-bottom">
+            <div class="max-w-7xl mx-auto">
+                @Body
+            </div>
+        </main>
+    </div>
+</div>
+
+@code {
+    private bool sidebarOpen = false;
+
+    private void ToggleSidebar()
+    {
+        sidebarOpen = !sidebarOpen;
+    }
+
+    private string GetSidebarClasses()
+    {
+        var baseClasses = "fixed top-0 left-0 bottom-0 z-30 w-64 bg-white border-r border-neutral-200 shadow-soft-md overflow-y-auto scrollbar-thin transition-transform duration-300 ease-in-out";
+        var mobileClasses = sidebarOpen ? "translate-x-0" : "-translate-x-full";
+        return $"{baseClasses} lg:translate-x-0 {mobileClasses}";
+    }
+}

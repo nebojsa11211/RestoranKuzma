@@ -1,0 +1,206 @@
+﻿@page "/"
+
+<PageTitle>Restaurant Kuzma - Guest Portal</PageTitle>
+
+<!-- Main Container -->
+<div id="home-page-container">
+
+    <!-- Hero Section -->
+    <section id="home-hero-section">
+        <div id="home-hero-overlay"></div>
+        <div id="home-hero-content-wrapper">
+            <header id="home-hero-header">
+                <h1 id="home-hero-title">Welcome to Restaurant Kuzma</h1>
+                <p id="home-hero-subtitle">Experience exceptional dining with our digital guest portal. Browse menus, place orders, and enjoy personalized service.</p>
+                <nav id="home-hero-navigation">
+                    <button id="home-hero-menu-btn" 
+                            @onclick="NavigateToMenu" 
+                            aria-label="Navigate to menu page">
+                        <svg id="home-hero-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        <span id="home-hero-menu-text">View Menu</span>
+                    </button>
+                    <button id="home-hero-reserve-btn" 
+                            @onclick="NavigateToReserveTable" 
+                            aria-label="Navigate to table reservation page">
+                        <svg id="home-hero-reserve-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 7V3a4 4 0 118 0v4m-4 8a2 2 0 100 4 2 2 0 000-4zm-6-4a6 6 0 1112 0v3h-2V11a4 4 0 00-8 0v2H6v-3z"/>
+                        </svg>
+                        <span id="home-hero-reserve-text">Reserve Table</span>
+                    </button>
+                    <button id="home-hero-order-btn" 
+                            @onclick="NavigateToOrder" 
+                            aria-label="Navigate to order page">
+                        <svg id="home-hero-order-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"/>
+                        </svg>
+                        <span id="home-hero-order-text">Place Order</span>
+                    </button>
+                </nav>
+            </header>
+        </div>
+    </section>
+
+    <!-- Quick Actions Grid -->
+    <section id="home-quick-actions-section">
+        <div id="home-quick-actions-grid-container">
+            
+            <!-- Menu Card -->
+            <article id="home-menu-card" class="home-action-card">
+                <div id="home-menu-card-image-wrapper">
+                    <div id="home-menu-card-overlay"></div>
+                    <div id="home-menu-card-icon-container">
+                        <svg id="home-menu-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                </div>
+                <div id="home-menu-card-content-wrapper">
+                    <header id="home-menu-card-header">
+                        <h2 id="home-menu-card-title">Browse Menu</h2>
+                        <p id="home-menu-card-description">Discover our delicious dishes, beverages, and daily specials.</p>
+                    </header>
+                    <button id="home-menu-card-action-btn" 
+                            @onclick="NavigateToMenu" 
+                            aria-label="Explore restaurant menu">
+                        <span id="home-menu-card-action-text">Explore Menu</span>
+                        <svg id="home-menu-card-action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+            </article>
+
+            <!-- Order Card -->
+            <article id="home-order-card" class="home-action-card">
+                <div id="home-order-card-image-wrapper">
+                    <div id="home-order-card-overlay"></div>
+                    <div id="home-order-card-icon-container">
+                        <svg id="home-order-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"/>
+                        </svg>
+                    </div>
+                </div>
+                <div id="home-order-card-content-wrapper">
+                    <header id="home-order-card-header">
+                        <h2 id="home-order-card-title">Place Order</h2>
+                        <p id="home-order-card-description">Order your favorite dishes directly from your table.</p>
+                    </header>
+                    <button id="home-order-card-action-btn" 
+                            @onclick="NavigateToOrder" 
+                            aria-label="Start ordering food">
+                        <span id="home-order-card-action-text">Start Ordering</span>
+                        <svg id="home-order-card-action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+            </article>
+
+            <!-- Service Card -->
+            <article id="home-service-card" class="home-action-card">
+                <div id="home-service-card-image-wrapper">
+                    <div id="home-service-card-overlay"></div>
+                    <div id="home-service-card-icon-container">
+                        <svg id="home-service-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div id="home-service-card-content-wrapper">
+                    <header id="home-service-card-header">
+                        <h2 id="home-service-card-title">Call Service</h2>
+                        <p id="home-service-card-description">Request assistance from our staff directly.</p>
+                    </header>
+                    <button id="home-service-card-action-btn" 
+                            @onclick="CallService" 
+                            aria-label="Call waiter for assistance">
+                        <span id="home-service-card-action-text">Call Waiter</span>
+                        <svg id="home-service-card-action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 012 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                    </button>
+                </div>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- Restaurant Info Section -->
+    <section id="home-restaurant-info-section">
+        <header id="home-restaurant-info-header">
+            <h2 id="home-restaurant-info-title">Restaurant Information</h2>
+        </header>
+        <div id="home-restaurant-info-grid-container">
+            
+            <!-- Hours of Operation -->
+            <div id="home-restaurant-hours-container">
+                <h3 id="home-restaurant-hours-title">Hours of Operation</h3>
+                <div id="home-restaurant-hours-list-container">
+                    <div id="home-restaurant-hours-weekday-row">
+                        <span id="home-restaurant-hours-weekday-label">Monday - Friday</span>
+                        <span id="home-restaurant-hours-weekday-time">11:00 AM - 10:00 PM</span>
+                    </div>
+                    <div id="home-restaurant-hours-weekend-row">
+                        <span id="home-restaurant-hours-weekend-label">Saturday - Sunday</span>
+                        <span id="home-restaurant-hours-weekend-time">10:00 AM - 11:00 PM</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div id="home-restaurant-contact-container">
+                <h3 id="home-restaurant-contact-title">Contact Information</h3>
+                <div id="home-restaurant-contact-list-container">
+                    <div id="home-restaurant-contact-phone-row">
+                        <svg id="home-restaurant-contact-phone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 012 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                        <span id="home-restaurant-contact-phone-text">+1 (555) 123-4567</span>
+                    </div>
+                    <div id="home-restaurant-contact-address-row">
+                        <svg id="home-restaurant-contact-address-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span id="home-restaurant-contact-address-text">123 Main Street, City, State 12345</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Special Offers Section -->
+    <section id="home-special-offers-section">
+        <header id="home-special-offers-header">
+            <svg id="home-special-offers-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <h2 id="home-special-offers-title">Today's Special Offers</h2>
+        </header>
+        <div id="home-special-offers-grid-container">
+            
+            <!-- Happy Hour Offer -->
+            <article id="home-special-offer-happy-hour-card" class="home-special-offer-card">
+                <header id="home-special-offer-happy-hour-header">
+                    <h3 id="home-special-offer-happy-hour-title">Happy Hour</h3>
+                    <p id="home-special-offer-happy-hour-time">3:00 PM - 6:00 PM</p>
+                </header>
+                <p id="home-special-offer-happy-hour-description">20% off all appetizers and drinks</p>
+            </article>
+
+            <!-- Chef's Special Offer -->
+            <article id="home-special-offer-chef-special-card" class="home-special-offer-card">
+                <header id="home-special-offer-chef-special-header">
+                    <h3 id="home-special-offer-chef-special-title">Chef's Special</h3>
+                    <p id="home-special-offer-chef-special-time">Limited time</p>
+                </header>
+                <p id="home-special-offer-chef-special-description">Grilled Salmon with seasonal vegetables</p>
+            </article>
+
+        </div>
+    </section>
+
+</div>

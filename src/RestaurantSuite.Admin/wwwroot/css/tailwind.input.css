@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Base Styles */
+@layer base {
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-neutral-50 text-neutral-900;
+  }
+}
+
+/* Custom Component Styles */
+@layer components {
+  /* Skip Link Accessibility */
+  .skip-to-content {
+    @apply absolute -left-96 top-0 z-[10000] px-4 py-2 bg-primary-600 text-white font-semibold rounded-lg;
+    @apply focus:left-4 focus:top-4 transition-all;
+  }
+
+  /* Sidebar Overlay */
+  .sidebar-overlay {
+    @apply fixed inset-0 bg-black/50 z-[1020] animate-fade-in;
+  }
+
+  /* Blazor Error UI */
+  #blazor-error-ui {
+    @apply fixed bottom-0 left-0 w-full bg-error-50 border-t-4 border-error-600 px-6 py-4 shadow-soft-lg z-[10000] text-error-700 font-medium;
+    display: none;
+  }
+
+  #blazor-error-ui .dismiss {
+    @apply absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-2xl text-error-600 bg-transparent border-0 p-2 rounded-md hover:bg-error-100 transition-colors;
+  }
+
+  .blazor-error-boundary {
+    @apply bg-error-50 px-6 py-6 rounded-lg border-2 border-error-200 text-error-700 my-4;
+  }
+
+  .blazor-error-boundary::after {
+    content: "An error has occurred.";
+    @apply font-semibold;
+  }
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-neutral-100;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-neutral-300 rounded-full;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-400;
+  }
+}
+
+/* Animations for reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .sidebar,
+  .navbar,
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    font-size: 12pt;
+  }
+}

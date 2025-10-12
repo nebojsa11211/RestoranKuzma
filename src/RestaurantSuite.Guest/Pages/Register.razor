@@ -1,0 +1,250 @@
+@page "/register"
+@using RestaurantSuite.Guest.Services
+@using RestaurantSuite.Guest.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthService AuthService
+@inject CustomAuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Register - Restaurant Suite</PageTitle>
+
+<div class="register-container">
+    <div class="register-card">
+        <h2>Create Account</h2>
+        <p class="subtitle">Join Restaurant Suite today</p>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-error">
+                @errorMessage
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="alert alert-success">
+                @successMessage
+            </div>
+        }
+
+        <EditForm Model="@registerRequest" OnValidSubmit="HandleRegister">
+            <DataAnnotationsValidator />
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <InputText id="firstName" @bind-Value="registerRequest.FirstName" class="form-control" placeholder="First name" />
+                    <ValidationMessage For="@(() => registerRequest.FirstName)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <InputText id="lastName" @bind-Value="registerRequest.LastName" class="form-control" placeholder="Last name" />
+                    <ValidationMessage For="@(() => registerRequest.LastName)" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <InputText id="email" @bind-Value="registerRequest.Email" class="form-control" placeholder="Enter your email" />
+                <ValidationMessage For="@(() => registerRequest.Email)" />
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone (Optional)</label>
+                <InputText id="phone" @bind-Value="registerRequest.Phone" class="form-control" placeholder="Enter your phone number" />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <InputText id="password" type="password" @bind-Value="registerRequest.Password" class="form-control" placeholder="Create a password (min 6 characters)" />
+                <ValidationMessage For="@(() => registerRequest.Password)" />
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <InputText id="confirmPassword" type="password" @bind-Value="confirmPassword" class="form-control" placeholder="Confirm your password" />
+                @if (showPasswordMismatch)
+                {
+                    <span class="validation-message">Passwords do not match</span>
+                }
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <span>Creating account...</span>
+                }
+                else
+                {
+                    <span>Create Account</span>
+                }
+            </button>
+        </EditForm>
+
+        <div class="register-footer">
+            <p>Already have an account? <a href="/login">Login here</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .register-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 20px;
+    }
+
+    .register-card {
+        background: white;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .register-card h2 {
+        margin-bottom: 10px;
+        color: #333;
+        text-align: center;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 30px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+
+    .btn-block {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+    }
+
+    .alert {
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .alert-error {
+        background-color: #fee;
+        color: #c33;
+        border: 1px solid #fcc;
+    }
+
+    .alert-success {
+        background-color: #efe;
+        color: #3c3;
+        border: 1px solid #cfc;
+    }
+
+    .validation-message {
+        color: #c33;
+        font-size: 12px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .register-footer {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .register-footer a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .register-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+@code {
+    private RegisterRequest registerRequest = new() { Role = "Guest" };
+    private string confirmPassword = string.Empty;
+    private string? errorMessage;
+    private string? successMessage;
+    private bool isLoading = false;
+    private bool showPasswordMismatch = false;
+
+    private async Task HandleRegister()
+    {
+        // Validate password match
+        if (registerRequest.Password != confirmPassword)
+        {
+            showPasswordMismatch = true;
+            return;
+        }
+
+        showPasswordMismatch = false;
+        isLoading = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            var result = await AuthService.RegisterAsync(registerRequest);
+
+            if (result.Success)
+            {
+                successMessage = "Registration successful! Redirecting to login...";
+
+                // Notify authentication state changed
+                if (!string.IsNullOrEmpty(result.AccessToken))
+                {
+                    AuthStateProvider.NotifyUserAuthentication(result.AccessToken);
+                }
+
+                await Task.Delay(1500); // Brief delay to show success message
+                NavigationManager.NavigateTo("/", forceLoad: true);
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Registration failed. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

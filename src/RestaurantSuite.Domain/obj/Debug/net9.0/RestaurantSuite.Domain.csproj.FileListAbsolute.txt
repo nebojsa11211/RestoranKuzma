@@ -1,0 +1,11 @@
+D:\KimiAi\RestoranKuzma\RestoranKuzma\src\RestaurantSuite.Domain\bin\Debug\net9.0\RestaurantSuite.Domain.deps.json
+D:\KimiAi\RestoranKuzma\RestoranKuzma\src\RestaurantSuite.Domain\bin\Debug\net9.0\RestaurantSuite.Domain.dll
+D:\KimiAi\RestoranKuzma\RestoranKuzma\src\RestaurantSuite.Domain\bin\Debug\net9.0\RestaurantSuite.Domain.pdb
+D:\KimiAi\RestoranKuzma\RestoranKuzma\src\RestaurantSuite.Domain\obj\Debug\net9.0\RestaurantSuite.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\KimiAi\RestoranKuzma\RestoranKuzma\src\RestaurantSuite.Domain\obj\Debug\net9.0\RestaurantSuite.Domain.AssemblyInfoInputs.cache
+D:\KimiAi\RestoranKuzma\RestoranKuzma\src\RestaurantSuite.Domain\obj\Debug\net9.0\RestaurantSuite.Domain.AssemblyInfo.cs
+D:\KimiAi\RestoranKuzma\RestoranKuzma\src\RestaurantSuite.Domain\obj\Debug\net9.0\RestaurantSuite.Domain.csproj.CoreCompileInputs.cache
+D:\KimiAi\RestoranKuzma\RestoranKuzma\src\RestaurantSuite.Domain\obj\Debug\net9.0\RestaurantSuite.Domain.dll
+D:\KimiAi\RestoranKuzma\RestoranKuzma\src\RestaurantSuite.Domain\obj\Debug\net9.0\refint\RestaurantSuite.Domain.dll
+D:\KimiAi\RestoranKuzma\RestoranKuzma\src\RestaurantSuite.Domain\obj\Debug\net9.0\RestaurantSuite.Domain.pdb
+D:\KimiAi\RestoranKuzma\RestoranKuzma\src\RestaurantSuite.Domain\obj\Debug\net9.0\ref\RestaurantSuite.Domain.dll

@@ -1,0 +1,170 @@
+@page "/reserve-table"
+
+<PageTitle>Reserve Table - Restaurant Kuzma</PageTitle>
+
+<div id="reserve-table-page-container">
+    <!-- Header Section -->
+    <div id="reserve-table-header-section">
+        <h1 id="reserve-table-page-title">Reserve a Table</h1>
+        <p id="reserve-table-page-subtitle">Book your table for an exceptional dining experience</p>
+    </div>
+
+    <!-- Reservation Form -->
+    <div id="reservation-form-container">
+        <EditForm id="reservation-form" Model="@reservationRequest" OnValidSubmit="HandleReservation">
+            <DataAnnotationsValidator />
+            <ValidationSummary id="reservation-validation-summary" />
+
+            <div id="reservation-form-grid">
+                <!-- Guest Information -->
+                <div id="guest-information-section">
+                    <h3 id="guest-information-title">Guest Information</h3>
+                    
+                    <div id="guest-name-field">
+                        <label id="guest-name-label" for="guestName">Full Name *</label>
+                        <InputText id="guestName" @bind-Value="reservationRequest.GuestName" />
+                        <ValidationMessage id="guest-name-validation" For="() => reservationRequest.GuestName" />
+                    </div>
+
+                    <div id="guest-email-field">
+                        <label id="guest-email-label" for="email">Email *</label>
+                        <InputText id="email" @bind-Value="reservationRequest.Email" />
+                        <ValidationMessage id="guest-email-validation" For="() => reservationRequest.Email" />
+                    </div>
+
+                    <div id="guest-phone-field">
+                        <label id="guest-phone-label" for="phone">Phone Number *</label>
+                        <InputText id="phone" @bind-Value="reservationRequest.PhoneNumber" />
+                        <ValidationMessage id="guest-phone-validation" For="() => reservationRequest.PhoneNumber" />
+                    </div>
+                </div>
+
+                <!-- Reservation Details -->
+                <div id="reservation-details-section">
+                    <h3 id="reservation-details-title">Reservation Details</h3>
+                    
+                    <div id="reservation-date-field">
+                        <label id="reservation-date-label" for="date">Date *</label>
+                        <InputDate id="date" @bind-Value="reservationRequest.ReservationDate" 
+                                   min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                        <ValidationMessage id="reservation-date-validation" For="() => reservationRequest.ReservationDate" />
+                    </div>
+
+                    <div id="reservation-time-field">
+                        <label id="reservation-time-label" for="time">Time *</label>
+                        <InputSelect id="time" @bind-Value="reservationRequest.ReservationTime">
+                            <option id="time-placeholder" value="">Select a time</option>
+                            @foreach (var time in availableTimes)
+                            {
+                                <option id="time-option-@time" value="@time">@time</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage id="reservation-time-validation" For="() => reservationRequest.ReservationTime" />
+                    </div>
+
+                    <div id="reservation-guests-field">
+                        <label id="reservation-guests-label" for="guests">Number of Guests *</label>
+                        <InputSelect id="guests" @bind-Value="reservationRequest.NumberOfGuests">
+                            @for (int i = 1; i <= 10; i++)
+                            {
+                                <option id="guests-option-@i" value="@i">@i @(i == 1 ? "Guest" : "Guests")</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage id="reservation-guests-validation" For="() => reservationRequest.NumberOfGuests" />
+                    </div>
+
+                    <div id="reservation-special-requests-field">
+                        <label id="reservation-special-requests-label" for="specialRequests">Special Requests</label>
+                        <InputTextArea id="specialRequests" @bind-Value="reservationRequest.SpecialRequests" 
+                                       rows="3"
+                                       placeholder="Any dietary restrictions, special occasions, or other requests..." />
+                    </div>
+                </div>
+            </div>
+
+            <div id="reservation-form-actions">
+                <button id="reservation-submit-btn" type="submit" 
+                        disabled="@isSubmitting">
+                    @if (isSubmitting)
+                    {
+                        <svg id="reservation-submit-spinner" fill="none" viewBox="0 0 24 24">
+                            <circle id="reservation-spinner-circle" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path id="reservation-spinner-path" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span id="reservation-submit-loading-text">Reserving Table...</span>
+                    }
+                    else
+                    {
+                        <svg id="reservation-submit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 7V3a4 4 0 118 0v4m-4 8a2 2 0 100 4 2 2 0 000-4zm-6-4a6 6 0 1112 0v3h-2V11a4 4 0 00-8 0v2H6v-3z"/>
+                        </svg>
+                        <span id="reservation-submit-text">Reserve Table</span>
+                    }
+                </button>
+            </div>
+        </EditForm>
+    </div>
+
+    <!-- Restaurant Information -->
+    <div id="reservation-policy-section">
+        <h3 id="reservation-policy-title">Reservation Policy</h3>
+        <div id="reservation-policy-grid">
+            <div id="reservation-policy-hours">
+                <h4 id="reservation-policy-hours-title">Hours</h4>
+                <ul id="reservation-policy-hours-list">
+                    <li id="reservation-policy-weekday-hours">Monday - Friday: 11:00 AM - 10:00 PM</li>
+                    <li id="reservation-policy-weekend-hours">Saturday - Sunday: 10:00 AM - 11:00 PM</li>
+                </ul>
+            </div>
+            <div id="reservation-policy-notes">
+                <h4 id="reservation-policy-notes-title">Important Notes</h4>
+                <ul id="reservation-policy-notes-list">
+                    <li id="reservation-policy-hold-time">• Reservations are held for 15 minutes</li>
+                    <li id="reservation-policy-large-parties">• Large parties (8+) require advance notice</li>
+                    <li id="reservation-policy-same-day">• Call us for same-day reservations</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+@if (showSuccessModal)
+{
+    <div class="@GetModalDisplayClass()">
+        <div class="bg-white rounded-xl shadow-soft-xl p-8 max-w-md mx-4">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-neutral-900 mb-2">Reservation Confirmed!</h3>
+                <p class="text-neutral-600 mb-6">
+                    Your table has been reserved for @reservationRequest.NumberOfGuests guests on 
+                    @reservationRequest.ReservationDate.ToString("MMMM dd, yyyy") at @reservationRequest.ReservationTime.
+                </p>
+                <div class="bg-neutral-50 rounded-lg p-4 mb-6 text-left">
+                    <h4 class="font-medium text-neutral-900 mb-2">Reservation Details:</h4>
+                    <p class="text-sm text-neutral-600"><strong>Name:</strong> @reservationRequest.GuestName</p>
+                    <p class="text-sm text-neutral-600"><strong>Email:</strong> @reservationRequest.Email</p>
+                    <p class="text-sm text-neutral-600"><strong>Phone:</strong> @reservationRequest.PhoneNumber</p>
+                    @if (!string.IsNullOrEmpty(reservationRequest.SpecialRequests))
+                    {
+                        <p class="text-sm text-neutral-600 mt-2"><strong>Special Requests:</strong> @reservationRequest.SpecialRequests</p>
+                    }
+                </div>
+                <div class="flex gap-3">
+                    <button @onclick="CloseSuccessModal" 
+                            class="flex-1 px-4 py-2 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 transition-all duration-200">
+                        Continue
+                    </button>
+                    <button @onclick='() => NavigationManager.NavigateTo("/")' 
+                            class="flex-1 px-4 py-2 bg-neutral-200 text-neutral-800 font-medium rounded-lg hover:bg-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 transition-all duration-200">
+                        Go Home
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

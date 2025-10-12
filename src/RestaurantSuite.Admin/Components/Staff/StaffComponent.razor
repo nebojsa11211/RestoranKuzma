@@ -1,0 +1,383 @@
+@* Staff Management Component - Working Modular Version *@
+@* This is a reusable component, not a page *@
+@using RestaurantSuite.Admin.Services
+@using RestaurantSuite.Application.DTOs
+@using RestaurantSuite.Application.Commands
+@using RestaurantSuite.Domain.Enums
+@inject ApiService ApiService
+
+<PageTitle>Staff Management - Restaurant Suite</PageTitle>
+
+<!-- Use the modular CSS -->
+<link rel="stylesheet" href="css/staff.css" />
+
+<!-- Main Staff Content -->
+<div id="staff-header" class="mb-8">
+    <div id="staff-header-content" class="flex items-center justify-between">
+        <div id="staff-header-text">
+            <h1 id="staff-title" class="text-3xl font-bold text-slate-900">Staff Management</h1>
+            <p id="staff-subtitle" class="text-slate-600 mt-2">Manage restaurant staff, schedules, and permissions.</p>
+        </div>
+        <button id="add-staff-btn" @onclick="ShowAddStaffModal" class="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+            <span class="w-5 h-5 mr-2">+</span>
+            Add Staff Member
+        </button>
+    </div>
+</div>
+
+<!-- Staff Stats -->
+<div id="staff-stats" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div id="total-staff-card" class="staff-stat-card">
+        <div class="staff-stat-content">
+            <div>
+                <p class="staff-stat-label">Total Staff</p>
+                <p class="staff-stat-value">@TotalStaffCount</p>
+                <p class="staff-stat-note">All departments</p>
+            </div>
+            <div class="staff-stat-icon bg-blue-100">
+                <span class="w-6 h-6 text-blue-600 text-2xl font-bold">T</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="online-staff-card" class="staff-stat-card">
+        <div class="staff-stat-content">
+            <div>
+                <p class="staff-stat-label">Currently Online</p>
+                <p class="staff-stat-value">@OnlineStaffCount</p>
+                <p class="staff-stat-note text-green-600">50% of staff</p>
+            </div>
+            <div class="staff-stat-icon bg-green-100">
+                <span class="w-6 h-6 text-green-600 text-2xl font-bold">O</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="break-staff-card" class="staff-stat-card">
+        <div class="staff-stat-content">
+            <div>
+                <p class="staff-stat-label">On Break</p>
+                <p class="staff-stat-value">@BreakStaffCount</p>
+                <p class="staff-stat-note text-yellow-600">Scheduled breaks</p>
+            </div>
+            <div class="staff-stat-icon bg-yellow-100">
+                <span class="w-6 h-6 text-yellow-600 text-2xl font-bold">B</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="offduty-staff-card" class="staff-stat-card">
+        <div class="staff-stat-content">
+            <div>
+                <p class="staff-stat-label">Off Duty</p>
+                <p class="staff-stat-value">@OffDutyStaffCount</p>
+                <p class="staff-stat-note text-slate-500">Not scheduled</p>
+            </div>
+            <div class="staff-stat-icon bg-slate-100">
+                <span class="w-6 h-6 text-slate-600 text-2xl font-bold">D</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Department Tabs -->
+<div id="department-tabs" class="bg-white rounded-xl shadow-sm border border-slate-200 mb-6">
+    <div id="department-tabs-header" class="border-b border-slate-200">
+        <nav id="department-tabs-nav" class="flex space-x-8 px-6" aria-label="Tabs">
+            <button class="department-tab active" @onclick="SetActiveTabAll">All Staff</button>
+            <button class="department-tab" @onclick="SetActiveTabWaiters">Waiters</button>
+            <button class="department-tab" @onclick="SetActiveTabChefs">Chefs</button>
+            <button class="department-tab" @onclick="SetActiveTabBartenders">Bartenders</button>
+            <button class="department-tab" @onclick="SetActiveTabManagement">Management</button>
+        </nav>
+    </div>
+</div>
+
+<!-- Staff Grid -->
+<div class="staff-grid">
+    @foreach (var staff in staffMembers)
+    {
+        var avatarColor = GetAvatarColor(staff.Id);
+        var statusColor = GetStatusColor(staff.Status);
+        var statusBadgeColor = GetStatusBadgeColor(staff.Status);
+        
+        <div class="staff-card">
+            <div class="staff-card-header">
+                <div class="staff-card-info">
+                    <div class="staff-avatar @avatarColor">
+                        <span>@GetInitials(staff.FullName)</span>
+                    </div>
+                    <div>
+                        <h3 class="staff-name">@staff.FullName</h3>
+                        <p class="staff-role">@staff.Role</p>
+                    </div>
+                </div>
+                <div class="staff-status">
+                    <div class="status-dot @statusColor"></div>
+                    <span class="text-xs text-slate-500">@staff.Status</span>
+                </div>
+            </div>
+            
+            <div class="staff-details">
+                <div class="staff-detail-row">
+                    <span class="staff-detail-label">Employee ID</span>
+                    <span class="staff-detail-value">@staff.EmployeeId</span>
+                </div>
+                <div class="staff-detail-row">
+                    <span class="staff-detail-label">Phone</span>
+                    <span class="staff-detail-value">@staff.Phone</span>
+                </div>
+                <div class="staff-detail-row">
+                    <span class="staff-detail-label">Schedule</span>
+                    <span class="staff-detail-value">@(staff.Status == "Part-time" ? "Part-time" : "Full-time")</span>
+                </div>
+                <div class="staff-detail-row">
+                    <span class="staff-detail-label">Status</span>
+                    <span class="staff-status-badge @statusBadgeColor">
+                        @staff.Status
+                    </span>
+                </div>
+            </div>
+            
+            <div class="staff-card-actions">
+                <button class="staff-edit-btn" @onclick="ShowEditModal">Edit</button>
+                <button class="staff-view-btn" @onclick="ShowViewModal">View</button>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Add Staff Modal -->
+@if (showAddModal)
+{
+    <div class="modal-overlay" @onclick="HideAddStaffModal">
+        <div class="modal" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <div class="modal-title-row">
+                    <h3 class="modal-title">Add New Staff Member</h3>
+                    <button class="modal-close" @onclick="HideAddStaffModal">
+                        <span class="w-6 h-6 text-gray-400 font-bold">X</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <EditForm Model="@newStaff" OnValidSubmit="HandleAddStaff" class="modal-form">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    
+                    <div class="modal-form-fields">
+                        <div class="form-group">
+                            <label class="form-label" for="firstName">First Name</label>
+                            <InputText id="firstName" @bind-Value="newStaff.FirstName" class="form-input" required />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="lastName">Last Name</label>
+                            <InputText id="lastName" @bind-Value="newStaff.LastName" class="form-input" required />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="email">Email</label>
+                            <InputText id="email" @bind-Value="newStaff.Email" class="form-input" type="email" required />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="phone">Phone</label>
+                            <InputText id="phone" @bind-Value="newStaff.Phone" class="form-input" />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="role">Role</label>
+                            <InputSelect id="role" @bind-Value="newStaff.Role" class="form-select" required>
+                                <option value="">Select Role</option>
+                                <option value="@UserRole.Waiter">Waiter</option>
+                                <option value="@UserRole.Chef">Chef</option>
+                                <option value="@UserRole.Admin">Admin</option>
+                            </InputSelect>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="modal-cancel-btn" @onclick="HideAddStaffModal">Cancel</button>
+                        <button type="submit" class="modal-submit-btn">Add Staff Member</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<StaffMemberDto> staffMembers = new();
+    private bool showAddModal = false;
+    private StaffMemberDto newStaff = new();
+    private string activeTab = "all";
+
+    // Computed properties for stats
+    private int TotalStaffCount => staffMembers.Count;
+    private int OnlineStaffCount => staffMembers.Count(s => s.Status == "Online");
+    private int BreakStaffCount => staffMembers.Count(s => s.Status == "On Break");
+    private int OffDutyStaffCount => staffMembers.Count(s => s.Status == "Off Duty");
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStaffMembers();
+    }
+
+    private async Task LoadStaffMembers()
+    {
+        try
+        {
+            staffMembers = await ApiService.GetStaffMembersAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading staff members: {ex.Message}");
+            staffMembers = new List<StaffMemberDto>();
+        }
+    }
+
+    private void ShowAddStaffModal()
+    {
+        newStaff = new StaffMemberDto
+        {
+            Status = "Active",
+            IsActive = true
+        };
+        showAddModal = true;
+    }
+
+    private void HideAddStaffModal()
+    {
+        showAddModal = false;
+        newStaff = new StaffMemberDto();
+    }
+
+    private void ShowEditModal()
+    {
+        Console.WriteLine("Edit modal placeholder");
+        // TODO: Implement actual edit modal
+    }
+
+    private void ShowViewModal()
+    {
+        Console.WriteLine("View modal placeholder");
+        // TODO: Implement actual view modal
+    }
+
+    private async Task HandleAddStaff()
+    {
+        Console.WriteLine("=== HandleAddStaff STARTED ===");
+        
+        try
+        {
+            // Validate required fields
+            if (string.IsNullOrWhiteSpace(newStaff.FirstName) || 
+                string.IsNullOrWhiteSpace(newStaff.LastName) || 
+                string.IsNullOrWhiteSpace(newStaff.Email))
+            {
+                Console.WriteLine("❌ Validation failed: Missing required fields - First Name, Last Name, or Email is empty");
+                return;
+            }
+
+            // Validate email format
+            if (!newStaff.Email.Contains("@") || !newStaff.Email.Contains("."))
+            {
+                Console.WriteLine("❌ Validation failed: Invalid email format");
+                return;
+            }
+
+            Console.WriteLine("✅ Validation passed");
+
+            // Create the command for adding new staff member
+            var createCommand = new CreateStaffMemberCommand
+            {
+                FirstName = newStaff.FirstName.Trim(),
+                LastName = newStaff.LastName.Trim(),
+                Email = newStaff.Email.Trim(),
+                Phone = newStaff.Phone?.Trim(),
+                Role = newStaff.Role,
+                Status = "Active",
+                IsActive = true
+            };
+
+            Console.WriteLine($"🚀 Creating staff member: {createCommand.FirstName} {createCommand.LastName}, Email: {createCommand.Email}, Role: {createCommand.Role}");
+
+            // Call the API to create the staff member
+            Console.WriteLine("📞 Calling ApiService.CreateStaffMemberAsync...");
+            var newStaffId = await ApiService.CreateStaffMemberAsync(createCommand);
+            
+            Console.WriteLine($"✅ Staff member created with ID: {newStaffId}");
+            
+            // Refresh the staff list from the database to get the complete data
+            Console.WriteLine("🔄 Refreshing staff list...");
+            await LoadStaffMembers();
+            
+            HideAddStaffModal();
+            
+            Console.WriteLine($"🎉 Staff member {newStaff.FirstName} {newStaff.LastName} added successfully with ID: {newStaffId}");
+        }
+        catch (HttpRequestException httpEx)
+        {
+            Console.WriteLine($"❌ HTTP Error adding staff member: {httpEx.Message}");
+            Console.WriteLine($"❌ Status Code: {httpEx.StatusCode}");
+            Console.WriteLine($"❌ Stack trace: {httpEx.StackTrace}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error adding staff member: {ex.Message}");
+            Console.WriteLine($"❌ Exception Type: {ex.GetType().FullName}");
+            Console.WriteLine($"❌ Stack trace: {ex.StackTrace}");
+        }
+        
+        Console.WriteLine("=== HandleAddStaff FINISHED ===");
+    }
+
+    // Tab methods
+    private void SetActiveTabAll() => activeTab = "all";
+    private void SetActiveTabWaiters() => activeTab = "waiters";
+    private void SetActiveTabChefs() => activeTab = "chefs";
+    private void SetActiveTabBartenders() => activeTab = "bartenders";
+    private void SetActiveTabManagement() => activeTab = "management";
+
+    // Helper methods for UI
+    private string GetAvatarColor(Guid staffId)
+    {
+        var colors = new[] { "avatar-blue", "avatar-purple", "avatar-green", "avatar-orange", "avatar-red", "avatar-teal" };
+        var index = staffId.GetHashCode() % colors.Length;
+        return colors[Math.Abs(index)];
+    }
+
+    private string GetStatusColor(string status)
+    {
+        return status switch
+        {
+            "Online" => "status-online",
+            "On Break" => "status-break",
+            "Off Duty" => "status-offduty",
+            _ => "status-offduty"
+        };
+    }
+
+    private string GetStatusBadgeColor(string status)
+    {
+        return status switch
+        {
+            "Online" => "badge-online",
+            "On Break" => "badge-break",
+            "Off Duty" => "badge-offduty",
+            _ => "badge-offduty"
+        };
+    }
+
+    private string GetInitials(string fullName)
+    {
+        var names = fullName.Split(' ');
+        if (names.Length >= 2)
+        {
+            return $"{names[0][0]}{names[1][0]}".ToUpper();
+        }
+        return names[0].Length >= 2 ? names[0].Substring(0, 2).ToUpper() : names[0].ToUpper();
+    }
+}

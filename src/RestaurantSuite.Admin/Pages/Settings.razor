@@ -1,0 +1,183 @@
+@page "/settings"
+
+<PageTitle>Settings - Restaurant Suite</PageTitle>
+
+<!-- Page Header -->
+<div id="settings-header">
+    <div id="settings-header-text">
+        <h1 id="settings-title">Settings</h1>
+        <p id="settings-subtitle">Manage your restaurant configuration and preferences.</p>
+    </div>
+</div>
+
+<!-- Settings Tabs -->
+<div id="settings-tabs">
+    <div id="settings-tabs-header">
+        <nav id="settings-tabs-nav" aria-label="Tabs">
+            <button id="settings-tab-general" class="settings-tab active">
+                General
+            </button>
+            <button id="settings-tab-menu" class="settings-tab">
+                Menu Settings
+            </button>
+            <button id="settings-tab-staff" class="settings-tab">
+                Staff Management
+            </button>
+            <button id="settings-tab-notifications" class="settings-tab">
+                Notifications
+            </button>
+            <button id="settings-tab-integrations" class="settings-tab">
+                Integrations
+            </button>
+        </nav>
+    </div>
+</div>
+
+<!-- General Settings -->
+<div class="space-y-8">
+    <!-- Restaurant Information -->
+    <div id="restaurant-info-card" class="settings-card">
+        <h2 id="restaurant-info-title" class="settings-section-title">Restaurant Information</h2>
+        <div id="restaurant-info-form" class="settings-form-grid">
+            <div id="restaurant-name-group" class="form-group">
+                <label id="restaurant-name-label" for="restaurant-name" class="form-label">Restaurant Name</label>
+                <input type="text" id="restaurant-name" value="Restoran Kuzma" class="form-input">
+            </div>
+            <div id="restaurant-phone-group" class="form-group">
+                <label id="restaurant-phone-label" for="restaurant-phone" class="form-label">Phone Number</label>
+                <input type="tel" id="restaurant-phone" value="+381 11 123 4567" class="form-input">
+            </div>
+            <div id="restaurant-address-group" class="form-group md-col-span-2">
+                <label id="restaurant-address-label" for="restaurant-address" class="form-label">Address</label>
+                <input type="text" id="restaurant-address" value="123 Main Street, Belgrade, Serbia" class="form-input">
+            </div>
+            <div id="restaurant-email-group" class="form-group">
+                <label id="restaurant-email-label" for="restaurant-email" class="form-label">Email</label>
+                <input type="email" id="restaurant-email" value="info@restorankuzma.rs" class="form-input">
+            </div>
+            <div id="restaurant-website-group" class="form-group">
+                <label id="restaurant-website-label" for="restaurant-website" class="form-label">Website</label>
+                <input type="url" id="restaurant-website" value="https://restorankuzma.rs" class="form-input">
+            </div>
+            <div id="restaurant-hours-group" class="form-group">
+                <label id="restaurant-hours-label" for="restaurant-hours" class="form-label">Opening Hours</label>
+                <input type="text" id="restaurant-hours" value="11:00 AM - 11:00 PM" class="form-input">
+            </div>
+            <div id="restaurant-currency-group" class="form-group">
+                <label id="restaurant-currency-label" for="restaurant-currency" class="form-label">Currency</label>
+                <select id="restaurant-currency" class="form-select">
+                    <option id="currency-rsd" value="RSD">RSD - Serbian Dinar</option>
+                    <option id="currency-eur" value="EUR">EUR - Euro</option>
+                    <option id="currency-usd" value="USD">USD - US Dollar</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Configuration -->
+    <div class="settings-card">
+        <h2 class="settings-section-title">Table Configuration</h2>
+        <div class="settings-form-grid md-grid-cols-3">
+            <div class="form-group">
+                <label class="form-label">Total Tables</label>
+                <input type="number" value="24" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Max Guests per Table</label>
+                <input type="number" value="8" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Reservation Duration (hours)</label>
+                <input type="number" value="2" class="form-input">
+            </div>
+        </div>
+        <div class="mt-6">
+            <label class="checkbox-container">
+                <input type="checkbox" checked class="checkbox-input">
+                <span class="checkbox-label">Allow online reservations</span>
+            </label>
+        </div>
+        <div class="mt-4">
+            <label class="checkbox-container">
+                <input type="checkbox" checked class="checkbox-input">
+                <span class="checkbox-label">Send confirmation emails</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Order Settings -->
+    <div class="settings-card">
+        <h2 class="settings-section-title">Order Settings</h2>
+        <div class="settings-form-grid">
+            <div class="form-group">
+                <label class="form-label">Order Number Prefix</label>
+                <input type="text" value="RK" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tax Rate (%)</label>
+                <input type="number" value="20" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Service Charge (%)</label>
+                <input type="number" value="10" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Kitchen Timeout (minutes)</label>
+                <input type="number" value="30" class="form-input">
+            </div>
+        </div>
+        <div class="mt-6">
+            <label class="checkbox-container">
+                <input type="checkbox" checked class="checkbox-input">
+                <span class="checkbox-label">Auto-print receipts</span>
+            </label>
+        </div>
+        <div class="mt-4">
+            <label class="checkbox-container">
+                <input type="checkbox" class="checkbox-input">
+                <span class="checkbox-label">Require manager approval for discounts</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Payment Settings -->
+    <div class="settings-card">
+        <h2 class="settings-section-title">Payment Settings</h2>
+        <div class="space-y-4">
+            <div>
+                <label class="checkbox-container">
+                    <input type="checkbox" checked class="checkbox-input">
+                    <span class="checkbox-label">Accept cash payments</span>
+                </label>
+            </div>
+            <div>
+                <label class="checkbox-container">
+                    <input type="checkbox" checked class="checkbox-input">
+                    <span class="checkbox-label">Accept credit/debit cards</span>
+                </label>
+            </div>
+            <div>
+                <label class="checkbox-container">
+                    <input type="checkbox" class="checkbox-input">
+                    <span class="checkbox-label">Accept mobile payments</span>
+                </label>
+            </div>
+            <div>
+                <label class="checkbox-container">
+                    <input type="checkbox" class="checkbox-input">
+                    <span class="checkbox-label">Accept cryptocurrency</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Settings -->
+    <div class="button-group">
+        <button class="btn-secondary">
+            Cancel
+        </button>
+        <button class="btn-primary">
+            Save Changes
+        </button>
+    </div>
+</div>

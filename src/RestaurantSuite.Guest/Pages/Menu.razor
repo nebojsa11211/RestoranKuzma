@@ -1,0 +1,155 @@
+@page "/menu"
+
+<PageTitle>Menu - Restaurant Kuzma</PageTitle>
+
+<!-- Main Container -->
+<div id="menu-page-container">
+
+    <!-- Header Section -->
+    <header id="menu-header-section">
+        <h1 id="menu-page-title">Our Menu</h1>
+        <p id="menu-page-subtitle">Discover our delicious dishes and beverages</p>
+    </header>
+
+    <!-- Category Filter Section -->
+    <section id="menu-category-filter-section">
+        <div id="menu-category-filter-container">
+            <button id="menu-category-filter-all-btn" 
+                    @onclick='() => SetCategory(null)' 
+                    class='menu-category-filter-btn active'
+                    aria-label="Show all menu items">
+                All Items
+            </button>
+            @if (menuCategories != null)
+            {
+                @foreach (var category in menuCategories)
+                {
+                    <button id="menu-category-filter-@category.Id-btn" 
+                            @onclick='() => SetCategory(category.Name)' 
+                            class='menu-category-filter-btn'
+                            aria-label="Filter by @category.Name category">
+                        @category.Name
+                    </button>
+                }
+            }
+        </div>
+    </section>
+
+    <!-- Loading State -->
+    @if (isLoading)
+    {
+        <section id="menu-loading-section">
+            <div id="menu-loading-spinner-container">
+                <div id="menu-loading-spinner"></div>
+                <span id="menu-loading-text">Loading menu items...</span>
+            </div>
+        </section>
+    }
+    else if (menuItems == null || !menuItems.Any())
+    {
+        <!-- Empty State -->
+        <section id="menu-empty-section">
+            <div id="menu-empty-icon-container">
+                <svg id="menu-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2M3 2h8M3 2H2m8 0h1M7 2v20m0 0H6m1 0h1m13-8v10m0-10a2 2 0 01-2-2V6a2 2 0 00-2-2 2 2 0 00-2 2v6a2 2 0 01-2 2m8 0h-8"/>
+                </svg>
+            </div>
+            <h2 id="menu-empty-title">No menu items available</h2>
+            <p id="menu-empty-description">Please check back later or contact our staff.</p>
+            <button id="menu-empty-retry-btn" 
+                    @onclick="LoadMenuItems">
+                Try Again
+            </button>
+        </section>
+    }
+    else
+    {
+        <!-- Menu Items Grid -->
+        <section id="menu-items-grid-section">
+            <div id="menu-items-grid-container">
+                @foreach (var item in filteredMenuItems)
+                {
+                    <article id="menu-item-card-@item.Id" 
+                             class="menu-item-card"
+                             data-item-id="@item.Id"
+                             data-item-name="@item.Name"
+                             data-item-category="@item.CategoryName"
+                             data-item-price="@item.Price"
+                             data-item-available="@item.IsAvailable">
+
+                        <!-- Item Image -->
+                        <div id="menu-item-image-wrapper-@item.Id">
+                            <div id="menu-item-image-container-@item.Id">
+                                <img id="menu-item-image-@item.Id"
+                                     src="@(!string.IsNullOrEmpty(item.ImageUrl) ? item.ImageUrl : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop")"
+                                     alt="@item.Name"
+                                     loading="lazy"
+                                     class="menu-item-image" />
+                            </div>
+                            
+                            <!-- Availability Badge -->
+                            <div id="menu-item-availability-badge-@item.Id" 
+                                 class="@(item.IsAvailable ? "available" : "unavailable")">
+                                @(item.IsAvailable ? "Available" : "Unavailable")
+                            </div>
+                        </div>
+
+                        <!-- Item Content -->
+                        <div id="menu-item-content-wrapper-@item.Id">
+                            <!-- Item Header -->
+                            <header id="menu-item-header-@item.Id">
+                                <h3 id="menu-item-name-@item.Id" 
+                                    title="@item.Name">
+                                    @item.Name
+                                </h3>
+                                <span id="menu-item-price-@item.Id">
+                                    $@item.Price.ToString("F2")
+                                </span>
+                            </header>
+
+                            <!-- Item Description -->
+                            <p id="menu-item-description-@item.Id" 
+                               title="@item.Description">
+                                @item.Description
+                            </p>
+
+                            <!-- Item Footer -->
+                            <footer id="menu-item-footer-@item.Id">
+                                <!-- Category Badge -->
+                                <span id="menu-item-category-badge-@item.Id" class="menu-item-category-badge">
+                                    @item.CategoryName
+                                </span>
+
+                                <!-- Action Button -->
+                                <div id="menu-item-action-container-@item.Id">
+                                    @if (item.IsAvailable)
+                                    {
+                                        <button id="menu-item-add-to-order-btn-@item.Id"
+                                                class="menu-item-add-to-order-btn"
+                                                @onclick="() => AddToOrder(item)"
+                                                aria-label="Add @item.Name to order">
+                                            <svg id="menu-item-add-icon-@item.Id" class="menu-item-add-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                            </svg>
+                                            <span id="menu-item-add-text-@item.Id">Add to Order</span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button id="menu-item-unavailable-btn-@item.Id"
+                                                class="menu-item-unavailable-btn"
+                                                disabled
+                                                aria-label="@item.Name is not available">
+                                            <span id="menu-item-unavailable-text-@item.Id">Not Available</span>
+                                        </button>
+                                    }
+                                </div>
+                            </footer>
+                        </div>
+                    </article>
+                }
+            </div>
+        </section>
+    }
+
+</div>

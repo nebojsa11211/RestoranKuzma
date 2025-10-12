@@ -1,0 +1,18 @@
+/* Counter Component Styles */
+
+.counter-container {
+    /* Add any custom CSS here if needed */
+    /* Currently using Tailwind classes, but extracted to maintain separation */
+}
+
+.counter-title {
+    /* Title styling */
+}
+
+.counter-button {
+    /* Button styling */
+}
+
+.counter-display {
+    /* Display text styling */
+}

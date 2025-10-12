@@ -1,0 +1,310 @@
+@page "/kitchen"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Chef")]
+@inject ApiService ApiService
+
+<PageTitle>Kitchen Orders - Chef</PageTitle>
+
+<div id="chef-kitchen-container" class="kitchen-container">
+    <h1 id="chef-kitchen-title">Kitchen Orders</h1>
+
+    @if (isLoading)
+    {
+        <div id="chef-kitchen-loading" class="loading">Loading orders...</div>
+    }
+    else
+    {
+        <div id="chef-orders-grid" class="orders-grid">
+            <!-- Confirmed Orders -->
+            <div id="chef-confirmed-column" class="order-column">
+                <h2 id="chef-confirmed-header" class="column-header confirmed">Waiting to Start (@confirmedOrders.Count)</h2>
+                <div id="chef-confirmed-list" class="order-list">
+                    @foreach (var order in confirmedOrders)
+                    {
+                        <div id="chef-order-@order.Id" class="order-card">
+                            <div id="chef-order-@order.Id-header" class="order-header">
+                                <span id="chef-order-@order.Id-table" class="order-table">Table @order.TableNumber</span>
+                                <span id="chef-order-@order.Id-time" class="order-time">@GetTimeAgo(order.CreatedAt)</span>
+                            </div>
+                            <div id="chef-order-@order.Id-items" class="order-items">
+                                @foreach (var item in order.OrderItems)
+                                {
+                                    <div id="chef-order-@order.Id-item-@item.Id" class="order-item">
+                                        <span id="chef-order-@order.Id-item-@item.Id-quantity" class="item-quantity">@item.Quantity x</span>
+                                        <span id="chef-order-@order.Id-item-@item.Id-name" class="item-name">@item.MenuItemName</span>
+                                        @if (!string.IsNullOrEmpty(item.SpecialInstructions))
+                                        {
+                                            <div id="chef-order-@order.Id-item-@item.Id-instructions" class="special-instructions">
+                                                Note: @item.SpecialInstructions
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            <button id="chef-order-@order.Id-start-btn" class="btn btn-start" @onclick="() => StartPreparation(order.Id)">
+                                Start Preparation
+                            </button>
+                        </div>
+                    }
+                    @if (confirmedOrders.Count == 0)
+                    {
+                        <div id="chef-confirmed-empty" class="empty-state">No orders waiting</div>
+                    }
+                </div>
+            </div>
+
+            <!-- InProgress Orders -->
+            <div id="chef-inprogress-column" class="order-column">
+                <h2 id="chef-inprogress-header" class="column-header in-progress">In Progress (@inProgressOrders.Count)</h2>
+                <div id="chef-inprogress-list" class="order-list">
+                    @foreach (var order in inProgressOrders)
+                    {
+                        <div id="chef-order-@order.Id-inprogress" class="order-card">
+                            <div id="chef-order-@order.Id-inprogress-header" class="order-header">
+                                <span id="chef-order-@order.Id-inprogress-table" class="order-table">Table @order.TableNumber</span>
+                                <span id="chef-order-@order.Id-inprogress-time" class="order-time">@GetTimeAgo(order.CreatedAt)</span>
+                            </div>
+                            <div id="chef-order-@order.Id-inprogress-items" class="order-items">
+                                @foreach (var item in order.OrderItems)
+                                {
+                                    <div id="chef-order-@order.Id-inprogress-item-@item.Id" class="order-item">
+                                        <span id="chef-order-@order.Id-inprogress-item-@item.Id-quantity" class="item-quantity">@item.Quantity x</span>
+                                        <span id="chef-order-@order.Id-inprogress-item-@item.Id-name" class="item-name">@item.MenuItemName</span>
+                                        @if (!string.IsNullOrEmpty(item.SpecialInstructions))
+                                        {
+                                            <div id="chef-order-@order.Id-inprogress-item-@item.Id-instructions" class="special-instructions">
+                                                Note: @item.SpecialInstructions
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            <button id="chef-order-@order.Id-ready-btn" class="btn btn-ready" @onclick="() => MarkAsReady(order.Id)">
+                                Mark as Ready
+                            </button>
+                        </div>
+                    }
+                    @if (inProgressOrders.Count == 0)
+                    {
+                        <div id="chef-inprogress-empty" class="empty-state">No orders in progress</div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .kitchen-container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .kitchen-container h1 {
+        margin-bottom: 30px;
+        color: #333;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+    }
+
+    .orders-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .order-column {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .column-header {
+        margin: 0 0 20px 0;
+        padding: 15px;
+        border-radius: 8px;
+        color: white;
+        text-align: center;
+        font-size: 18px;
+        font-weight: 500;
+    }
+
+    .column-header.confirmed {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .column-header.in-progress {
+        background: linear-gradient(135deg, #fad0c4 0%, #ff6b6b 100%);
+    }
+
+    .order-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .order-card {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .order-table {
+        font-weight: bold;
+        color: #333;
+        font-size: 16px;
+    }
+
+    .order-time {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .order-items {
+        margin-bottom: 15px;
+    }
+
+    .order-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-quantity {
+        font-weight: bold;
+        color: #f5576c;
+        margin-right: 8px;
+    }
+
+    .item-name {
+        color: #333;
+        font-size: 15px;
+    }
+
+    .special-instructions {
+        margin-top: 8px;
+        padding: 8px 12px;
+        background: #fff9e6;
+        border-left: 3px solid #ffa500;
+        font-size: 13px;
+        color: #666;
+        font-style: italic;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+
+    .btn-start {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+
+    .btn-start:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.3);
+    }
+
+    .btn-ready {
+        background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+        color: white;
+    }
+
+    .btn-ready:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(132, 250, 176, 0.3);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+        font-style: italic;
+    }
+
+    @@media (max-width: 768px) {
+        .orders-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+@code {
+    private List<Order> confirmedOrders = new();
+    private List<Order> inProgressOrders = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+    }
+
+    private async Task LoadOrders()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        var response = await ApiService.GetOrdersAsync();
+        if (response.Success)
+        {
+            var orders = response.Orders ?? new List<Order>();
+            confirmedOrders = orders.Where(o => o.Status == OrderStatus.Confirmed).OrderBy(o => o.CreatedAt).ToList();
+            inProgressOrders = orders.Where(o => o.Status == OrderStatus.InProgress).OrderBy(o => o.CreatedAt).ToList();
+        }
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task StartPreparation(Guid orderId)
+    {
+        var result = await ApiService.StartPreparationAsync(orderId);
+        if (result.Success)
+        {
+            await LoadOrders();
+        }
+    }
+
+    private async Task MarkAsReady(Guid orderId)
+    {
+        var result = await ApiService.MarkAsReadyAsync(orderId);
+        if (result.Success)
+        {
+            await LoadOrders();
+        }
+    }
+
+    private string GetTimeAgo(DateTime createdAt)
+    {
+        var timeSpan = DateTime.UtcNow - createdAt;
+        if (timeSpan.TotalMinutes < 1) return "Just now";
+        if (timeSpan.TotalMinutes < 60) return $"{(int)timeSpan.TotalMinutes}m ago";
+        if (timeSpan.TotalHours < 24) return $"{(int)timeSpan.TotalHours}h ago";
+        return $"{(int)timeSpan.TotalDays}d ago";
+    }
+}

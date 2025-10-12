@@ -1,0 +1,232 @@
+@page "/tables"
+
+<PageTitle>Table Management - Restaurant Suite</PageTitle>
+
+<!-- Page Header -->
+<div class="tables-header">
+    <div class="tables-header-content">
+        <div>
+            <h1 class="tables-title">Table Management</h1>
+            <p class="tables-subtitle">Monitor and manage restaurant table assignments and status.</p>
+        </div>
+        <button @onclick="ShowReserveTableModal" class="reserve-table-btn">
+            <svg class="reserve-table-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            Reserve Table
+        </button>
+    </div>
+</div>
+
+<!-- Table Stats -->
+<div class="table-stats-grid">
+    <div id="total-tables-card" class="table-stat-card">
+        <div class="table-stat-content">
+            <div>
+                <p class="table-stat-label">Total Tables</p>
+                <p class="table-stat-value">24</p>
+                <p class="table-stat-note">All available</p>
+            </div>
+            <div class="table-stat-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="occupied-tables-card" class="table-stat-card">
+        <div class="table-stat-content">
+            <div>
+                <p class="table-stat-label">Occupied</p>
+                <p class="table-stat-value">18</p>
+                <p class="table-stat-note">75% capacity</p>
+            </div>
+            <div class="table-stat-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="available-tables-card" class="table-stat-card">
+        <div class="table-stat-content">
+            <div>
+                <p class="table-stat-label">Available</p>
+                <p class="table-stat-value">6</p>
+                <p class="table-stat-note">Ready for guests</p>
+            </div>
+            <div class="table-stat-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="reserved-tables-card" class="table-stat-card">
+        <div class="table-stat-content">
+            <div>
+                <p class="table-stat-label">Reserved</p>
+                <p class="table-stat-value">3</p>
+                <p class="table-stat-note">Upcoming reservations</p>
+            </div>
+            <div class="table-stat-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floor Plan View -->
+<div class="floor-plan-card">
+    <div class="floor-plan-header">
+        <h2 class="floor-plan-title">Floor Plan</h2>
+        <div class="floor-plan-legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #dcfce7;"></div>
+                <span class="legend-text">Available</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #fee2e2;"></div>
+                <span class="legend-text">Occupied</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #fef3c7;"></div>
+                <span class="legend-text">Reserved</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #f1f5f9;"></div>
+                <span class="legend-text">Maintenance</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Grid -->
+    @if (isLoading)
+    {
+        <div class="loading-container">
+            <div class="loading-spinner">
+                <svg class="spinner-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading tables...
+            </div>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="error-container">
+            <div class="error-content">
+                <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+                <div class="error-text">
+                    <h3 class="error-title">Error Loading Tables</h3>
+                    <div class="error-message">
+                        <p>@errorMessage</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (tables.Any())
+    {
+        <div class="table-grid">
+            @foreach (var table in tables)
+            {
+                <div @onclick="() => HandleTableClick(table)" 
+                     class="table-item @GetTableColorClass(table) @GetTableCursorClass(table)">
+                    <div class="table-item-content">
+                        <div class="table-number @GetTableTextColorClass(table)">@table.TableNumber</div>
+                        <div class="table-capacity @GetTableTextColorClass(table)">@table.Capacity seats</div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+            <h3 class="empty-title">No tables found</h3>
+            <p class="empty-description">Get started by creating some tables.</p>
+        </div>
+    }
+</div>
+
+<!-- Recent Reservations -->
+<div class="reservations-card">
+    <div class="reservations-header">
+        <h2 class="reservations-title">Recent Reservations</h2>
+        <a href="#" class="view-all-link">View All</a>
+    </div>
+    <div class="reservations-table-container">
+        <table class="reservations-table">
+            <thead class="reservations-table-head">
+                <tr>
+                    <th class="reservations-table-header">Customer</th>
+                    <th class="reservations-table-header">Table</th>
+                    <th class="reservations-table-header">Date</th>
+                    <th class="reservations-table-header">Time</th>
+                    <th class="reservations-table-header">Guests</th>
+                    <th class="reservations-table-header">Status</th>
+                    <th class="reservations-table-header">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="reservations-table-body">
+                <tr class="reservations-table-row">
+                    <td>Mark Johnson</td>
+                    <td>Table 5</td>
+                    <td>Today</td>
+                    <td>7:00 PM</td>
+                    <td>4</td>
+                    <td>
+                        <span class="status-badge status-badge-confirmed">
+                            Confirmed
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-button">Edit</button>
+                    </td>
+                </tr>
+                <tr class="reservations-table-row">
+                    <td>Sarah Williams</td>
+                    <td>Table 12</td>
+                    <td>Tomorrow</td>
+                    <td>8:00 PM</td>
+                    <td>2</td>
+                    <td>
+                        <span class="status-badge status-badge-pending">
+                            Pending
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-button">Confirm</button>
+                    </td>
+                </tr>
+                <tr class="reservations-table-row">
+                    <td>David Brown</td>
+                    <td>Table 8</td>
+                    <td>Tomorrow</td>
+                    <td>6:30 PM</td>
+                    <td>6</td>
+                    <td>
+                        <span class="status-badge status-badge-confirmed">
+                            Confirmed
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-button">Edit</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,128 @@
+<!-- Brand Section with Bold Design -->
+<div id="nav-brand-section" class="h-20 px-6 border-b border-primary-500/30 flex items-center justify-between bg-gradient-to-r from-primary-500/20 via-orange-500/10 to-transparent backdrop-blur-sm">
+    <div id="brand-content" class="flex items-center gap-4">
+        <!-- Brand Icon with dramatic glow effect -->
+        <div id="brand-icon" class="flex-shrink-0 p-3 rounded-2xl bg-gradient-to-br from-primary-500 via-orange-500 to-primary-600 shadow-glow-primary transform transition-all duration-300 hover:scale-110 hover:rotate-3">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 2L3 7V17C3 18.1046 3.89543 19 5 19H19C20.1046 19 21 18.1046 21 17V7L12 2Z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 22V19"/>
+                <circle cx="12" cy="12" r="2" fill="currentColor"/>
+            </svg>
+        </div>
+        <!-- Brand Name with vibrant gradient -->
+        <div id="brand-name" class="flex flex-col">
+            <span class="text-xl font-extrabold bg-gradient-to-r from-white via-primary-200 to-white bg-clip-text text-transparent leading-tight drop-shadow-lg">Restaurant</span>
+            <span class="text-sm font-extrabold text-primary-400 leading-tight tracking-widest">ADMIN SUITE</span>
+        </div>
+    </div>
+
+    <!-- Mobile Close Button with bold styling -->
+    <button
+        id="nav-close-button"
+        @onclick="ToggleNavMenu"
+        class="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-xl bg-white/10 text-white hover:bg-primary-500 hover:shadow-glow-primary focus:outline-none focus:ring-2 focus:ring-primary-400 transition-all duration-300 transform hover:scale-110 hover:rotate-90"
+        aria-label="Close menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+</div>
+
+<!-- Navigation Menu with Bold Vibrant Styling -->
+<nav id="nav-menu" class="flex-1 px-5 py-8 space-y-3 overflow-y-auto scrollbar-thin" aria-label="Main navigation">
+    <!-- Dashboard -->
+    <NavLink href="" Match="NavLinkMatch.All" class="@GetNavLinkClasses()">
+        <div id="nav-icon-dashboard" class="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-orange-600 group-hover:from-primary-400 group-hover:to-orange-500 transition-all duration-300 shadow-xl group-hover:shadow-glow-primary group-hover:scale-110">
+            <svg class="w-7 h-7 flex-shrink-0 text-white transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline stroke-linecap="round" stroke-linejoin="round" points="9 22 9 12 15 12 15 22"/>
+            </svg>
+        </div>
+        <span class="font-bold text-lg">Dashboard</span>
+    </NavLink>
+
+    <!-- Orders -->
+    <NavLink href="orders" class="@GetNavLinkClasses()">
+        <div id="nav-icon-orders" class="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 group-hover:from-blue-400 group-hover:to-blue-600 transition-all duration-300 shadow-xl group-hover:shadow-glow-blue group-hover:scale-110">
+            <svg class="w-7 h-7 flex-shrink-0 text-white transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline stroke-linecap="round" stroke-linejoin="round" points="14 2 14 8 20 8"/>
+                <line stroke-linecap="round" stroke-linejoin="round" x1="16" y1="13" x2="8" y2="13"/>
+                <line stroke-linecap="round" stroke-linejoin="round" x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+        </div>
+        <span class="font-bold text-lg">Orders</span>
+    </NavLink>
+
+    <!-- Menu -->
+    <NavLink href="menu" class="@GetNavLinkClasses()">
+        <div id="nav-icon-menu" class="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-700 group-hover:from-purple-400 group-hover:to-purple-600 transition-all duration-300 shadow-xl group-hover:shadow-glow-purple group-hover:scale-110">
+            <svg class="w-7 h-7 flex-shrink-0 text-white transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <rect stroke-linecap="round" stroke-linejoin="round" x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <line stroke-linecap="round" stroke-linejoin="round" x1="9" y1="9" x2="15" y2="9"/>
+                <line stroke-linecap="round" stroke-linejoin="round" x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
+        </div>
+        <span class="font-bold text-lg">Menu</span>
+    </NavLink>
+
+    <!-- Tables -->
+    <NavLink href="tables" class="@GetNavLinkClasses()">
+        <div id="nav-icon-tables" class="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-pink-700 group-hover:from-pink-400 group-hover:to-pink-600 transition-all duration-300 shadow-xl group-hover:shadow-glow-pink group-hover:scale-110">
+            <svg class="w-7 h-7 flex-shrink-0 text-white transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <rect stroke-linecap="round" stroke-linejoin="round" x="3" y="3" width="7" height="7"/>
+                <rect stroke-linecap="round" stroke-linejoin="round" x="14" y="3" width="7" height="7"/>
+                <rect stroke-linecap="round" stroke-linejoin="round" x="14" y="14" width="7" height="7"/>
+                <rect stroke-linecap="round" stroke-linejoin="round" x="3" y="14" width="7" height="7"/>
+            </svg>
+        </div>
+        <span class="font-bold text-lg">Tables</span>
+    </NavLink>
+
+    <!-- Staff -->
+    <NavLink href="staff" class="@GetNavLinkClasses()">
+        <div id="nav-icon-staff" class="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 group-hover:from-teal-400 group-hover:to-teal-600 transition-all duration-300 shadow-xl group-hover:shadow-glow-teal group-hover:scale-110">
+            <svg class="w-7 h-7 flex-shrink-0 text-white transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+        </div>
+        <span class="font-bold text-lg">Staff</span>
+    </NavLink>
+
+    <!-- Users -->
+    <NavLink href="users" class="@GetNavLinkClasses()">
+        <div id="nav-icon-users" class="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 group-hover:from-indigo-400 group-hover:to-indigo-600 transition-all duration-300 shadow-xl group-hover:shadow-glow-indigo group-hover:scale-110">
+            <svg class="w-7 h-7 flex-shrink-0 text-white transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+        </div>
+        <span class="font-bold text-lg">Users</span>
+    </NavLink>
+</nav>
+
+<!-- Footer Section with Bold Design -->
+<div id="nav-footer" class="px-6 py-5 border-t border-primary-500/30 bg-gradient-to-r from-primary-500/10 via-transparent to-transparent backdrop-blur-sm">
+    <div id="version-badge" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 border border-white/20 backdrop-blur-md hover:bg-white/20 transition-all duration-300">
+        <div id="version-icon" class="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-orange-500 shadow-glow-primary">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/>
+            </svg>
+        </div>
+        <span class="text-sm font-bold text-white/90">v1.0.0</span>
+    </div>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private string GetNavLinkClasses()
+    {
+        return "group flex items-center gap-5 px-5 py-4 text-white/80 rounded-2xl hover:bg-white/10 hover:text-white hover:shadow-2xl hover:backdrop-blur-lg focus:outline-none focus:ring-2 focus:ring-primary-400 transition-all duration-300 active:bg-gradient-to-r active:from-primary-500/30 active:to-orange-500/30 active:text-white active:font-extrabold active:scale-95 active:shadow-glow-primary transform border-2 border-transparent hover:border-white/20";
+    }
+}

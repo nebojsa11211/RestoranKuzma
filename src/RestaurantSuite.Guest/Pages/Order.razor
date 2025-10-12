@@ -1,0 +1,253 @@
+@page "/order"
+
+<PageTitle>Place Order - Restaurant Kuzma</PageTitle>
+
+<!-- Main Container -->
+<div id="order-page-container">
+
+    <!-- Header Section -->
+    <header id="order-header-section">
+        <h1 id="order-page-title">Place Your Order</h1>
+        <p id="order-page-subtitle">Enjoy our delicious dishes from the comfort of your home</p>
+    </header>
+
+    <!-- Order Type Selection -->
+    <section id="order-type-section" role="radiogroup" aria-labelledby="order-type-title">
+        <h2 id="order-type-title">Choose Your Dining Experience</h2>
+        <div id="order-type-grid-container">
+            <button id="order-type-dine-in-btn"
+                    @onclick="HandleDineInClick"
+                    class="order-type-button order-type-dine-in"
+                    role="radio"
+                    aria-checked="false"
+                    aria-labelledby="dine-in-title dine-in-desc">
+                <div class="card-icon-wrapper" aria-hidden="true">
+                    <svg id="order-type-dine-in-icon" class="card-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="32" cy="32" r="28"/>
+                        <circle cx="32" cy="32" r="8"/>
+                        <path d="M32 4 L32 14 M32 50 L32 60 M4 32 L14 32 M50 32 L60 32"/>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3 id="dine-in-title" class="card-title">Dine In</h3>
+                    <p id="dine-in-desc" class="card-description">Enjoy your meal in our cozy restaurant atmosphere</p>
+                </div>
+                <div class="card-indicator" aria-hidden="true">
+                    <svg class="checkmark" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 10 L8 14 L16 6"/>
+                    </svg>
+                </div>
+            </button>
+            <button id="order-type-takeaway-btn"
+                    @onclick="HandleTakeawayClick"
+                    class="order-type-button order-type-takeaway"
+                    role="radio"
+                    aria-checked="false"
+                    aria-labelledby="takeaway-title takeaway-desc">
+                <div class="card-icon-wrapper" aria-hidden="true">
+                    <svg id="order-type-takeaway-icon" class="card-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 16 L16 12 C16 10 18 8 20 8 L44 8 C46 8 48 10 48 12 L48 16"/>
+                        <rect x="12" y="16" width="40" height="40" rx="4"/>
+                        <line x1="32" y1="26" x2="32" y2="36"/>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3 id="takeaway-title" class="card-title">Takeaway</h3>
+                    <p id="takeaway-desc" class="card-description">Pick up your order and enjoy it wherever you like</p>
+                </div>
+                <div class="card-indicator" aria-hidden="true">
+                    <svg class="checkmark" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 10 L8 14 L16 6"/>
+                    </svg>
+                </div>
+            </button>
+        </div>
+    </section>
+
+    <!-- Menu Categories -->
+    <section id="order-menu-categories-section">
+        <div id="order-menu-categories-scroll-container">
+            <button id="order-category-all-btn" 
+                    @onclick="HandleCategoryAllClick"
+                    class="category-button category-all"
+                    aria-label="Show all menu categories">
+                All Items
+            </button>
+            @foreach (var category in menuCategories)
+            {
+                <button id="order-category-@category.Id-btn" 
+                        @onclick="() => HandleCategoryClick(category.Name)"
+                        class="category-button category-@category.Id"
+                        aria-label="Filter by @category.Name category">
+                    @category.Name
+                </button>
+            }
+        </div>
+    </section>
+
+    <!-- Menu Items Grid -->
+    <section id="order-menu-items-section">
+        <div id="order-menu-items-grid-container">
+            @foreach (var item in filteredMenuItems)
+            {
+                <article id="order-menu-item-card-@item.Id" 
+                         class="order-menu-item-card"
+                         data-item-id="@item.Id"
+                         data-item-name="@item.Name"
+                         data-item-category="@item.CategoryName"
+                         data-item-price="@item.Price"
+                         data-item-available="@item.IsAvailable">
+
+                    <!-- Item Image -->
+                    <div id="order-menu-item-image-wrapper-@item.Id">
+                        <div id="order-menu-item-image-container-@item.Id">
+                            <img id="order-menu-item-image-@item.Id"
+                                 src="@(!string.IsNullOrEmpty(item.ImageUrl) ? item.ImageUrl : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop")"
+                                 alt="@item.Name"
+                                 loading="lazy"
+                                 class="order-menu-item-image" />
+                        </div>
+                        
+                        <!-- Availability Status -->
+                        <div id="order-menu-item-availability-badge-@item.Id" 
+                             class="availability-badge availability-@(item.IsAvailable ? "available" : "unavailable")">
+                            @(item.IsAvailable ? "Available" : "Unavailable")
+                        </div>
+                    </div>
+
+                    <!-- Item Content -->
+                    <div id="order-menu-item-content-wrapper-@item.Id">
+                        <!-- Item Header -->
+                        <header id="order-menu-item-header-@item.Id">
+                            <h3 id="order-menu-item-name-@item.Id" 
+                                title="@item.Name">
+                                @item.Name
+                            </h3>
+                            <span id="order-menu-item-price-@item.Id">
+                                $@item.Price.ToString("F2")
+                            </span>
+                        </header>
+
+                        <!-- Item Description -->
+                        <p id="order-menu-item-description-@item.Id" 
+                           title="@item.Description">
+                            @item.Description
+                        </p>
+
+                        <!-- Item Footer -->
+                        <footer id="order-menu-item-footer-@item.Id">
+                            <!-- Category Badge -->
+                            <span id="order-menu-item-category-badge-@item.Id">
+                                @item.CategoryName
+                            </span>
+
+                            <!-- Add to Cart Button -->
+                            <button id="order-menu-item-add-btn-@item.Id"
+                                    @onclick="() => HandleAddToCart(item.Id)"
+                                    disabled="@(!item.IsAvailable)"
+                                    class="add-to-cart-button primary-button"
+                                    aria-label="Add @item.Name to cart">
+                                <svg id="order-menu-item-add-icon-@item.Id" class="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                                <span id="order-menu-item-add-text-@item.Id">Add to Cart</span>
+                            </button>
+                        </footer>
+                    </div>
+                </article>
+            }
+        </div>
+    </section>
+
+    <!-- Cart Summary -->
+    @if (cartItems.Any())
+    {
+        <section id="order-cart-section" class="cart-section">
+            <header id="order-cart-header" class="cart-header">
+                <h2 id="order-cart-title">Your Order</h2>
+                <span id="order-cart-item-count">
+                    @cartItems.Count item@(cartItems.Count == 1 ? "" : "s")
+                </span>
+            </header>
+            
+            <!-- Cart Items List -->
+            <div id="order-cart-items-container" class="cart-items-container">
+                @foreach (var cartItem in cartItems)
+                {
+                    <article id="order-cart-item-@cartItem.Item.Id" 
+                             class="cart-item"
+                             data-cart-item-id="@cartItem.Item.Id"
+                             data-cart-item-quantity="@cartItem.Quantity"
+                             data-cart-item-total="@(cartItem.Item.Price * cartItem.Quantity)">
+
+                        <!-- Item Details -->
+                        <div id="order-cart-item-details-@cartItem.Item.Id" class="cart-item-details">
+                            <h3 id="order-cart-item-name-@cartItem.Item.Id">@cartItem.Item.Name</h3>
+                            <p id="order-cart-item-price-@cartItem.Item.Id">$@cartItem.Item.Price.ToString("F2") each</p>
+                        </div>
+
+                        <!-- Quantity Controls -->
+                        <div id="order-cart-item-controls-@cartItem.Item.Id" class="cart-item-controls">
+                            <button id="order-cart-item-decrease-btn-@cartItem.Item.Id" 
+                                    @onclick="() => HandleDecreaseQuantity(cartItem.Item.Id)"
+                                    class="quantity-button quantity-decrease"
+                                    aria-label="Decrease quantity of @cartItem.Item.Name">
+                                <svg id="order-cart-item-decrease-icon-@cartItem.Item.Id" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 12H4"/>
+                                </svg>
+                            </button>
+                            <span id="order-cart-item-quantity-@cartItem.Item.Id" class="quantity-display">@cartItem.Quantity</span>
+                            <button id="order-cart-item-increase-btn-@cartItem.Item.Id" 
+                                    @onclick="() => HandleIncreaseQuantity(cartItem.Item.Id)"
+                                    class="quantity-button quantity-increase"
+                                    aria-label="Increase quantity of @cartItem.Item.Name">
+                                <svg id="order-cart-item-increase-icon-@cartItem.Item.Id" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                            </button>
+                            <button id="order-cart-item-remove-btn-@cartItem.Item.Id" 
+                                    @onclick="() => HandleRemoveFromCart(cartItem.Item.Id)"
+                                    class="remove-button"
+                                    aria-label="Remove @cartItem.Item.Name from cart">
+                                <svg id="order-cart-item-remove-icon-@cartItem.Item.Id" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </article>
+                }
+            </div>
+
+            <!-- Cart Total and Checkout -->
+            <footer id="order-cart-footer" class="cart-footer">
+                <div id="order-cart-total-row" class="cart-total-row">
+                    <span id="order-cart-total-label">Total</span>
+                    <span id="order-cart-total-amount">$@GetCartTotal().ToString("F2")</span>
+                </div>
+                
+                <button id="order-cart-checkout-btn" 
+                        @onclick="HandleCheckout"
+                        disabled="@isSubmitting"
+                        class="checkout-button primary-button"
+                        aria-label="Proceed to checkout">
+                    @if (isSubmitting)
+                    {
+                        <svg id="order-cart-checkout-spinner" fill="none" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span id="order-cart-checkout-processing-text">Processing Order...</span>
+                    }
+                    else
+                    {
+                        <svg id="order-cart-checkout-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"/>
+                        </svg>
+                        <span id="order-cart-checkout-text">Place Order</span>
+                    }
+                </button>
+            </footer>
+        </section>
+    }
+
+</div>

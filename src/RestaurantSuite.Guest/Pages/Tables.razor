@@ -1,0 +1,163 @@
+@page "/tables"
+
+<PageTitle>Our Tables - Restaurant Kuzma</PageTitle>
+
+<div id="tables-page-container">
+    <!-- Header Section -->
+    <div id="tables-header-section">
+        <h1 id="tables-page-title">Our Tables</h1>
+        <p id="tables-page-subtitle">View our available tables and make a reservation</p>
+    </div>
+
+    <!-- Table Stats -->
+    <div id="tables-stats-section">
+        <div id="total-tables-card">
+            <div id="total-tables-content">
+                <div id="total-tables-text">
+                    <p id="total-tables-label">Total Tables</p>
+                    <p id="total-tables-value">@(tables?.Count ?? 0)</p>
+                    <p id="total-tables-note">All available</p>
+                </div>
+                <div id="total-tables-icon">
+                    <svg id="total-tables-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div id="occupied-tables-card">
+            <div id="occupied-tables-content">
+                <div id="occupied-tables-text">
+                    <p id="occupied-tables-label">Occupied</p>
+                    <p id="occupied-tables-value">@occupiedTablesCount</p>
+                    <p id="occupied-tables-note">Currently in use</p>
+                </div>
+                <div id="occupied-tables-icon">
+                    <svg id="occupied-tables-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div id="available-tables-card">
+            <div id="available-tables-content">
+                <div id="available-tables-text">
+                    <p id="available-tables-label">Available</p>
+                    <p id="available-tables-value">@availableTablesCount</p>
+                    <p id="available-tables-note">Ready for reservation</p>
+                </div>
+                <div id="available-tables-icon">
+                    <svg id="available-tables-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div id="reserved-tables-card">
+            <div id="reserved-tables-content">
+                <div id="reserved-tables-text">
+                    <p id="reserved-tables-label">Reserved</p>
+                    <p id="reserved-tables-value">@reservedTablesCount</p>
+                    <p id="reserved-tables-note">Upcoming reservations</p>
+                </div>
+                <div id="reserved-tables-icon">
+                    <svg id="reserved-tables-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 7V3a4 4 0 118 0v4m-4 8a2 2 0 100 4 2 2 0 000-4zm-6-4a6 6 0 1112 0v3h-2V11a4 4 0 00-8 0v2H6v-3z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Grid -->
+    <div id="tables-grid-section">
+        <div id="tables-grid-header">
+            <h2 id="tables-grid-title">Table Layout</h2>
+            <div id="tables-legend">
+                <div class="flex items-center space-x-2">
+                    <div class="w-4 h-4 bg-green-500 rounded"></div>
+                    <span class="text-sm text-slate-600">Available</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-4 h-4 bg-red-500 rounded"></div>
+                    <span class="text-sm text-slate-600">Occupied</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-4 h-4 bg-yellow-500 rounded"></div>
+                    <span class="text-sm text-slate-600">Reserved</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        @if (isLoading)
+        {
+            <div id="tables-loading-state">
+                <div>
+                    <svg fill="none" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Loading tables...
+                </div>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Error Loading Tables</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <p>@errorMessage</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (tables != null && tables.Any())
+        {
+            <div id="tables-grid">
+                @foreach (var table in tables)
+                {
+                    <div id="table-card-@table.Id" 
+                         @onclick="() => HandleTableClick(table)" 
+                         class="aspect-square border-2 rounded-lg flex items-center justify-center transition-colors @GetTableColorClass(table) @GetTableCursorClass(table)">
+                        <div class="text-center">
+                            <div class="text-lg font-bold @GetTableTextColorClass(table)">@table.TableNumber</div>
+                            <div class="text-xs @GetTableTextColorClass(table)">@table.Capacity seats</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-8 text-slate-500">
+                <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-slate-900">No tables found</h3>
+                <p class="mt-1 text-sm text-slate-500">Please check back later or contact our staff.</p>
+            </div>
+        }
+    </div>
+
+    <!-- Action Buttons -->
+    <div id="tables-actions-section">
+        <button id="reserve-table-btn" @onclick="NavigateToReserveTable">
+            <svg id="reserve-table-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 7V3a4 4 0 118 0v4m-4 8a2 2 0 100 4 2 2 0 000-4zm-6-4a6 6 0 1112 0v3h-2V11a4 4 0 00-8 0v2H6v-3z"/>
+            </svg>
+            Make a Reservation
+        </button>
+    </div>
+</div>

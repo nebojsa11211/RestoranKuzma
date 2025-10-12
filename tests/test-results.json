@@ -1,0 +1,151 @@
+{
+  "startTime": "2025-10-07T10:13:49.932Z",
+  "tests": [
+    {
+      "name": "Application loads successfully",
+      "status": "PASS",
+      "details": "Title: Dashboard - Restaurant Suite",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:13:58.522Z"
+    },
+    {
+      "name": "Navigation menu exists",
+      "status": "PASS",
+      "details": "Found 1 navigation element(s)",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:13:58.746Z"
+    },
+    {
+      "name": "Brand/Logo exists",
+      "status": "PASS",
+      "details": "",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:13:58.754Z"
+    },
+    {
+      "name": "Navigation: Dashboard",
+      "status": "PASS",
+      "details": "URL: http://localhost:5054/",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:13:59.825Z"
+    },
+    {
+      "name": "Navigation: Orders",
+      "status": "PASS",
+      "details": "URL: http://localhost:5054/orders",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:01.091Z"
+    },
+    {
+      "name": "Navigation: Menu",
+      "status": "PASS",
+      "details": "URL: http://localhost:5054/menu",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:02.339Z"
+    },
+    {
+      "name": "Navigation: Tables",
+      "status": "PASS",
+      "details": "URL: http://localhost:5054/tables",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:03.964Z"
+    },
+    {
+      "name": "Sidebar visible on desktop",
+      "status": "PASS",
+      "details": "",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:10.200Z"
+    },
+    {
+      "name": "Hamburger menu exists on mobile",
+      "status": "PASS",
+      "details": "",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:15.667Z"
+    },
+    {
+      "name": "Mobile menu opens on click",
+      "status": "PASS",
+      "details": "",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:16.223Z"
+    },
+    {
+      "name": "Mobile viewport: Main content visible",
+      "status": "PASS",
+      "details": "",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:21.513Z"
+    },
+    {
+      "name": "Mobile viewport: No horizontal scroll",
+      "status": "PASS",
+      "details": "",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:21.518Z"
+    },
+    {
+      "name": "Tablet viewport: Renders correctly",
+      "status": "PASS",
+      "details": "",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:26.801Z"
+    },
+    {
+      "name": "Desktop viewport: Sidebar always visible",
+      "status": "PASS",
+      "details": "",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:32.255Z"
+    },
+    {
+      "name": "Tailwind CSS loaded",
+      "status": "PASS",
+      "details": "Utility classes found",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:37.399Z"
+    },
+    {
+      "name": "Design system gradients applied",
+      "status": "PASS",
+      "details": "Gradient classes found",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:37.402Z"
+    },
+    {
+      "name": "Dashboard page loads",
+      "status": "PASS",
+      "details": "Status: 200",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:42.032Z"
+    },
+    {
+      "name": "Orders page loads",
+      "status": "PASS",
+      "details": "Status: 200",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:42.919Z"
+    },
+    {
+      "name": "Menu page loads",
+      "status": "PASS",
+      "details": "Status: 200",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:43.811Z"
+    },
+    {
+      "name": "Tables page loads",
+      "status": "PASS",
+      "details": "Status: 200",
+      "screenshot": null,
+      "timestamp": "2025-10-07T10:14:45.214Z"
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "passed": 20,
+    "failed": 0
+  },
+  "endTime": "2025-10-07T10:14:46.522Z"
+}

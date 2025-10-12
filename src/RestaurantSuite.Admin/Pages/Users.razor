@@ -1,0 +1,264 @@
+@page "/users"
+@using RestaurantSuite.Admin.Services
+@inject ApiService ApiService
+
+<PageTitle>User Management - Restaurant Suite</PageTitle>
+
+<link rel="stylesheet" href="css/staff.css" />
+
+<!-- Main Users Content -->
+<div id="users-header" class="mb-8">
+    <div id="users-header-content" class="flex items-center justify-between">
+        <div id="users-header-text">
+            <h1 id="users-title" class="text-3xl font-bold text-slate-900">User Management</h1>
+            <p id="users-subtitle" class="text-slate-600 mt-2">View all system users including staff and guests.</p>
+        </div>
+    </div>
+</div>
+
+<!-- User Stats -->
+@if (userCounts != null)
+{
+    <div id="users-stats" class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div class="staff-stat-card">
+            <div class="staff-stat-content">
+                <div>
+                    <p class="staff-stat-label">Total Users</p>
+                    <p class="staff-stat-value">@userCounts.Total</p>
+                    <p class="staff-stat-note">All roles</p>
+                </div>
+                <div class="staff-stat-icon bg-blue-100">
+                    <span class="w-6 h-6 text-blue-600 text-2xl font-bold">👥</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="staff-stat-card">
+            <div class="staff-stat-content">
+                <div>
+                    <p class="staff-stat-label">Guests</p>
+                    <p class="staff-stat-value">@userCounts.Guest</p>
+                    <p class="staff-stat-note text-purple-600">Registered guests</p>
+                </div>
+                <div class="staff-stat-icon bg-purple-100">
+                    <span class="w-6 h-6 text-purple-600 text-2xl font-bold">🎫</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="staff-stat-card">
+            <div class="staff-stat-content">
+                <div>
+                    <p class="staff-stat-label">Waiters</p>
+                    <p class="staff-stat-value">@userCounts.Waiter</p>
+                    <p class="staff-stat-note text-green-600">Service staff</p>
+                </div>
+                <div class="staff-stat-icon bg-green-100">
+                    <span class="w-6 h-6 text-green-600 text-2xl font-bold">🍽️</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="staff-stat-card">
+            <div class="staff-stat-content">
+                <div>
+                    <p class="staff-stat-label">Chefs</p>
+                    <p class="staff-stat-value">@userCounts.Chef</p>
+                    <p class="staff-stat-note text-orange-600">Kitchen staff</p>
+                </div>
+                <div class="staff-stat-icon bg-orange-100">
+                    <span class="w-6 h-6 text-orange-600 text-2xl font-bold">👨‍🍳</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="staff-stat-card">
+            <div class="staff-stat-content">
+                <div>
+                    <p class="staff-stat-label">Admins</p>
+                    <p class="staff-stat-value">@userCounts.Admin</p>
+                    <p class="staff-stat-note text-red-600">Administrators</p>
+                </div>
+                <div class="staff-stat-icon bg-red-100">
+                    <span class="w-6 h-6 text-red-600 text-2xl font-bold">⚙️</span>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Role Filter Tabs -->
+<div id="role-tabs" class="bg-white rounded-xl shadow-sm border border-slate-200 mb-6">
+    <div id="role-tabs-header" class="border-b border-slate-200">
+        <nav id="role-tabs-nav" class="flex space-x-8 px-6" aria-label="Tabs">
+            <button class="department-tab @(activeRole == "all" ? "active" : "")" @onclick="SetAllRole">
+                All Users (@users.Count)
+            </button>
+            <button class="department-tab @(activeRole == "Guest" ? "active" : "")" @onclick="SetGuestRole">
+                Guests (@users.Count(u => u.Role == "Guest"))
+            </button>
+            <button class="department-tab @(activeRole == "Waiter" ? "active" : "")" @onclick="SetWaiterRole">
+                Waiters (@users.Count(u => u.Role == "Waiter"))
+            </button>
+            <button class="department-tab @(activeRole == "Chef" ? "active" : "")" @onclick="SetChefRole">
+                Chefs (@users.Count(u => u.Role == "Chef"))
+            </button>
+            <button class="department-tab @(activeRole == "Admin" ? "active" : "")" @onclick="SetAdminRole">
+                Admins (@users.Count(u => u.Role == "Admin"))
+            </button>
+        </nav>
+    </div>
+</div>
+
+<!-- Users Grid -->
+<div class="staff-grid">
+    @foreach (var user in FilteredUsers)
+    {
+        var avatarColor = GetAvatarColor(user.Id);
+        var roleColor = GetRoleColor(user.Role);
+        var roleBadgeColor = GetRoleBadgeColor(user.Role);
+
+        <div class="staff-card">
+            <div class="staff-card-header">
+                <div class="staff-card-info">
+                    <div class="staff-avatar @avatarColor">
+                        <span>@GetInitials(user.FullName)</span>
+                    </div>
+                    <div>
+                        <h3 class="staff-name">@user.FullName</h3>
+                        <p class="staff-role">@user.Email</p>
+                    </div>
+                </div>
+                <div class="staff-status">
+                    <span class="@roleBadgeColor text-xs font-semibold px-2 py-1 rounded">
+                        @user.Role
+                    </span>
+                </div>
+            </div>
+
+            <div class="staff-details">
+                <div class="staff-detail-row">
+                    <span class="staff-detail-label">User ID</span>
+                    <span class="staff-detail-value text-xs">@user.Id.ToString().Substring(0, 8)...</span>
+                </div>
+                <div class="staff-detail-row">
+                    <span class="staff-detail-label">Email</span>
+                    <span class="staff-detail-value">@user.Email</span>
+                </div>
+                <div class="staff-detail-row">
+                    <span class="staff-detail-label">Phone</span>
+                    <span class="staff-detail-value">@(user.Phone ?? "N/A")</span>
+                </div>
+                <div class="staff-detail-row">
+                    <span class="staff-detail-label">Status</span>
+                    <span class="staff-status-badge @(user.IsActive ? "badge-online" : "badge-offduty")">
+                        @(user.IsActive ? "Active" : "Inactive")
+                    </span>
+                </div>
+                <div class="staff-detail-row">
+                    <span class="staff-detail-label">Joined</span>
+                    <span class="staff-detail-value text-xs">@user.CreatedAt.ToString("MMM dd, yyyy")</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!FilteredUsers.Any())
+{
+    <div class="text-center py-12">
+        <p class="text-slate-500">No users found for the selected filter.</p>
+    </div>
+}
+
+@code {
+    private List<UserDto> users = new();
+    private UserCountsDto? userCounts;
+    private string activeRole = "all";
+
+    private IEnumerable<UserDto> FilteredUsers =>
+        activeRole == "all" ? users : users.Where(u => u.Role == activeRole);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+        await LoadUserCounts();
+    }
+
+    private async Task LoadUsers()
+    {
+        try
+        {
+            users = await ApiService.GetAllUsersAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading users: {ex.Message}");
+            users = new List<UserDto>();
+        }
+    }
+
+    private async Task LoadUserCounts()
+    {
+        try
+        {
+            userCounts = await ApiService.GetUserCountsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading user counts: {ex.Message}");
+        }
+    }
+
+    private void SetActiveRole(string role)
+    {
+        activeRole = role;
+    }
+
+    private void SetAllRole() => activeRole = "all";
+    private void SetGuestRole() => activeRole = "Guest";
+    private void SetWaiterRole() => activeRole = "Waiter";
+    private void SetChefRole() => activeRole = "Chef";
+    private void SetAdminRole() => activeRole = "Admin";
+
+    private string GetAvatarColor(Guid userId)
+    {
+        var colors = new[] { "avatar-blue", "avatar-purple", "avatar-green", "avatar-orange", "avatar-red", "avatar-teal" };
+        var index = userId.GetHashCode() % colors.Length;
+        return colors[Math.Abs(index)];
+    }
+
+    private string GetRoleColor(string role)
+    {
+        return role switch
+        {
+            "Guest" => "text-purple-600",
+            "Waiter" => "text-green-600",
+            "Chef" => "text-orange-600",
+            "Admin" => "text-red-600",
+            _ => "text-slate-600"
+        };
+    }
+
+    private string GetRoleBadgeColor(string role)
+    {
+        return role switch
+        {
+            "Guest" => "bg-purple-100 text-purple-800",
+            "Waiter" => "bg-green-100 text-green-800",
+            "Chef" => "bg-orange-100 text-orange-800",
+            "Admin" => "bg-red-100 text-red-800",
+            _ => "bg-slate-100 text-slate-800"
+        };
+    }
+
+    private string GetInitials(string fullName)
+    {
+        var names = fullName.Split(' ');
+        if (names.Length >= 2)
+        {
+            return $"{names[0][0]}{names[1][0]}".ToUpper();
+        }
+        return names[0].Length >= 2 ? names[0].Substring(0, 2).ToUpper() : names[0].ToUpper();
+    }
+}

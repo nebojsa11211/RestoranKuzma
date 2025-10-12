@@ -1,0 +1,510 @@
+/* Home Component Styles - Guest */
+
+/* Main Container */
+#home-page-container {
+    width: 100%;
+}
+
+/* Hero Section */
+#home-hero-section {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(to bottom right, #2563eb, #1d4ed8, #1e40af);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 2rem;
+}
+
+#home-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+#home-hero-content-wrapper {
+    position: relative;
+    padding: 3rem 1.5rem;
+}
+
+@media (min-width: 640px) {
+    #home-hero-content-wrapper {
+        padding: 4rem 2rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    #home-hero-content-wrapper {
+        padding: 5rem 3rem;
+    }
+}
+
+#home-hero-header {
+    text-align: center;
+}
+
+#home-hero-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 640px) {
+    #home-hero-title {
+        font-size: 2.25rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    #home-hero-title {
+        font-size: 3rem;
+    }
+}
+
+#home-hero-subtitle {
+    font-size: 1.125rem;
+    color: #dbeafe;
+    margin-bottom: 2rem;
+    max-width: 42rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (min-width: 640px) {
+    #home-hero-subtitle {
+        font-size: 1.25rem;
+    }
+}
+
+#home-hero-navigation {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: center;
+}
+
+@media (min-width: 640px) {
+    #home-hero-navigation {
+        flex-direction: row;
+    }
+}
+
+/* Hero Buttons */
+#home-hero-menu-btn,
+#home-hero-reserve-btn,
+#home-hero-order-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+#home-hero-menu-btn {
+    background-color: white;
+    color: #2563eb;
+}
+
+#home-hero-menu-btn:hover {
+    background-color: #f8fafc;
+}
+
+#home-hero-menu-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px white, 0 0 0 4px rgba(37, 99, 235, 0.5);
+}
+
+#home-hero-reserve-btn {
+    background-color: #16a34a;
+    color: white;
+}
+
+#home-hero-reserve-btn:hover {
+    background-color: #15803d;
+}
+
+#home-hero-reserve-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #16a34a, 0 0 0 4px rgba(22, 163, 74, 0.5);
+}
+
+#home-hero-order-btn {
+    background-color: #2563eb;
+    color: white;
+}
+
+#home-hero-order-btn:hover {
+    background-color: #1d4ed8;
+}
+
+#home-hero-order-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #2563eb, 0 0 0 4px rgba(37, 99, 235, 0.5);
+}
+
+#home-hero-menu-icon,
+#home-hero-reserve-icon,
+#home-hero-order-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+}
+
+/* Quick Actions Section */
+#home-quick-actions-section {
+    margin-bottom: 2rem;
+}
+
+#home-quick-actions-grid-container {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    #home-quick-actions-grid-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    #home-quick-actions-grid-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Action Cards */
+#home-menu-card,
+#home-order-card,
+#home-service-card {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    transition: all 0.2s;
+}
+
+#home-menu-card:hover,
+#home-order-card:hover,
+#home-service-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Image Wrappers */
+#home-menu-card-image-wrapper,
+#home-order-card-image-wrapper,
+#home-service-card-image-wrapper {
+    height: 8rem;
+    position: relative;
+    overflow: hidden;
+}
+
+#home-menu-card-image-wrapper {
+    background: linear-gradient(to bottom right, #f59e0b, #f97316);
+}
+
+#home-order-card-image-wrapper {
+    background: linear-gradient(to bottom right, #22c55e, #10b981);
+}
+
+#home-service-card-image-wrapper {
+    background: linear-gradient(to bottom right, #3b82f6, #6366f1);
+}
+
+#home-menu-card-overlay,
+#home-order-card-overlay,
+#home-service-card-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+#home-menu-card-icon-container,
+#home-order-card-icon-container,
+#home-service-card-icon-container {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#home-menu-card-icon,
+#home-order-card-icon,
+#home-service-card-icon {
+    width: 3rem;
+    height: 3rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Card Content */
+#home-menu-card-content-wrapper,
+#home-order-card-content-wrapper,
+#home-service-card-content-wrapper {
+    padding: 1.5rem;
+}
+
+#home-menu-card-header,
+#home-order-card-header,
+#home-service-card-header {
+    margin-bottom: 1rem;
+}
+
+#home-menu-card-title,
+#home-order-card-title,
+#home-service-card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+}
+
+#home-menu-card-description,
+#home-order-card-description,
+#home-service-card-description {
+    color: #64748b;
+    margin-bottom: 1rem;
+}
+
+/* Card Action Buttons */
+#home-menu-card-action-btn,
+#home-order-card-action-btn,
+#home-service-card-action-btn {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+#home-menu-card-action-btn {
+    background-color: #f59e0b;
+    color: white;
+}
+
+#home-menu-card-action-btn:hover {
+    background-color: #f97316;
+}
+
+#home-menu-card-action-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #f59e0b, 0 0 0 4px rgba(245, 158, 11, 0.5);
+}
+
+#home-order-card-action-btn {
+    background-color: #22c55e;
+    color: white;
+}
+
+#home-order-card-action-btn:hover {
+    background-color: #16a34a;
+}
+
+#home-order-card-action-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #22c55e, 0 0 0 4px rgba(34, 197, 94, 0.5);
+}
+
+#home-service-card-action-btn {
+    background-color: #3b82f6;
+    color: white;
+}
+
+#home-service-card-action-btn:hover {
+    background-color: #2563eb;
+}
+
+#home-service-card-action-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px rgba(59, 130, 246, 0.5);
+}
+
+#home-menu-card-action-icon,
+#home-order-card-action-icon,
+#home-service-card-action-icon {
+    width: 1rem;
+    height: 1rem;
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+}
+
+/* Restaurant Info Section */
+#home-restaurant-info-section {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+#home-restaurant-info-header {
+    margin-bottom: 1.5rem;
+}
+
+#home-restaurant-info-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+#home-restaurant-info-grid-container {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    #home-restaurant-info-grid-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+#home-restaurant-hours-title,
+#home-restaurant-contact-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+}
+
+#home-restaurant-hours-list-container,
+#home-restaurant-contact-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: #475569;
+}
+
+#home-restaurant-hours-weekday-row,
+#home-restaurant-hours-weekend-row,
+#home-restaurant-contact-phone-row,
+#home-restaurant-contact-address-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#home-restaurant-hours-weekday-label,
+#home-restaurant-hours-weekend-label {
+    font-weight: 500;
+}
+
+#home-restaurant-hours-weekday-time,
+#home-restaurant-hours-weekend-time {
+    font-weight: 600;
+}
+
+#home-restaurant-contact-phone-icon,
+#home-restaurant-contact-address-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+/* Special Offers Section */
+#home-special-offers-section {
+    background: linear-gradient(to right, #fffbeb, #fef3c7);
+    border: 1px solid #f59e0b;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+}
+
+#home-special-offers-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+#home-special-offers-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: #d97706;
+    flex-shrink: 0;
+}
+
+#home-special-offers-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #92400e;
+}
+
+#home-special-offers-grid-container {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    #home-special-offers-grid-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Special Offer Cards */
+#home-special-offer-happy-hour-card,
+#home-special-offer-chef-special-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border: 1px solid #fef3c7;
+}
+
+#home-special-offer-happy-hour-header,
+#home-special-offer-chef-special-header {
+    margin-bottom: 0.5rem;
+}
+
+#home-special-offer-happy-hour-title,
+#home-special-offer-chef-special-title {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+#home-special-offer-happy-hour-time,
+#home-special-offer-chef-special-time {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+#home-special-offer-happy-hour-description,
+#home-special-offer-chef-special-description {
+    font-size: 0.875rem;
+    color: #d97706;
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    #home-hero-navigation {
+        flex-direction: column;
+    }
+    
+    #home-quick-actions-grid-container {
+        grid-template-columns: 1fr;
+    }
+    
+    #home-restaurant-info-grid-container {
+        grid-template-columns: 1fr;
+    }
+    
+    #home-special-offers-grid-container {
+        grid-template-columns: 1fr;
+    }
+}

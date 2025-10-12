@@ -1,0 +1,30 @@
+@* View Staff Modal Component - Placeholder *@
+@* TODO: Implement full modular version similar to StaffAddModal *@
+@using RestaurantSuite.Application.DTOs
+
+<div class="modal-overlay" @onclick="OnClose">
+    <div class="modal" @onclick:stopPropagation="true">
+        <div class="modal-header">
+            <div class="modal-title-row">
+                <h3 class="modal-title">Staff Member Details</h3>
+                <button class="modal-close" @onclick="OnClose">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <div class="modal-body">
+            <p>View functionality coming soon...</p>
+            <div class="modal-actions">
+                <button type="button" class="modal-cancel-btn" @onclick="OnClose">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public StaffMemberDto? Staff { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+}

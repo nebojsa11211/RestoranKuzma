@@ -1,0 +1,365 @@
+@page "/menu"
+@using RestaurantSuite.Admin.Services
+@using RestaurantSuite.Application.DTOs
+@inject ApiService ApiService
+
+<PageTitle>Menu Management - Restaurant Suite</PageTitle>
+
+<!-- Page Header -->
+<div id="menu-header" class="mb-8">
+    <div id="menu-header-content" class="flex items-center justify-between">
+        <div id="menu-header-text">
+            <h1 id="menu-title" class="text-3xl font-bold text-slate-900">Menu Management</h1>
+            <p id="menu-subtitle" class="text-slate-600 mt-2">Manage your restaurant menu, categories, and items.</p>
+        </div>
+        <button id="add-menu-item-btn" @onclick="ShowAddItemModal" class="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+            <svg id="add-menu-item-icon" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            Add New Item
+        </button>
+    </div>
+</div>
+
+<!-- Menu Stats -->
+<div id="menu-stats" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div id="total-items-card" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div id="total-items-content" class="flex items-center justify-between">
+            <div id="total-items-text">
+                <p id="total-items-label" class="text-sm font-medium text-slate-600">Total Items</p>
+                <p id="total-items-value" class="text-2xl font-bold text-slate-900 mt-1">@totalItemsCount</p>
+                <p id="total-items-note" class="text-sm text-slate-500 mt-2">Across all categories</p>
+            </div>
+            <div id="total-items-icon" class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg id="total-items-svg" class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="active-categories-card" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div id="active-categories-content" class="flex items-center justify-between">
+            <div id="active-categories-text">
+                <p id="active-categories-label" class="text-sm font-medium text-slate-600">Active Categories</p>
+                <p id="active-categories-value" class="text-2xl font-bold text-slate-900 mt-1">@activeCategoriesCount</p>
+                <p id="active-categories-note" class="text-sm text-slate-500 mt-2">Main categories</p>
+            </div>
+            <div id="active-categories-icon" class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg id="active-categories-svg" class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="most-popular-card" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div id="most-popular-content" class="flex items-center justify-between">
+            <div id="most-popular-text">
+                <p id="most-popular-label" class="text-sm font-medium text-slate-600">Most Popular</p>
+                <p id="most-popular-value" class="text-2xl font-bold text-slate-900 mt-1">@mostPopularItemName</p>
+                <p id="most-popular-note" class="text-sm text-slate-500 mt-2">@mostPopularItemOrders orders this week</p>
+            </div>
+            <div id="most-popular-icon" class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <svg id="most-popular-svg" class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Category Tabs -->
+<div id="category-tabs" class="bg-white rounded-xl shadow-sm border border-slate-200 mb-6">
+    <div id="category-tabs-header" class="border-b border-slate-200">
+        <nav id="category-tabs-nav" class="flex space-x-8 px-6" aria-label="Tabs">
+            <button id="all-items-tab" @onclick="() => FilterByCategory(null)" class="py-4 px-1 border-b-2 @(selectedCategoryId == null ? "border-primary-500 text-primary-600" : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300") font-medium text-sm">
+                All Items
+            </button>
+            @if (categories != null)
+            {
+                foreach (var category in categories)
+                {
+                    <button id="category-tab-@category.Id" @onclick="() => FilterByCategory(category.Id)" 
+                            class="py-4 px-1 border-b-2 @(selectedCategoryId == category.Id ? "border-primary-500 text-primary-600" : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300") font-medium text-sm">
+                        @category.Name
+                    </button>
+                }
+            }
+        </nav>
+    </div>
+</div>
+
+<!-- Menu Items Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @if (filteredMenuItems != null && filteredMenuItems.Any())
+    {
+        foreach (var item in filteredMenuItems)
+        {
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="relative">
+                    <img src="@(item.ImageUrl ?? "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=200&fit=crop")" alt="@item.Name" class="w-full h-48 object-cover">
+                    <div class="absolute top-4 right-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium @(item.IsAvailable ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
+                            @(item.IsAvailable ? "Available" : "Unavailable")
+                        </span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-2">
+                        <h3 class="text-lg font-semibold text-slate-900">@item.Name</h3>
+                        <span class="text-lg font-bold text-slate-900">RSD @item.Price</span>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4">@item.Description</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4 text-sm text-slate-500">
+                            <span>⭐ 4.8</span>
+                            <span>127 orders</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="p-2 text-slate-400 hover:text-slate-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </button>
+                            <button class="p-2 text-slate-400 hover:text-red-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-span-full text-center py-8">
+            <p class="text-slate-500">No menu items found.</p>
+        </div>
+    }
+</div>
+
+<!-- Add Menu Item Modal -->
+@if (showAddItemModal)
+{
+    <div id="add-menu-item-modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div id="add-menu-item-modal" class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div id="add-menu-item-modal-header" class="px-6 py-4 border-b border-slate-200">
+                <div id="add-menu-item-modal-title-row" class="flex items-center justify-between">
+                    <h3 id="add-menu-item-modal-title" class="text-lg font-semibold text-slate-900">Add New Menu Item</h3>
+                    <button id="add-menu-item-modal-close" @onclick="HideAddItemModal" class="text-slate-400 hover:text-slate-600">
+                        <svg id="add-menu-item-modal-close-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="add-menu-item-modal-body" class="px-6 py-4">
+                <form id="add-menu-item-form" @onsubmit="HandleAddMenuItem">
+                    <div id="add-menu-item-form-fields" class="space-y-4">
+                        <div id="add-menu-item-name-group">
+                            <label id="add-menu-item-name-label" for="itemName" class="block text-sm font-medium text-slate-700 mb-1">Item Name</label>
+                            <input type="text" id="itemName" @bind="newMenuItem.Name" required
+                                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"/>
+                        </div>
+                        
+                        <div id="add-menu-item-description-group">
+                            <label id="add-menu-item-description-label" for="itemDescription" class="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                            <textarea id="itemDescription" @bind="newMenuItem.Description" required rows="3"
+                                      class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"></textarea>
+                        </div>
+                        
+                        <div id="add-menu-item-price-group">
+                            <label id="add-menu-item-price-label" for="itemPrice" class="block text-sm font-medium text-slate-700 mb-1">Price (RSD)</label>
+                            <input type="text" id="itemPrice" @bind="newMenuItem.Price" required
+                                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                   placeholder="299.99"/>
+                        </div>
+                        
+                        <div id="add-menu-item-category-group">
+                            <label id="add-menu-item-category-label" for="itemCategory" class="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                            <select id="itemCategory" @bind="newMenuItem.CategoryId" required
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                <option id="add-menu-item-category-placeholder" value="">Select Category</option>
+                                @if (categories != null)
+                                {
+                                    foreach (var category in categories)
+                                    {
+                                        <option id="add-menu-item-category-@category.Id" value="@category.Id">@category.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        
+                        <div id="add-menu-item-image-group">
+                            <label id="add-menu-item-image-label" for="itemImageUrl" class="block text-sm font-medium text-slate-700 mb-1">Image URL (optional)</label>
+                            <input type="url" id="itemImageUrl" @bind="newMenuItem.ImageUrl"
+                                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                   placeholder="https://example.com/image.jpg"/>
+                        </div>
+                    </div>
+                    
+                    <div id="add-menu-item-modal-actions" class="flex items-center justify-end space-x-3 mt-6">
+                        <button type="button" id="add-menu-item-cancel-btn" @onclick="HideAddItemModal"
+                                class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" id="add-menu-item-submit-btn"
+                                class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                            Add Menu Item
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool showAddItemModal = false;
+    private CreateMenuItemDto newMenuItem = new();
+    private List<MenuItemDto> menuItems = new();
+    private List<CategoryDto> categories = new();
+    private Guid? selectedCategoryId = null;
+    private List<MenuItemDto> filteredMenuItems = new();
+    
+    // Stats properties
+    private int totalItemsCount => menuItems?.Count ?? 0;
+    private int activeCategoriesCount => categories?.Count(c => c.IsActive) ?? 0;
+    private string mostPopularItemName => "Pljeskavica"; // Placeholder until we have order data
+    private int mostPopularItemOrders => 127; // Placeholder until we have order data
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load menu items and categories
+        await LoadMenuData();
+    }
+
+    private async Task LoadMenuData()
+    {
+        try
+        {
+            // Load real menu data from API
+            menuItems = await ApiService.GetMenuItemsAsync();
+            categories = await ApiService.GetCategoriesAsync();
+            
+            // Apply initial filter (show all items)
+            FilterByCategory(selectedCategoryId);
+            
+            // Update stats based on real data
+            UpdateMenuStats();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading menu data: {ex.Message}");
+            // Fallback to mock data if API fails
+            menuItems = GetMockMenuItems();
+            categories = GetMockCategories();
+            FilterByCategory(selectedCategoryId);
+        }
+    }
+
+    private void FilterByCategory(Guid? categoryId)
+    {
+        selectedCategoryId = categoryId;
+        
+        if (menuItems == null || !menuItems.Any())
+        {
+            filteredMenuItems = new List<MenuItemDto>();
+            return;
+        }
+        
+        if (categoryId == null)
+        {
+            // Show all items
+            filteredMenuItems = menuItems.ToList();
+        }
+        else
+        {
+            // Filter by selected category
+            filteredMenuItems = menuItems.Where(item => item.CategoryId == categoryId).ToList();
+        }
+        
+        Console.WriteLine($"Filtered to {filteredMenuItems.Count} items for category {categoryId}");
+    }
+
+    private void UpdateMenuStats()
+    {
+        // Update the stats displayed in the UI
+        if (menuItems != null && menuItems.Any())
+        {
+            // Update total items count
+            var totalItemsElement = "total-items-value";
+            // This would need JavaScript interop to update the DOM
+            // For now, we'll just ensure the data is loaded
+        }
+        
+        if (categories != null && categories.Any())
+        {
+            // Update active categories count
+            var activeCategories = categories.Count(c => c.IsActive);
+            // This would need JavaScript interop to update the DOM
+        }
+    }
+
+    private void ShowAddItemModal()
+    {
+        newMenuItem = new CreateMenuItemDto();
+        showAddItemModal = true;
+    }
+
+    private void HideAddItemModal()
+    {
+        showAddItemModal = false;
+        newMenuItem = new CreateMenuItemDto();
+    }
+
+    private async Task HandleAddMenuItem()
+    {
+        try
+        {
+            // Call the API to create the menu item
+            var newItemId = await ApiService.CreateMenuItemAsync(newMenuItem);
+            
+            // Reload the menu data to get the updated list
+            await LoadMenuData();
+            
+            HideAddItemModal();
+            
+            // Show success message (you could add a toast notification here)
+            Console.WriteLine($"Menu item {newMenuItem.Name} added successfully!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding menu item: {ex.Message}");
+            // Show error message (you could add a toast notification here)
+        }
+    }
+
+    private List<MenuItemDto> GetMockMenuItems()
+    {
+        return new List<MenuItemDto>
+        {
+            new() { Id = Guid.NewGuid(), Name = "Pljeskavica", Description = "Traditional Serbian grilled meat patty served with kajmak and ajvar", Price = 450, CategoryId = Guid.NewGuid(), CategoryName = "Main Courses", IsAvailable = true, ImageUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=200&fit=crop" },
+            new() { Id = Guid.NewGuid(), Name = "Ćevapi", Description = "Grilled minced meat fingers served with somun, onions, and ajvar", Price = 380, CategoryId = Guid.NewGuid(), CategoryName = "Main Courses", IsAvailable = true, ImageUrl = "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=200&fit=crop" },
+            new() { Id = Guid.NewGuid(), Name = "Karađorđeva Šnicla", Description = "Breaded veal cutlet stuffed with kajmak, served with tartar sauce", Price = 650, CategoryId = Guid.NewGuid(), CategoryName = "Main Courses", IsAvailable = true, ImageUrl = "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=200&fit=crop" },
+            new() { Id = Guid.NewGuid(), Name = "Palačinke", Description = "Traditional Serbian pancakes with various fillings", Price = 280, CategoryId = Guid.NewGuid(), CategoryName = "Desserts", IsAvailable = true, ImageUrl = "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=200&fit=crop" },
+            new() { Id = Guid.NewGuid(), Name = "Šopska Salata", Description = "Fresh tomato, cucumber, and pepper salad with sirene cheese", Price = 220, CategoryId = Guid.NewGuid(), CategoryName = "Appetizers", IsAvailable = true, ImageUrl = "https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=400&h=200&fit=crop" },
+            new() { Id = Guid.NewGuid(), Name = "Rakija", Description = "Traditional Serbian fruit brandy, various flavors available", Price = 180, CategoryId = Guid.NewGuid(), CategoryName = "Beverages", IsAvailable = true, ImageUrl = "https://images.unsplash.com/photo-1587668178277-295251f900ce?w=400&h=200&fit=crop" }
+        };
+    }
+
+    private List<CategoryDto> GetMockCategories()
+    {
+        return new List<CategoryDto>
+        {
+            new() { Id = Guid.NewGuid(), Name = "Appetizers", DisplayOrder = 1, IsActive = true, CreatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), Name = "Main Courses", DisplayOrder = 2, IsActive = true, CreatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), Name = "Desserts", DisplayOrder = 3, IsActive = true, CreatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), Name = "Beverages", DisplayOrder = 4, IsActive = true, CreatedAt = DateTime.UtcNow }
+        };
+    }
+}

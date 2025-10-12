@@ -1,0 +1,191 @@
+﻿<!-- Brand Section -->
+<div id="navmenu-brand-section" class="h-16 px-5 border-b border-slate-200 flex items-center justify-between bg-white">
+    <div id="navmenu-brand-content" class="flex items-center gap-3">
+        <!-- Brand Icon -->
+        <div id="navmenu-brand-icon-container" class="flex-shrink-0">
+            <svg id="navmenu-brand-icon" class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L3 7V17C3 18.1046 3.89543 19 5 19H19C20.1046 19 21 18.1046 21 17V7L12 2Z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22V19"/>
+                <circle cx="12" cy="12" r="2" fill="currentColor"/>
+            </svg>
+        </div>
+        <!-- Brand Name -->
+        <div id="navmenu-brand-text-container" class="flex flex-col">
+            <span id="navmenu-brand-name" class="text-lg font-bold text-slate-900 leading-tight">Restaurant</span>
+            <span id="navmenu-brand-subtitle" class="text-xs font-medium text-primary-600 leading-tight">Guest Suite</span>
+        </div>
+    </div>
+
+    <!-- Mobile Close Button -->
+    <button id="navmenu-close-btn"
+        @onclick="ToggleNavMenu"
+        class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all duration-200"
+        aria-label="Close menu">
+        <svg id="navmenu-close-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+</div>
+
+<!-- Navigation Menu -->
+<nav id="navmenu-main-nav" class="flex-1 px-3 py-4 space-y-1 overflow-y-auto" aria-label="Main navigation">
+    <!-- Home -->
+    <NavLink id="navmenu-home-link" href="" Match="NavLinkMatch.All" class="@GetNavLinkClasses()">
+        <svg id="navmenu-home-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9l9-7 9 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        <span id="navmenu-home-text" class="font-medium">Home</span>
+    </NavLink>
+
+    <!-- Menu -->
+    <NavLink id="navmenu-menu-link" href="menu" class="@GetNavLinkClasses()">
+        <svg id="navmenu-menu-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+        <span id="navmenu-menu-text" class="font-medium">Menu</span>
+    </NavLink>
+
+    <!-- View Tables -->
+    <NavLink id="navmenu-tables-link" href="tables" class="@GetNavLinkClasses()">
+        <svg id="navmenu-tables-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+        </svg>
+        <span id="navmenu-tables-text" class="font-medium">Our Tables</span>
+    </NavLink>
+
+    <!-- Reserve Table -->
+    <NavLink id="navmenu-reserve-table-link" href="reserve-table" class="@GetNavLinkClasses()">
+        <svg id="navmenu-reserve-table-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a4 4 0 118 0v4m-4 8a2 2 0 100 4 2 2 0 000-4zm-6-4a6 6 0 1112 0v3h-2V11a4 4 0 00-8 0v2H6v-3z"/>
+        </svg>
+        <span id="navmenu-reserve-table-text" class="font-medium">Reserve Table</span>
+    </NavLink>
+
+    <!-- Order -->
+    <NavLink id="navmenu-order-link" href="order" class="@GetNavLinkClasses()">
+        <svg id="navmenu-order-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"/>
+        </svg>
+        <span id="navmenu-order-text" class="font-medium">Place Order</span>
+    </NavLink>
+</nav>
+
+<!-- Authentication Section -->
+<div id="navmenu-auth-section" class="px-3 py-4 border-t border-slate-200 bg-slate-50">
+    <AuthorizeView>
+        <Authorized>
+            <!-- User Info Button -->
+            <button id="navmenu-user-info" @onclick="HandleUserProfile" class="w-full mb-2 px-3 py-2.5 bg-white rounded-lg hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all duration-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                        @GetUserInitials(context.User)
+                    </div>
+                    <div class="flex-1 min-w-0 text-left">
+                        <p class="text-sm font-medium text-slate-900 truncate">@GetUserName(context.User)</p>
+                        <p class="text-xs text-slate-500">@context.User.FindFirst("role")?.Value</p>
+                    </div>
+                    <svg class="w-5 h-5 flex-shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </button>
+            <!-- Logout Button -->
+            <button id="navmenu-logout-btn" @onclick="HandleLogout" class="w-full group flex items-center gap-3 px-3 py-2.5 text-sm text-red-700 rounded-lg hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all duration-200">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                <span class="font-medium">Logout</span>
+            </button>
+        </Authorized>
+        <NotAuthorized>
+            <!-- Login Button -->
+            <NavLink id="navmenu-login-link" href="login" class="@($"{GetNavLinkClasses()} mb-2")">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                </svg>
+                <span class="font-medium">Login</span>
+            </NavLink>
+            <!-- Register Button -->
+            <NavLink id="navmenu-register-link" href="register" class="@GetRegisterButtonClasses()" style="color: white !important;">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                </svg>
+                <span class="font-medium">Register</span>
+            </NavLink>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
+<!-- Footer Section (Optional) -->
+<div id="navmenu-footer" class="px-5 py-4 border-t border-slate-200 bg-white">
+    <div id="navmenu-footer-content" class="flex items-center gap-2 text-xs text-slate-500">
+        <svg id="navmenu-footer-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke-width="2"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"/>
+        </svg>
+        <span id="navmenu-footer-version">v1.0.0</span>
+    </div>
+</div>
+
+@using RestaurantSuite.Guest.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject AuthService AuthService
+@inject CustomAuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private string GetNavLinkClasses()
+    {
+        return "group flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-700 rounded-lg hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition-all duration-200 active:bg-primary-50 active:text-primary-700 active:font-semibold active:shadow-inner-soft";
+    }
+
+    private string GetRegisterButtonClasses()
+    {
+        return "group flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition-all duration-200 active:font-semibold active:shadow-inner-soft bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800";
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        AuthStateProvider.NotifyUserLogout();
+        NavigationManager.NavigateTo("/", forceLoad: true);
+    }
+
+    private void HandleUserProfile()
+    {
+        // Navigate to user profile page (to be implemented)
+        NavigationManager.NavigateTo("/profile");
+    }
+
+    private string GetUserName(ClaimsPrincipal user)
+    {
+        return user.FindFirst(ClaimTypes.Name)?.Value
+            ?? user.FindFirst("name")?.Value
+            ?? "Guest User";
+    }
+
+    private string GetUserInitials(ClaimsPrincipal user)
+    {
+        var name = GetUserName(user);
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        if (parts.Length >= 2)
+        {
+            return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+        }
+        else if (parts.Length == 1 && parts[0].Length >= 2)
+        {
+            return parts[0].Substring(0, 2).ToUpper();
+        }
+
+        return "GU";
+    }
+}

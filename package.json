@@ -1,0 +1,35 @@
+{
+  "name": "restorankuzma",
+  "version": "1.0.0",
+  "description": "A comprehensive restaurant management system built with .NET 9, Blazor, and PostgreSQL for Restoran Kuzma. The system supports multiple user roles (Admin, Waiter, Chef, Guest) with real-time order tracking via SignalR.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "npm run build:css:admin && npm run build:css:waiter && npm run build:css:chef && npm run build:css:guest",
+    "build:css:admin": "npx tailwindcss -i ./src/RestaurantSuite.Admin/wwwroot/css/tailwind.input.css -o ./src/RestaurantSuite.Admin/wwwroot/css/tailwind.output.css --minify",
+    "build:css:waiter": "npx tailwindcss -i ./src/RestaurantSuite.Waiter/wwwroot/css/tailwind.input.css -o ./src/RestaurantSuite.Waiter/wwwroot/css/tailwind.output.css --minify",
+    "build:css:chef": "npx tailwindcss -i ./src/RestaurantSuite.Chef/wwwroot/css/tailwind.input.css -o ./src/RestaurantSuite.Chef/wwwroot/css/tailwind.output.css --minify",
+    "build:css:guest": "npx tailwindcss -i ./src/RestaurantSuite.Guest/wwwroot/css/tailwind.input.css -o ./src/RestaurantSuite.Guest/wwwroot/css/tailwind.output.css --minify",
+    "watch:css": "npm run watch:css:admin & npm run watch:css:waiter & npm run watch:css:chef & npm run watch:css:guest",
+    "watch:css:admin": "npx tailwindcss -i ./src/RestaurantSuite.Admin/wwwroot/css/tailwind.input.css -o ./src/RestaurantSuite.Admin/wwwroot/css/tailwind.output.css --watch",
+    "watch:css:waiter": "npx tailwindcss -i ./src/RestaurantSuite.Waiter/wwwroot/css/tailwind.input.css -o ./src/RestaurantSuite.Waiter/wwwroot/css/tailwind.output.css --watch",
+    "watch:css:chef": "npx tailwindcss -i ./src/RestaurantSuite.Chef/wwwroot/css/tailwind.input.css -o ./src/RestaurantSuite.Chef/wwwroot/css/tailwind.output.css --watch",
+    "watch:css:guest": "npx tailwindcss -i ./src/RestaurantSuite.Guest/wwwroot/css/tailwind.input.css -o ./src/RestaurantSuite.Guest/wwwroot/css/tailwind.output.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@playwright/test": "^1.56.0",
+    "playwright": "^1.56.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.18"
+  }
+}

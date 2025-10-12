@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.9" />
+    <PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.13.0-beta.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RestaurantSuite.Application\RestaurantSuite.Application.csproj" />
+    <ProjectReference Include="..\RestaurantSuite.Infrastructure.EF\RestaurantSuite.Infrastructure.EF.csproj" />
+    <ProjectReference Include="..\RestaurantSuite.Infrastructure.Identity\RestaurantSuite.Infrastructure.Identity.csproj" />
+    <ProjectReference Include="..\RestaurantSuite.Notifications\RestaurantSuite.Notifications.csproj" />
+    <ProjectReference Include="..\RestaurantSuite.Integrations\RestaurantSuite.Integrations.csproj" />
+  </ItemGroup>
+
+</Project>

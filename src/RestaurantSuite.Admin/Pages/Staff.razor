@@ -1,0 +1,17 @@
+@page "/staff"
+@using RestaurantSuite.Admin.Components.Staff
+
+<PageTitle>Staff Management - Restaurant Suite</PageTitle>
+
+<!-- Use the modular Staff Component -->
+<StaffComponent />
+
+@* 
+This page now uses the modular StaffComponent which separates:
+- HTML structure (StaffComponent.razor)
+- CSS styling (wwwroot/css/staff.css) 
+- C# logic (within StaffComponent.razor)
+
+This provides better maintainability and separation of concerns.
+The StaffComponent is now a reusable component that can be used elsewhere.
+*@

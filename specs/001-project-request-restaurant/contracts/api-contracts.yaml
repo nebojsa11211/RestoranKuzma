@@ -1,0 +1,1071 @@
+openapi: 3.0.3
+info:
+  title: Restaurant Suite API
+  description: Multi-role restaurant management and ordering system API
+  version: 1.0.0
+  contact:
+    name: Restaurant Suite Team
+
+servers:
+  - url: https://api.restaurantsuite.example.com
+    description: Production
+  - url: http://localhost:5000
+    description: Local development
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Menu
+    description: Menu management (categories, items, modifiers)
+  - name: Orders
+    description: Order creation and lifecycle management
+  - name: Tables
+    description: Table management
+  - name: Reservations
+    description: Reservation management
+  - name: Inventory
+    description: Inventory tracking and management
+  - name: Reports
+    description: Sales and operational reports
+  - name: Admin
+    description: Restaurant administration
+
+paths:
+  # ============ AUTHENTICATION ============
+  /api/auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register a new user
+      description: Creates a new user account (FR-001)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email already exists
+
+  /api/auth/login:
+    post:
+      tags: [Authentication]
+      summary: Login user
+      description: Authenticates user and returns JWT tokens (FR-001)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+
+  /api/auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      description: Refreshes JWT access token using refresh token (FR-005)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid or expired refresh token
+
+  # ============ MENU ============
+  /api/menu:
+    get:
+      tags: [Menu]
+      summary: Get menu items
+      description: Returns all menu items for the restaurant, optionally filtered (FR-022)
+      parameters:
+        - in: query
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: available
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Menu items retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItemDto'
+
+  /api/admin/menu:
+    post:
+      tags: [Menu, Admin]
+      summary: Create menu item
+      description: Creates a new menu item (FR-016)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMenuItemRequest'
+      responses:
+        '201':
+          description: Menu item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItemDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/menu/{id}:
+    put:
+      tags: [Menu, Admin]
+      summary: Update menu item
+      description: Updates an existing menu item (FR-016)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMenuItemRequest'
+      responses:
+        '200':
+          description: Menu item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItemDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Menu, Admin]
+      summary: Delete menu item
+      description: Soft-deletes a menu item (FR-016)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: Menu item deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============ ORDERS ============
+  /api/orders:
+    get:
+      tags: [Orders]
+      summary: Get orders
+      description: Returns orders with optional filters (FR-032)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
+        - in: query
+          name: tableId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: from
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: to
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Orders retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDto'
+
+    post:
+      tags: [Orders]
+      summary: Create order
+      description: Creates a new order (FR-023)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/orders/{id}:
+    get:
+      tags: [Orders]
+      summary: Get order by ID
+      description: Returns a specific order
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Order retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/orders/{id}/status:
+    put:
+      tags: [Orders]
+      summary: Update order status
+      description: Transitions order through lifecycle (FR-026, FR-028)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  $ref: '#/components/schemas/OrderStatus'
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Order status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDto'
+        '400':
+          description: Invalid status transition
+
+  /api/orders/{id}/payment:
+    post:
+      tags: [Orders]
+      summary: Process payment
+      description: Records payment for an order (FR-053)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessPaymentRequest'
+      responses:
+        '200':
+          description: Payment processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # ============ TABLES ============
+  /api/tables:
+    get:
+      tags: [Tables]
+      summary: Get all tables
+      description: Returns all tables for the restaurant (FR-042)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Tables retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TableDto'
+
+  # ============ RESERVATIONS ============
+  /api/reservations:
+    get:
+      tags: [Reservations]
+      summary: Get reservations
+      description: Returns reservations with optional date filter (FR-049)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: status
+          schema:
+            $ref: '#/components/schemas/ReservationStatus'
+      responses:
+        '200':
+          description: Reservations retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservationDto'
+
+    post:
+      tags: [Reservations]
+      summary: Create reservation
+      description: Creates a new table reservation (FR-045)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReservationRequest'
+      responses:
+        '201':
+          description: Reservation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDto'
+        '409':
+          description: Table not available (double-booking)
+
+  # ============ INVENTORY ============
+  /api/inventory:
+    get:
+      tags: [Inventory]
+      summary: Get inventory items
+      description: Returns all inventory items with stock levels (FR-061)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Inventory retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InventoryItemDto'
+
+  /api/inventory/{id}/adjust:
+    put:
+      tags: [Inventory]
+      summary: Adjust inventory quantity
+      description: Manually adjusts stock quantity (FR-065)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantityChange, reason]
+              properties:
+                quantityChange:
+                  type: number
+                  format: decimal
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Inventory adjusted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemDto'
+
+  # ============ REPORTS ============
+  /api/reports/sales:
+    get:
+      tags: [Reports]
+      summary: Get sales report
+      description: Returns sales data for date range (FR-088, FR-092)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: from
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: to
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: format
+          schema:
+            type: string
+            enum: [json, csv]
+            default: json
+      responses:
+        '200':
+          description: Sales report generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalesReportDto'
+            text/csv:
+              schema:
+                type: string
+
+  /api/reports/stock:
+    get:
+      tags: [Reports]
+      summary: Get stock report
+      description: Returns inventory stock levels and alerts (FR-089)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Stock report generated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockReportItemDto'
+
+  # ============ ADMIN ============
+  /api/admin/settings:
+    get:
+      tags: [Admin]
+      summary: Get restaurant settings
+      description: Returns restaurant settings configuration (FR-011)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Restaurant settings retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestaurantSettingsDto'
+
+    put:
+      tags: [Admin]
+      summary: Update restaurant settings
+      description: Updates restaurant settings configuration (FR-011)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRestaurantSettingsRequest'
+      responses:
+        '200':
+          description: Restaurant settings updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestaurantSettingsDto'
+
+# ============ COMPONENTS ============
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdPath:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Bad request - validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Unauthorized:
+      description: Unauthorized - missing or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Forbidden:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    # ===== Authentication =====
+    RegisterRequest:
+      type: object
+      required: [email, password, displayName, role]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 10
+        displayName:
+          type: string
+          minLength: 2
+          maxLength: 100
+        phone:
+          type: string
+          maxLength: 20
+        role:
+          type: string
+          enum: [Admin, Waiter, Chef, Guest]
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+        user:
+          $ref: '#/components/schemas/UserDto'
+
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        displayName:
+          type: string
+        role:
+          type: string
+
+    # ===== Menu =====
+    CreateMenuItemRequest:
+      type: object
+      required: [categoryId, name, price]
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 150
+        description:
+          type: string
+          maxLength: 500
+        price:
+          type: number
+          format: decimal
+          minimum: 0
+        sku:
+          type: string
+          maxLength: 50
+        taxRate:
+          type: number
+          format: decimal
+          minimum: 0
+          maximum: 1
+        isAvailable:
+          type: boolean
+          default: true
+        imagePath:
+          type: string
+
+    UpdateMenuItemRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateMenuItemRequest'
+
+    MenuItemDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        categoryId:
+          type: string
+          format: uuid
+        categoryName:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: decimal
+        sku:
+          type: string
+        taxRate:
+          type: number
+          format: decimal
+        isAvailable:
+          type: boolean
+        imagePath:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuItemOptionDto'
+
+    MenuItemOptionDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum: [Single, Multi]
+        required:
+          type: boolean
+        modifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuItemModifierDto'
+
+    MenuItemModifierDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        priceDelta:
+          type: number
+          format: decimal
+
+    # ===== Orders =====
+    CreateOrderRequest:
+      type: object
+      required: [orderLines]
+      properties:
+        tableId:
+          type: string
+          format: uuid
+        notes:
+          type: string
+        orderLines:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/OrderLineRequest'
+
+    OrderLineRequest:
+      type: object
+      required: [menuItemId, quantity]
+      properties:
+        menuItemId:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+        modifiers:
+          type: array
+          items:
+            type: object
+            properties:
+              optionId:
+                type: string
+                format: uuid
+              modifierId:
+                type: string
+                format: uuid
+
+    OrderDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tableNumber:
+          type: string
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        paymentStatus:
+          $ref: '#/components/schemas/PaymentStatus'
+        totalAmount:
+          type: number
+          format: decimal
+        taxAmount:
+          type: number
+          format: decimal
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        orderLines:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderLineDto'
+
+    OrderLineDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        menuItemName:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+          format: decimal
+        modifiers:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              priceDelta:
+                type: number
+                format: decimal
+        status:
+          type: string
+          enum: [Pending, InProgress, Ready]
+
+    OrderStatus:
+      type: string
+      enum: [Placed, Confirmed, InKitchen, Ready, Served, Completed, Cancelled]
+
+    PaymentStatus:
+      type: string
+      enum: [Unpaid, PartiallyPaid, Paid, Refunded]
+
+    # ===== Payments =====
+    ProcessPaymentRequest:
+      type: object
+      required: [method, amount]
+      properties:
+        method:
+          type: string
+          enum: [Cash, Card, Terminal]
+        amount:
+          type: number
+          format: decimal
+          minimum: 0
+        transactionId:
+          type: string
+        tipAmount:
+          type: number
+          format: decimal
+
+    PaymentDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        orderId:
+          type: string
+          format: uuid
+        method:
+          type: string
+        amount:
+          type: number
+          format: decimal
+        tipAmount:
+          type: number
+          format: decimal
+        status:
+          type: string
+          enum: [Pending, Completed, Failed, Refunded]
+        createdAt:
+          type: string
+          format: date-time
+
+    # ===== Tables =====
+    TableDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: string
+        seats:
+          type: integer
+        status:
+          type: string
+          enum: [Available, Occupied, Reserved, Cleaning]
+        positionX:
+          type: number
+          format: decimal
+        positionY:
+          type: number
+          format: decimal
+
+    # ===== Reservations =====
+    CreateReservationRequest:
+      type: object
+      required: [guestName, partySize, startAt]
+      properties:
+        guestName:
+          type: string
+          minLength: 2
+          maxLength: 100
+        guestEmail:
+          type: string
+          format: email
+        guestPhone:
+          type: string
+        partySize:
+          type: integer
+          minimum: 1
+        startAt:
+          type: string
+          format: date-time
+        tableId:
+          type: string
+          format: uuid
+
+    ReservationDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        guestName:
+          type: string
+        guestEmail:
+          type: string
+        guestPhone:
+          type: string
+        partySize:
+          type: integer
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+        tableNumber:
+          type: string
+        status:
+          $ref: '#/components/schemas/ReservationStatus'
+
+    ReservationStatus:
+      type: string
+      enum: [Pending, Confirmed, Seated, Completed, Cancelled, NoShow]
+
+    # ===== Inventory =====
+    InventoryItemDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        sku:
+          type: string
+        stockQty:
+          type: number
+          format: decimal
+        reorderLevel:
+          type: number
+          format: decimal
+        unit:
+          type: string
+        isLowStock:
+          type: boolean
+
+    # ===== Reports =====
+    SalesReportDto:
+      type: object
+      properties:
+        period:
+          type: object
+          properties:
+            from:
+              type: string
+              format: date
+            to:
+              type: string
+              format: date
+        totalSales:
+          type: number
+          format: decimal
+        orderCount:
+          type: integer
+        averageOrderValue:
+          type: number
+          format: decimal
+        breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              sales:
+                type: number
+                format: decimal
+              orders:
+                type: integer
+
+    StockReportItemDto:
+      type: object
+      properties:
+        itemName:
+          type: string
+        stockQty:
+          type: number
+          format: decimal
+        reorderLevel:
+          type: number
+          format: decimal
+        status:
+          type: string
+          enum: [Adequate, Low, Critical]
+
+    # ===== Admin =====
+    RestaurantSettingsDto:
+      type: object
+      description: Singleton configuration object for restaurant settings
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Settings ID (singleton)
+        name:
+          type: string
+        address:
+          type: string
+        timezone:
+          type: string
+        currency:
+          type: string
+
+    UpdateRestaurantSettingsRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 200
+        address:
+          type: string
+        timezone:
+          type: string
+        currency:
+          type: string
+
+    # ===== Common =====
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object

@@ -1,0 +1,231 @@
+@page "/"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Chef")]
+@inject ApiService ApiService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>Dashboard - Chef</PageTitle>
+
+<div id="chef-dashboard-container" class="dashboard-container">
+    <div id="chef-welcome-section" class="welcome-section">
+        <div id="chef-welcome-card" class="welcome-card">
+            <h1 id="chef-welcome-title">Welcome, @chefName!</h1>
+            <p id="chef-welcome-subtitle" class="subtitle">Kitchen Dashboard</p>
+            @if (stats != null)
+            {
+                <div id="chef-stats-grid" class="stats-grid">
+                    <div id="chef-stat-confirmed" class="stat-card">
+                        <div id="chef-stat-confirmed-icon" class="stat-icon confirmed">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </div>
+                        <div id="chef-stat-confirmed-content" class="stat-content">
+                            <div id="chef-stat-confirmed-value" class="stat-value">@stats.ConfirmedOrders</div>
+                            <div id="chef-stat-confirmed-label" class="stat-label">Waiting to Start</div>
+                        </div>
+                    </div>
+
+                    <div id="chef-stat-inprogress" class="stat-card">
+                        <div id="chef-stat-inprogress-icon" class="stat-icon in-progress">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                        </div>
+                        <div id="chef-stat-inprogress-content" class="stat-content">
+                            <div id="chef-stat-inprogress-value" class="stat-value">@stats.InProgressOrders</div>
+                            <div id="chef-stat-inprogress-label" class="stat-label">In Progress</div>
+                        </div>
+                    </div>
+
+                    <div id="chef-stat-ready" class="stat-card">
+                        <div id="chef-stat-ready-icon" class="stat-icon ready">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div id="chef-stat-ready-content" class="stat-content">
+                            <div id="chef-stat-ready-value" class="stat-value">@stats.ReadyOrders</div>
+                            <div id="chef-stat-ready-label" class="stat-label">Ready for Pickup</div>
+                        </div>
+                    </div>
+
+                    <div id="chef-stat-completed" class="stat-card">
+                        <div id="chef-stat-completed-icon" class="stat-icon completed">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        <div id="chef-stat-completed-content" class="stat-content">
+                            <div id="chef-stat-completed-value" class="stat-value">@stats.CompletedToday</div>
+                            <div id="chef-stat-completed-label" class="stat-label">Completed Today</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div id="chef-quick-actions" class="quick-actions">
+        <h2 id="chef-quick-actions-title">Quick Actions</h2>
+        <div id="chef-action-grid" class="action-grid">
+            <a id="chef-kitchen-action" href="/kitchen" class="action-card">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6z"></path>
+                    <line x1="6" y1="17" x2="18" y2="17"></line>
+                </svg>
+                <h3>Kitchen Orders</h3>
+                <p>Manage incoming orders</p>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .welcome-section {
+        margin-bottom: 30px;
+    }
+
+    .welcome-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .welcome-card h1 {
+        margin: 0 0 10px 0;
+        font-size: 32px;
+    }
+
+    .subtitle {
+        margin: 0 0 30px 0;
+        opacity: 0.9;
+        font-size: 16px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .stat-icon {
+        flex-shrink: 0;
+    }
+
+    .stat-content {
+        flex-grow: 1;
+    }
+
+    .stat-value {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    .quick-actions h2 {
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+    }
+
+    .action-card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        text-align: center;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 2px solid transparent;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(245, 87, 108, 0.2);
+        border-color: #f5576c;
+    }
+
+    .action-card svg {
+        color: #f5576c;
+        margin-bottom: 15px;
+    }
+
+    .action-card h3 {
+        margin: 0 0 10px 0;
+        color: #333;
+        font-size: 20px;
+    }
+
+    .action-card p {
+        margin: 0;
+        color: #666;
+        font-size: 14px;
+    }
+</style>
+
+@code {
+    private string chefName = "Chef";
+    private KitchenStats? stats;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("Dashboard page initialized");
+        
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            chefName = user.Identity.Name ?? "Chef";
+            Console.WriteLine($"Dashboard loaded for user: {chefName}");
+        }
+        else
+        {
+            Console.WriteLine("Dashboard loaded for unauthenticated user");
+        }
+
+        await LoadStats();
+    }
+
+    private async Task LoadStats()
+    {
+        var response = await ApiService.GetKitchenStatsAsync();
+        if (response.Success)
+        {
+            stats = response.Stats;
+        }
+    }
+}

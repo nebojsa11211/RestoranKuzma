@@ -1,0 +1,298 @@
+@page "/login"
+@using RestaurantSuite.Chef.Services
+@using RestaurantSuite.Chef.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthService AuthService
+@inject CustomAuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Chef Login - Restaurant Suite</PageTitle>
+
+<div id="chef-login-container" class="login-container">
+    <div id="chef-login-card" class="login-card">
+        <div id="chef-login-icon" class="login-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6z"></path>
+                <line x1="6" y1="17" x2="18" y2="17"></line>
+            </svg>
+        </div>
+        <h2>Chef Login</h2>
+        <p class="subtitle">Restaurant Suite - Kitchen Access</p>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div id="chef-login-error" class="alert alert-error">
+                @errorMessage
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div id="chef-login-success" class="alert alert-success">
+                @successMessage
+            </div>
+        }
+
+        <EditForm Model="@loginRequest" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+
+            <div id="chef-email-group" class="form-group">
+                <label for="email" id="chef-email-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 5px;">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    Email
+                </label>
+                <InputText id="chef-email-input" @bind-Value="loginRequest.Email" class="form-control" placeholder="Enter your email" />
+                <ValidationMessage For="@(() => loginRequest.Email)" />
+            </div>
+
+            <div id="chef-password-group" class="form-group">
+                <label for="password" id="chef-password-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 5px;">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    Password
+                </label>
+                <InputText id="chef-password-input" type="password" @bind-Value="loginRequest.Password" class="form-control" placeholder="Enter your password" />
+                <ValidationMessage For="@(() => loginRequest.Password)" />
+            </div>
+
+            <div id="chef-remember-group" class="form-group remember-me">
+                <label for="chef-remember-checkbox" class="checkbox-label">
+                    <InputCheckbox id="chef-remember-checkbox" @bind-Value="loginRequest.RememberMe" />
+                    <span>Remember me for 30 days</span>
+                </label>
+            </div>
+
+            <button id="chef-login-button" type="submit" class="btn btn-primary btn-block" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 5px; animation: spin 1s linear infinite;">
+                        <line x1="12" y1="2" x2="12" y2="6"></line>
+                        <line x1="12" y1="18" x2="12" y2="22"></line>
+                        <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                        <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                        <line x1="2" y1="12" x2="6" y2="12"></line>
+                        <line x1="18" y1="12" x2="22" y2="12"></line>
+                        <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                        <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                    </svg>
+                    <span>Logging in...</span>
+                }
+                else
+                {
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 5px;">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                        <polyline points="10,17 15,12 10,7"></polyline>
+                        <line x1="15" y1="12" x2="3" y2="12"></line>
+                    </svg>
+                    <span>Login</span>
+                }
+            </button>
+        </EditForm>
+
+        <div id="chef-login-footer" class="login-footer">
+            <p id="chef-login-help-text" class="help-text">Contact your manager if you need access</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .login-card {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .login-icon {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        color: #f5576c;
+    }
+
+    .login-card h2 {
+        margin-bottom: 10px;
+        color: #333;
+        text-align: center;
+        font-size: 28px;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 14px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #f5576c;
+        box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+    }
+
+    .remember-me {
+        margin-bottom: 15px;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        cursor: pointer;
+        width: 16px;
+        height: 16px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .btn-block {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+    }
+
+    .alert {
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .alert-error {
+        background-color: #fee;
+        color: #c33;
+        border: 1px solid #fcc;
+    }
+
+    .alert-success {
+        background-color: #efe;
+        color: #3c3;
+        border: 1px solid #cfc;
+    }
+
+    .login-footer {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .help-text {
+        font-size: 13px;
+        color: #999;
+        margin: 0;
+    }
+
+    @@keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+@code {
+    private LoginRequest loginRequest = new();
+    private string? errorMessage;
+    private string? successMessage;
+    private bool isLoading = false;
+
+    private async Task HandleLogin()
+    {
+        isLoading = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            var result = await AuthService.LoginAsync(loginRequest);
+
+            if (result.Success)
+            {
+                successMessage = "Login successful! Welcome to the kitchen.";
+
+                // Notify authentication state changed
+                if (!string.IsNullOrEmpty(result.AccessToken))
+                {
+                    AuthStateProvider.NotifyUserAuthentication(result.AccessToken);
+                }
+
+                await Task.Delay(1000);
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Login failed. Please check your credentials.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
