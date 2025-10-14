@@ -3,14 +3,14 @@
 <PageTitle>Table Management - Restaurant Suite</PageTitle>
 
 <!-- Page Header -->
-<div class="tables-header">
-    <div class="tables-header-content">
-        <div>
-            <h1 class="tables-title">Table Management</h1>
-            <p class="tables-subtitle">Monitor and manage restaurant table assignments and status.</p>
+<div id="tables-header" class="tables-header">
+    <div id="tables-header-content" class="tables-header-content">
+        <div id="tables-header-text">
+            <h1 id="tables-title" class="tables-title">Table Management</h1>
+            <p id="tables-subtitle" class="tables-subtitle">Monitor and manage restaurant table assignments and status.</p>
         </div>
-        <button @onclick="ShowReserveTableModal" class="reserve-table-btn">
-            <svg class="reserve-table-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button id="reserve-table-btn" @onclick="ShowReserveTableModal" class="reserve-table-btn">
+            <svg id="reserve-table-icon" class="reserve-table-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
             </svg>
             Reserve Table

@@ -30,8 +30,45 @@
                                 @foreach (var item in order.OrderItems)
                                 {
                                     <div id="chef-order-@order.Id-item-@item.Id" class="order-item">
-                                        <span id="chef-order-@order.Id-item-@item.Id-quantity" class="item-quantity">@item.Quantity x</span>
-                                        <span id="chef-order-@order.Id-item-@item.Id-name" class="item-name">@item.MenuItemName</span>
+                                        <div class="item-header">
+                                            <span id="chef-order-@order.Id-item-@item.Id-quantity" class="item-quantity">@item.Quantity x</span>
+                                            <span id="chef-order-@order.Id-item-@item.Id-name" class="item-name">@item.MenuItemName</span>
+                                        </div>
+
+                                        @if (item.Recipe != null && item.Recipe.Any())
+                                        {
+                                            <div class="recipe-details">
+                                                <strong>Recipe:</strong>
+                                                <ul class="recipe-list">
+                                                    @foreach (var ingredient in item.Recipe)
+                                                    {
+                                                        <li>@ingredient.IngredientName: @ingredient.QuantityInGrams.ToString("0.##")g</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        }
+
+                                        @if (item.Customizations != null && item.Customizations.Any())
+                                        {
+                                            <div class="customizations-alert">
+                                                <strong>⚠️ CUSTOMIZATIONS:</strong>
+                                                <ul class="customizations-list">
+                                                    @foreach (var custom in item.Customizations)
+                                                    {
+                                                        <li>
+                                                            <span class="customization-type @(custom.CustomizationType == CustomizationType.More ? "more" : "less")">
+                                                                @custom.IngredientName: @(custom.CustomizationType == CustomizationType.More ? "EXTRA" : "LESS")
+                                                            </span>
+                                                            @if (!string.IsNullOrEmpty(custom.Notes))
+                                                            {
+                                                                <span class="customization-notes"> - @custom.Notes</span>
+                                                            }
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        }
+
                                         @if (!string.IsNullOrEmpty(item.SpecialInstructions))
                                         {
                                             <div id="chef-order-@order.Id-item-@item.Id-instructions" class="special-instructions">
@@ -68,8 +105,45 @@
                                 @foreach (var item in order.OrderItems)
                                 {
                                     <div id="chef-order-@order.Id-inprogress-item-@item.Id" class="order-item">
-                                        <span id="chef-order-@order.Id-inprogress-item-@item.Id-quantity" class="item-quantity">@item.Quantity x</span>
-                                        <span id="chef-order-@order.Id-inprogress-item-@item.Id-name" class="item-name">@item.MenuItemName</span>
+                                        <div class="item-header">
+                                            <span id="chef-order-@order.Id-inprogress-item-@item.Id-quantity" class="item-quantity">@item.Quantity x</span>
+                                            <span id="chef-order-@order.Id-inprogress-item-@item.Id-name" class="item-name">@item.MenuItemName</span>
+                                        </div>
+
+                                        @if (item.Recipe != null && item.Recipe.Any())
+                                        {
+                                            <div class="recipe-details">
+                                                <strong>Recipe:</strong>
+                                                <ul class="recipe-list">
+                                                    @foreach (var ingredient in item.Recipe)
+                                                    {
+                                                        <li>@ingredient.IngredientName: @ingredient.QuantityInGrams.ToString("0.##")g</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        }
+
+                                        @if (item.Customizations != null && item.Customizations.Any())
+                                        {
+                                            <div class="customizations-alert">
+                                                <strong>⚠️ CUSTOMIZATIONS:</strong>
+                                                <ul class="customizations-list">
+                                                    @foreach (var custom in item.Customizations)
+                                                    {
+                                                        <li>
+                                                            <span class="customization-type @(custom.CustomizationType == CustomizationType.More ? "more" : "less")">
+                                                                @custom.IngredientName: @(custom.CustomizationType == CustomizationType.More ? "EXTRA" : "LESS")
+                                                            </span>
+                                                            @if (!string.IsNullOrEmpty(custom.Notes))
+                                                            {
+                                                                <span class="customization-notes"> - @custom.Notes</span>
+                                                            }
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        }
+
                                         @if (!string.IsNullOrEmpty(item.SpecialInstructions))
                                         {
                                             <div id="chef-order-@order.Id-inprogress-item-@item.Id-instructions" class="special-instructions">
@@ -197,6 +271,72 @@
     .item-name {
         color: #333;
         font-size: 15px;
+    }
+
+    .item-header {
+        margin-bottom: 10px;
+    }
+
+    .recipe-details {
+        margin-top: 10px;
+        padding: 10px;
+        background: #f0f8ff;
+        border-left: 3px solid #4a90e2;
+        border-radius: 4px;
+        font-size: 13px;
+    }
+
+    .recipe-list {
+        margin: 5px 0 0 0;
+        padding-left: 20px;
+        color: #555;
+    }
+
+    .recipe-list li {
+        margin: 3px 0;
+    }
+
+    .customizations-alert {
+        margin-top: 10px;
+        padding: 12px;
+        background: #fff3cd;
+        border: 2px solid #ff9800;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+
+    .customizations-alert strong {
+        color: #d84315;
+        font-size: 14px;
+    }
+
+    .customizations-list {
+        margin: 8px 0 0 0;
+        padding-left: 20px;
+        color: #333;
+    }
+
+    .customizations-list li {
+        margin: 5px 0;
+        font-weight: 500;
+    }
+
+    .customization-type {
+        font-weight: bold;
+    }
+
+    .customization-type.more {
+        color: #2e7d32;
+    }
+
+    .customization-type.less {
+        color: #c62828;
+    }
+
+    .customization-notes {
+        color: #666;
+        font-style: italic;
+        font-weight: normal;
     }
 
     .special-instructions {

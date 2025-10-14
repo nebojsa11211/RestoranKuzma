@@ -2,8 +2,10 @@
 
 <PageTitle>Counter</PageTitle>
 
-<h1>Counter</h1>
+<div id="counter-page">
+    <h1 id="counter-title">Counter</h1>
 
-<p role="status">Current count: @currentCount</p>
+    <p id="counter-status" role="status">Current count: @currentCount</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+    <button id="counter-increment-btn" class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+</div>

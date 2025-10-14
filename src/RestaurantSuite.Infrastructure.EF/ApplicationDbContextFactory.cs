@@ -9,8 +9,8 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
     {
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
-        // Use the connection string from docker-compose
-        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=restorankuzma;Username=postgres;Password=postgres");
+        // Use SQLite for local development
+        optionsBuilder.UseSqlite("Data Source=restorankuzma.db");
 
         return new ApplicationDbContext(optionsBuilder.Options);
     }

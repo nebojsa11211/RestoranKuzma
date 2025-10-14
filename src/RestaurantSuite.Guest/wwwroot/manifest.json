@@ -1,0 +1,88 @@
+{
+  "name": "Restaurant Suite - Guest Portal",
+  "short_name": "Restaurant Guest",
+  "description": "Browse menu, place orders, and reserve tables at Restaurant Kuzma",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["food", "lifestyle", "restaurants"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-mobile.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "View Menu",
+      "short_name": "Menu",
+      "description": "Browse our delicious menu items",
+      "url": "/menu",
+      "icons": [
+        {
+          "src": "icon-menu.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Place Order",
+      "short_name": "Order",
+      "description": "Order food for delivery or pickup",
+      "url": "/order",
+      "icons": [
+        {
+          "src": "icon-order.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Reserve Table",
+      "short_name": "Reserve",
+      "description": "Reserve a table at our restaurant",
+      "url": "/reserve-table",
+      "icons": [
+        {
+          "src": "icon-reserve.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}

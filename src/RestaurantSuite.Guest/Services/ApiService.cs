@@ -70,6 +70,47 @@ public class ApiService
         }
     }
 
+    public async Task<List<GuestMenuItemDto>> GetGuestMenuAsync(Guid restaurantId, Guid? categoryId = null)
+    {
+        try
+        {
+            var queryParams = new List<string>
+            {
+                $"restaurantId={restaurantId}"
+            };
+
+            if (categoryId.HasValue)
+                queryParams.Add($"categoryId={categoryId.Value}");
+
+            var queryString = "?" + string.Join("&", queryParams);
+            var url = $"api/guest/menu{queryString}";
+
+            Console.WriteLine($"[GetGuestMenuAsync] Requesting: {_httpClient.BaseAddress}{url}");
+
+            var response = await _httpClient.GetAsync(url);
+
+            Console.WriteLine($"[GetGuestMenuAsync] Response Status: {response.StatusCode}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[GetGuestMenuAsync] API Error: {response.StatusCode} - {response.ReasonPhrase}");
+                Console.WriteLine($"[GetGuestMenuAsync] Error Content: {errorContent}");
+                throw new HttpRequestException($"API returned {response.StatusCode}: {response.ReasonPhrase}");
+            }
+
+            var content = await response.Content.ReadFromJsonAsync<List<GuestMenuItemDto>>();
+            var itemCount = content?.Count ?? 0;
+            Console.WriteLine($"[GetGuestMenuAsync] Successfully retrieved {itemCount} menu items with ingredients");
+            return content ?? new List<GuestMenuItemDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[GetGuestMenuAsync] Error: {ex.Message}");
+            throw;
+        }
+    }
+
     public async Task<MenuItemDto?> GetMenuItemByIdAsync(Guid id)
     {
         return await _httpClient.GetFromJsonAsync<MenuItemDto>($"api/menu/{id}");
@@ -167,5 +208,14 @@ public class OrderItemDto
 {
     public Guid MenuItemId { get; set; }
     public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
     public string? SpecialInstructions { get; set; }
+    public List<OrderItemCustomizationDto> Customizations { get; set; } = new();
+}
+
+public class OrderItemCustomizationDto
+{
+    public string IngredientName { get; set; } = string.Empty;
+    public int CustomizationType { get; set; } // 0 = More, 1 = Less
+    public string? Notes { get; set; }
 }

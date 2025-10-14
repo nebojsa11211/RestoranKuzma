@@ -145,7 +145,7 @@ public class ApiService
 
     public async Task<Guid> CreateCategoryAsync(CreateCategoryCommand command)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/admin/categories", command);
+        var response = await _httpClient.PostAsJsonAsync("api/categories", command);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<CreateCategoryResponse>();
         return result?.Id ?? Guid.Empty;
@@ -153,13 +153,13 @@ public class ApiService
 
     public async Task UpdateCategoryAsync(Guid id, UpdateCategoryCommand command)
     {
-        var response = await _httpClient.PutAsJsonAsync($"api/admin/categories/{id}", command);
+        var response = await _httpClient.PutAsJsonAsync($"api/categories/{id}", command);
         response.EnsureSuccessStatusCode();
     }
 
     public async Task DeleteCategoryAsync(Guid id)
     {
-        var response = await _httpClient.DeleteAsync($"api/admin/categories/{id}");
+        var response = await _httpClient.DeleteAsync($"api/categories/{id}");
         response.EnsureSuccessStatusCode();
     }
 
@@ -215,6 +215,137 @@ public class ApiService
     {
         return await _httpClient.GetFromJsonAsync<UserCountsDto>("api/users/count");
     }
+
+    // Recipe/Ingredient Management
+    public async Task<MenuItemWithIngredientsDto?> GetMenuItemWithRecipeAsync(Guid id)
+    {
+        return await _httpClient.GetFromJsonAsync<MenuItemWithIngredientsDto>($"api/admin/menu/{id}/recipe");
+    }
+
+    public async Task<List<MenuItemIngredientDto>> GetIngredientsAsync(Guid menuItemId)
+    {
+        return await _httpClient.GetFromJsonAsync<List<MenuItemIngredientDto>>($"api/admin/menu/{menuItemId}/ingredients") ?? new List<MenuItemIngredientDto>();
+    }
+
+    public async Task<Guid> AddIngredientAsync(Guid menuItemId, CreateMenuItemIngredientDto dto)
+    {
+        var response = await _httpClient.PostAsJsonAsync($"api/admin/menu/{menuItemId}/ingredients", dto);
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<CreateIngredientResponse>();
+        return result?.Id ?? Guid.Empty;
+    }
+
+    public async Task UpdateIngredientAsync(Guid id, UpdateMenuItemIngredientDto dto)
+    {
+        var response = await _httpClient.PutAsJsonAsync($"api/admin/ingredients/{id}", dto);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task DeleteIngredientAsync(Guid id)
+    {
+        var response = await _httpClient.DeleteAsync($"api/admin/ingredients/{id}");
+        response.EnsureSuccessStatusCode();
+    }
+
+    // Inventory Management
+    public async Task<List<InventoryItemDto>> GetInventoryItemsAsync(bool? lowStockOnly = null, bool includeInactive = false)
+    {
+        var queryParams = new List<string>();
+        if (lowStockOnly.HasValue) queryParams.Add($"lowStockOnly={lowStockOnly.Value}");
+        if (includeInactive) queryParams.Add($"includeInactive={includeInactive}");
+
+        var queryString = queryParams.Any() ? "?" + string.Join("&", queryParams) : "";
+        return await _httpClient.GetFromJsonAsync<List<InventoryItemDto>>($"api/admin/inventory{queryString}") ?? new List<InventoryItemDto>();
+    }
+
+    public async Task<InventoryItemDto?> GetInventoryItemByIdAsync(Guid id)
+    {
+        return await _httpClient.GetFromJsonAsync<InventoryItemDto>($"api/admin/inventory/{id}");
+    }
+
+    public async Task<List<InventoryItemDto>> GetLowStockItemsAsync()
+    {
+        return await _httpClient.GetFromJsonAsync<List<InventoryItemDto>>("api/admin/inventory/low-stock") ?? new List<InventoryItemDto>();
+    }
+
+    public async Task<List<StockTransactionDto>> GetStockTransactionHistoryAsync(
+        Guid? inventoryItemId = null,
+        Guid? orderId = null,
+        DateTime? fromDate = null,
+        DateTime? toDate = null,
+        int limit = 100)
+    {
+        var queryParams = new List<string>();
+        if (inventoryItemId.HasValue) queryParams.Add($"inventoryItemId={inventoryItemId.Value}");
+        if (orderId.HasValue) queryParams.Add($"orderId={orderId.Value}");
+        if (fromDate.HasValue) queryParams.Add($"fromDate={fromDate.Value:yyyy-MM-ddTHH:mm:ss}");
+        if (toDate.HasValue) queryParams.Add($"toDate={toDate.Value:yyyy-MM-ddTHH:mm:ss}");
+        queryParams.Add($"limit={limit}");
+
+        var queryString = "?" + string.Join("&", queryParams);
+        return await _httpClient.GetFromJsonAsync<List<StockTransactionDto>>($"api/admin/inventory/transactions{queryString}") ?? new List<StockTransactionDto>();
+    }
+
+    public async Task<Guid> CreateInventoryItemAsync(CreateInventoryItemCommand command)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/admin/inventory", command);
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<CreateInventoryItemResponse>();
+        return result?.Id ?? Guid.Empty;
+    }
+
+    public async Task UpdateInventoryItemAsync(Guid id, UpdateInventoryItemCommand command)
+    {
+        command.Id = id;
+        var response = await _httpClient.PutAsJsonAsync($"api/admin/inventory/{id}", command);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task AdjustInventoryStockAsync(Guid id, AdjustInventoryStockCommand command)
+    {
+        command.InventoryItemId = id;
+        var response = await _httpClient.PostAsJsonAsync($"api/admin/inventory/{id}/adjust", command);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task DeactivateInventoryItemAsync(Guid id)
+    {
+        var response = await _httpClient.DeleteAsync($"api/admin/inventory/{id}");
+        response.EnsureSuccessStatusCode();
+    }
+
+    // Recipe Management
+    public async Task<List<RecipeDto>> GetRecipesAsync(bool includeInactive = false)
+    {
+        var queryString = includeInactive ? "?includeInactive=true" : "";
+        return await _httpClient.GetFromJsonAsync<List<RecipeDto>>($"api/admin/recipes{queryString}") ?? new List<RecipeDto>();
+    }
+
+    public async Task<RecipeDto?> GetRecipeByMenuItemIdAsync(Guid menuItemId)
+    {
+        return await _httpClient.GetFromJsonAsync<RecipeDto>($"api/admin/recipes/menu-item/{menuItemId}");
+    }
+
+    public async Task<Guid> CreateRecipeAsync(CreateRecipeCommand command)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/admin/recipes", command);
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<CreateRecipeResponse>();
+        return result?.Id ?? Guid.Empty;
+    }
+
+    public async Task UpdateRecipeAsync(Guid menuItemId, UpdateRecipeCommand command)
+    {
+        command.MenuItemId = menuItemId;
+        var response = await _httpClient.PutAsJsonAsync($"api/admin/recipes/menu-item/{menuItemId}", command);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task DeactivateRecipeAsync(Guid menuItemId)
+    {
+        var response = await _httpClient.DeleteAsync($"api/admin/recipes/menu-item/{menuItemId}");
+        response.EnsureSuccessStatusCode();
+    }
 }
 
 public class UserDto
@@ -268,6 +399,21 @@ public class CreateCategoryResponse
 }
 
 public class CreateTableResponse
+{
+    public Guid Id { get; set; }
+}
+
+public class CreateIngredientResponse
+{
+    public Guid Id { get; set; }
+}
+
+public class CreateInventoryItemResponse
+{
+    public Guid Id { get; set; }
+}
+
+public class CreateRecipeResponse
 {
     public Guid Id { get; set; }
 }

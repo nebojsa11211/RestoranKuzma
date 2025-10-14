@@ -1,10 +1,14 @@
+using System.Text.Json.Serialization;
+
 namespace RestaurantSuite.Waiter.Models;
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum TableStatus
 {
     Available = 0,
     Occupied = 1,
-    Reserved = 2
+    Reserved = 2,
+    Cleaning = 3
 }
 
 public class Table

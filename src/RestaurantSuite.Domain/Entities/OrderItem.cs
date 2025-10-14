@@ -1,3 +1,5 @@
+using RestaurantSuite.Domain.Enums;
+
 namespace RestaurantSuite.Domain.Entities;
 
 public class OrderItem
@@ -13,6 +15,9 @@ public class OrderItem
     // Navigation properties
     public Order Order { get; private set; }
     public MenuItem MenuItem { get; private set; }
+
+    private readonly List<OrderItemCustomization> _customizations = new();
+    public IReadOnlyCollection<OrderItemCustomization> Customizations => _customizations.AsReadOnly();
 
     private OrderItem() { }
 
@@ -50,5 +55,20 @@ public class OrderItem
     private void RecalculateSubtotal()
     {
         Subtotal = Quantity * UnitPrice;
+    }
+
+    public void AddCustomization(string ingredientName, CustomizationType customizationType, string? notes = null)
+    {
+        var customization = OrderItemCustomization.Create(Id, ingredientName, customizationType, notes);
+        _customizations.Add(customization);
+    }
+
+    public void RemoveCustomization(Guid customizationId)
+    {
+        var customization = _customizations.FirstOrDefault(c => c.Id == customizationId);
+        if (customization != null)
+        {
+            _customizations.Remove(customization);
+        }
     }
 }

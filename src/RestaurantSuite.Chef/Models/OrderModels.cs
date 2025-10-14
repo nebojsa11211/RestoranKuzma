@@ -1,5 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace RestaurantSuite.Chef.Models;
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum OrderStatus
 {
     Pending = 0,
@@ -42,6 +45,31 @@ public class OrderItem
     // Navigation properties for display
     public string? MenuItemName { get; set; }
     public string? MenuItemDescription { get; set; }
+
+    // Recipe and customization information
+    public List<MenuItemIngredientInfo> Recipe { get; set; } = new();
+    public List<OrderItemCustomizationInfo> Customizations { get; set; } = new();
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum CustomizationType
+{
+    More = 0,
+    Less = 1
+}
+
+public class MenuItemIngredientInfo
+{
+    public string IngredientName { get; set; } = string.Empty;
+    public decimal QuantityInGrams { get; set; }
+    public bool IsMainIngredient { get; set; }
+}
+
+public class OrderItemCustomizationInfo
+{
+    public string IngredientName { get; set; } = string.Empty;
+    public CustomizationType CustomizationType { get; set; }
+    public string? Notes { get; set; }
 }
 
 public class UpdateOrderStatusRequest

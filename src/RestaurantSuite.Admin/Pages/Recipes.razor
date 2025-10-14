@@ -1,0 +1,405 @@
+@page "/recipes"
+@using RestaurantSuite.Admin.Services
+@using RestaurantSuite.Application.DTOs
+@inject ApiService ApiService
+
+<PageTitle>Recipe Management - Restaurant Suite</PageTitle>
+
+<!-- Page Header -->
+<div id="recipes-header" class="mb-8">
+    <div id="recipes-header-content" class="flex items-center justify-between">
+        <div id="recipes-header-text">
+            <h1 id="recipes-title" class="text-3xl font-bold text-slate-900">Recipe Management</h1>
+            <p id="recipes-subtitle" class="text-slate-600 mt-2">Manage menu item recipes and ingredients.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Recipe Stats -->
+<div id="recipe-stats" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div id="total-recipes-card" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div id="total-recipes-content" class="flex items-center justify-between">
+            <div id="total-recipes-text">
+                <p id="total-recipes-label" class="text-sm font-medium text-slate-600">Total Recipes</p>
+                <p id="total-recipes-value" class="text-2xl font-bold text-slate-900 mt-1">@menuItems.Count</p>
+                <p id="total-recipes-note" class="text-sm text-slate-500 mt-2">Menu items with recipes</p>
+            </div>
+            <div id="total-recipes-icon" class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <svg id="total-recipes-svg" class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="total-ingredients-card" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div id="total-ingredients-content" class="flex items-center justify-between">
+            <div id="total-ingredients-text">
+                <p id="total-ingredients-label" class="text-sm font-medium text-slate-600">Total Ingredients</p>
+                <p id="total-ingredients-value" class="text-2xl font-bold text-slate-900 mt-1">@totalIngredientsCount</p>
+                <p id="total-ingredients-note" class="text-sm text-slate-500 mt-2">Across all recipes</p>
+            </div>
+            <div id="total-ingredients-icon" class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg id="total-ingredients-svg" class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="avg-ingredients-card" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div id="avg-ingredients-content" class="flex items-center justify-between">
+            <div id="avg-ingredients-text">
+                <p id="avg-ingredients-label" class="text-sm font-medium text-slate-600">Avg. Ingredients</p>
+                <p id="avg-ingredients-value" class="text-2xl font-bold text-slate-900 mt-1">@averageIngredientsPerRecipe.ToString("F1")</p>
+                <p id="avg-ingredients-note" class="text-sm text-slate-500 mt-2">Per recipe</p>
+            </div>
+            <div id="avg-ingredients-icon" class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg id="avg-ingredients-svg" class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Menu Items List -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-900 mb-4">Menu Items</h2>
+            <div class="space-y-2 max-h-[600px] overflow-y-auto">
+                @if (menuItems.Any())
+                {
+                    foreach (var item in menuItems)
+                    {
+                        <button @onclick="() => SelectMenuItem(item.Id)"
+                                class="w-full text-left p-3 rounded-lg border transition-colors @(selectedMenuItemId == item.Id ? "border-primary-500 bg-primary-50" : "border-slate-200 hover:border-primary-300 hover:bg-slate-50")">
+                            <div class="font-medium text-slate-900">@item.Name</div>
+                            <div class="text-sm text-slate-600">@item.CategoryName</div>
+                            @if (selectedMenuItem != null && selectedMenuItem.Id == item.Id)
+                            {
+                                <div class="text-xs text-primary-600 mt-1">@selectedMenuItem.Ingredients.Count ingredient(s)</div>
+                            }
+                        </button>
+                    }
+                }
+                else
+                {
+                    <p class="text-slate-500 text-sm text-center py-4">No menu items found</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Recipe Details -->
+    <div class="lg:col-span-2">
+        @if (selectedMenuItem != null)
+        {
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <div class="flex items-start justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">@selectedMenuItem.Name</h2>
+                        <p class="text-slate-600 mt-1">@selectedMenuItem.Description</p>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 mt-2">
+                            @selectedMenuItem.CategoryName
+                        </span>
+                    </div>
+                    <button @onclick="ShowAddIngredientModal" class="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Add Ingredient
+                    </button>
+                </div>
+
+                <!-- Ingredients List -->
+                <div class="space-y-3">
+                    <h3 class="text-lg font-semibold text-slate-900">Ingredients</h3>
+
+                    @if (selectedMenuItem.Ingredients.Any())
+                    {
+                        <div class="space-y-2">
+                            @foreach (var ingredient in selectedMenuItem.Ingredients.OrderBy(i => i.DisplayOrder))
+                            {
+                                <div class="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:bg-slate-50">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="font-medium text-slate-900">@ingredient.IngredientName</span>
+                                            @if (ingredient.IsMainIngredient)
+                                            {
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                                                    Main
+                                                </span>
+                                            }
+                                        </div>
+                                        <div class="text-sm text-slate-600 mt-1">
+                                            @ingredient.QuantityInGrams.ToString("F2")g
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button @onclick="() => ShowEditIngredientModal(ingredient)" class="p-2 text-slate-400 hover:text-primary-600">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            </svg>
+                                        </button>
+                                        <button @onclick="() => DeleteIngredient(ingredient.Id)" class="p-2 text-slate-400 hover:text-red-600">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-8">
+                            <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <p class="text-slate-500 mt-2">No ingredients added yet</p>
+                            <button @onclick="ShowAddIngredientModal" class="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                                Add First Ingredient
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
+                <svg class="mx-auto h-16 w-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <h3 class="mt-4 text-lg font-medium text-slate-900">Select a menu item</h3>
+                <p class="mt-2 text-slate-500">Choose a menu item from the list to view and manage its recipe</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Add/Edit Ingredient Modal -->
+@if (showIngredientModal)
+{
+    <div id="ingredient-modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div id="ingredient-modal" class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div id="ingredient-modal-header" class="px-6 py-4 border-b border-slate-200">
+                <div id="ingredient-modal-title-row" class="flex items-center justify-between">
+                    <h3 id="ingredient-modal-title" class="text-lg font-semibold text-slate-900">
+                        @(editingIngredient != null ? "Edit Ingredient" : "Add Ingredient")
+                    </h3>
+                    <button id="ingredient-modal-close" @onclick="HideIngredientModal" class="text-slate-400 hover:text-slate-600">
+                        <svg id="ingredient-modal-close-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="ingredient-modal-body" class="px-6 py-4">
+                <form id="ingredient-form" @onsubmit="HandleSaveIngredient">
+                    <div id="ingredient-form-fields" class="space-y-4">
+                        <div id="ingredient-name-group">
+                            <label id="ingredient-name-label" for="ingredientName" class="block text-sm font-medium text-slate-700 mb-1">Ingredient Name</label>
+                            <input type="text" id="ingredientName" @bind="ingredientForm.IngredientName" required
+                                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                   placeholder="e.g., Tomato, Cheese, Beef"/>
+                        </div>
+
+                        <div id="ingredient-quantity-group">
+                            <label id="ingredient-quantity-label" for="ingredientQuantity" class="block text-sm font-medium text-slate-700 mb-1">Quantity (grams)</label>
+                            <input type="number" id="ingredientQuantity" @bind="ingredientForm.QuantityInGrams" required min="0.01" step="0.01"
+                                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                   placeholder="100"/>
+                        </div>
+
+                        <div id="ingredient-order-group">
+                            <label id="ingredient-order-label" for="ingredientOrder" class="block text-sm font-medium text-slate-700 mb-1">Display Order</label>
+                            <input type="number" id="ingredientOrder" @bind="ingredientForm.DisplayOrder" required min="1"
+                                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                   placeholder="1"/>
+                        </div>
+
+                        <div id="ingredient-main-group" class="flex items-center">
+                            <input type="checkbox" id="ingredientMain" @bind="ingredientForm.IsMainIngredient"
+                                   class="w-4 h-4 text-primary-600 border-slate-300 rounded focus:ring-primary-500"/>
+                            <label id="ingredient-main-label" for="ingredientMain" class="ml-2 text-sm font-medium text-slate-700">
+                                Main Ingredient
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="ingredient-modal-actions" class="flex items-center justify-end space-x-3 mt-6">
+                        <button type="button" id="ingredient-cancel-btn" @onclick="HideIngredientModal"
+                                class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" id="ingredient-submit-btn"
+                                class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                            @(editingIngredient != null ? "Update" : "Add") Ingredient
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<MenuItemDto> menuItems = new();
+    private MenuItemWithIngredientsDto? selectedMenuItem = null;
+    private Guid? selectedMenuItemId = null;
+    private bool showIngredientModal = false;
+    private MenuItemIngredientDto? editingIngredient = null;
+    private IngredientFormModel ingredientForm = new();
+
+    // Stats
+    private int totalIngredientsCount => selectedMenuItem != null ? selectedMenuItem.Ingredients.Count : 0;
+    private double averageIngredientsPerRecipe => menuItems.Any() && selectedMenuItem != null
+        ? (double)selectedMenuItem.Ingredients.Count
+        : 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMenuItems();
+    }
+
+    private async Task LoadMenuItems()
+    {
+        try
+        {
+            menuItems = await ApiService.GetMenuItemsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading menu items: {ex.Message}");
+        }
+    }
+
+    private async Task SelectMenuItem(Guid menuItemId)
+    {
+        try
+        {
+            selectedMenuItemId = menuItemId;
+            selectedMenuItem = await ApiService.GetMenuItemWithRecipeAsync(menuItemId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading menu item recipe: {ex.Message}");
+        }
+    }
+
+    private void ShowAddIngredientModal()
+    {
+        editingIngredient = null;
+        var maxOrder = selectedMenuItem?.Ingredients.Any() == true
+            ? selectedMenuItem.Ingredients.Max(i => i.DisplayOrder)
+            : 0;
+        ingredientForm = new IngredientFormModel
+        {
+            IngredientName = string.Empty,
+            QuantityInGrams = 0,
+            DisplayOrder = maxOrder + 1,
+            IsMainIngredient = false
+        };
+        showIngredientModal = true;
+    }
+
+    private void ShowEditIngredientModal(MenuItemIngredientDto ingredient)
+    {
+        editingIngredient = ingredient;
+        ingredientForm = new IngredientFormModel
+        {
+            IngredientName = ingredient.IngredientName,
+            QuantityInGrams = ingredient.QuantityInGrams,
+            DisplayOrder = ingredient.DisplayOrder,
+            IsMainIngredient = ingredient.IsMainIngredient
+        };
+        showIngredientModal = true;
+    }
+
+    private void HideIngredientModal()
+    {
+        showIngredientModal = false;
+        editingIngredient = null;
+        ingredientForm = new IngredientFormModel();
+    }
+
+    private async Task HandleSaveIngredient()
+    {
+        if (selectedMenuItem == null) return;
+
+        try
+        {
+            if (editingIngredient != null)
+            {
+                // Update existing ingredient
+                var dto = new UpdateMenuItemIngredientDto
+                {
+                    IngredientName = ingredientForm.IngredientName,
+                    QuantityInGrams = ingredientForm.QuantityInGrams,
+                    DisplayOrder = ingredientForm.DisplayOrder,
+                    IsMainIngredient = ingredientForm.IsMainIngredient
+                };
+                await ApiService.UpdateIngredientAsync(editingIngredient.Id, dto);
+            }
+            else
+            {
+                // Add new ingredient
+                var dto = new CreateMenuItemIngredientDto
+                {
+                    IngredientName = ingredientForm.IngredientName,
+                    QuantityInGrams = ingredientForm.QuantityInGrams,
+                    DisplayOrder = ingredientForm.DisplayOrder,
+                    IsMainIngredient = ingredientForm.IsMainIngredient
+                };
+                await ApiService.AddIngredientAsync(selectedMenuItem.Id, dto);
+            }
+
+            // Reload the recipe
+            await SelectMenuItem(selectedMenuItem.Id);
+            HideIngredientModal();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving ingredient: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteIngredient(Guid ingredientId)
+    {
+        if (selectedMenuItem == null) return;
+
+        if (!await ConfirmDelete("Are you sure you want to delete this ingredient?"))
+            return;
+
+        try
+        {
+            await ApiService.DeleteIngredientAsync(ingredientId);
+            await SelectMenuItem(selectedMenuItem.Id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting ingredient: {ex.Message}");
+        }
+    }
+
+    private async Task<bool> ConfirmDelete(string message)
+    {
+        // In a real app, you'd use a proper confirmation dialog
+        // For now, we'll just return true
+        return await Task.FromResult(true);
+    }
+
+    private class IngredientFormModel
+    {
+        public string IngredientName { get; set; } = string.Empty;
+        public decimal QuantityInGrams { get; set; }
+        public int DisplayOrder { get; set; }
+        public bool IsMainIngredient { get; set; }
+    }
+}

@@ -1,0 +1,902 @@
+@page "/payment"
+@attribute [Authorize(Roles = "Waiter")]
+@using Microsoft.AspNetCore.Authorization
+@using RestaurantSuite.Waiter.Models
+@using RestaurantSuite.Waiter.Services
+@inject ApiService ApiService
+@inject NavigationManager Navigation
+
+<PageTitle>Payment - Waiter</PageTitle>
+
+<div class="payment-container">
+    <div class="payment-header">
+        <button class="back-button" @onclick="GoBack">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back
+        </button>
+        <div>
+            <h1>Process Payment</h1>
+            @if (selectedOrder != null)
+            {
+                <p class="subtitle">Order #@selectedOrder.Id.ToString().Substring(0, 8) - Table @selectedOrder.TableNumber</p>
+            }
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading order...</p>
+        </div>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="error-message">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            @errorMessage
+        </div>
+    }
+    else if (selectedOrder == null)
+    {
+        <div class="empty-state">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <p>No order selected</p>
+            <button class="btn-primary" @onclick='() => Navigation.NavigateTo("/tables")'>View Tables</button>
+        </div>
+    }
+    else
+    {
+        <div class="payment-layout">
+            <!-- Order Summary Section -->
+            <div class="order-summary-section">
+                <h2>Order Summary</h2>
+
+                <div class="order-items">
+                    @foreach (var item in selectedOrder.OrderItems)
+                    {
+                        <div class="order-item">
+                            <div class="item-details">
+                                <span class="item-name">@item.MenuItemName</span>
+                                <span class="item-quantity">x@item.Quantity</span>
+                            </div>
+                            <span class="item-price">$@item.Subtotal.ToString("F2")</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="order-totals">
+                    <div class="total-row">
+                        <span>Subtotal</span>
+                        <span>$@selectedOrder.TotalAmount.ToString("F2")</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Tax</span>
+                        <span>$@((selectedOrder.TotalAmount * 0.08m).ToString("F2"))</span>
+                    </div>
+                    <div class="total-row grand-total">
+                        <span>Total</span>
+                        <span>$@((selectedOrder.TotalAmount * 1.08m).ToString("F2"))</span>
+                    </div>
+                </div>
+
+                @if (!isSplitPayment)
+                {
+                    <button class="split-payment-button" @onclick="EnableSplitPayment">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 3h5v5"></path>
+                            <path d="M8 3H3v5"></path>
+                            <path d="M12 22v-8"></path>
+                            <path d="M16 14h5v5"></path>
+                            <path d="M8 14H3v5"></path>
+                        </svg>
+                        Split Check
+                    </button>
+                }
+            </div>
+
+            <!-- Payment Section -->
+            <div class="payment-section">
+                @if (!isSplitPayment)
+                {
+                    <!-- Single Payment Mode -->
+                    <h2>Payment Details</h2>
+
+                    <div class="payment-method-selector">
+                        <label>Payment Method</label>
+                        <div class="method-options">
+                            <button class="method-option @(paymentMethod == PaymentMethod.Cash ? "selected" : "")" @onclick="() => paymentMethod = PaymentMethod.Cash">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                </svg>
+                                Cash
+                            </button>
+                            <button class="method-option @(paymentMethod == PaymentMethod.Card ? "selected" : "")" @onclick="() => paymentMethod = PaymentMethod.Card">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                                </svg>
+                                Card
+                            </button>
+                            <button class="method-option @(paymentMethod == PaymentMethod.Terminal ? "selected" : "")" @onclick="() => paymentMethod = PaymentMethod.Terminal">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                                </svg>
+                                Terminal
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tip-section">
+                        <label>Tip</label>
+                        <div class="tip-presets">
+                            <button class="@(tipPercentage == 10 ? "selected" : "")" @onclick="() => SelectTip(10)">10%</button>
+                            <button class="@(tipPercentage == 15 ? "selected" : "")" @onclick="() => SelectTip(15)">15%</button>
+                            <button class="@(tipPercentage == 18 ? "selected" : "")" @onclick="() => SelectTip(18)">18%</button>
+                            <button class="@(tipPercentage == 20 ? "selected" : "")" @onclick="() => SelectTip(20)">20%</button>
+                            <button class="@(tipPercentage == -1 ? "selected" : "")" @onclick="() => SelectTip(-1)">Custom</button>
+                        </div>
+                        @if (tipPercentage == -1)
+                        {
+                            <input type="number" step="0.01" @bind="customTipAmount" placeholder="Enter tip amount" class="custom-tip-input" />
+                        }
+                        <div class="tip-amount">Tip: $@CalculatedTip.ToString("F2")</div>
+                    </div>
+
+                    <div class="payment-summary">
+                        <div class="summary-row">
+                            <span>Order Total</span>
+                            <span>$@(selectedOrder.TotalAmount * 1.08m).ToString("F2")</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tip</span>
+                            <span>$@CalculatedTip.ToString("F2")</span>
+                        </div>
+                        <div class="summary-row grand-total">
+                            <span>Total to Pay</span>
+                            <span>$@FinalTotal.ToString("F2")</span>
+                        </div>
+                    </div>
+
+                    <button class="process-payment-button" @onclick="ProcessPayment" disabled="@isProcessing">
+                        @if (isProcessing)
+                        {
+                            <div class="spinner-small"></div>
+                            <span>Processing...</span>
+                        }
+                        else
+                        {
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>Complete Payment - $@FinalTotal.ToString("F2")</span>
+                        }
+                    </button>
+                }
+                else
+                {
+                    <!-- Split Payment Mode -->
+                    <h2>Split Payment</h2>
+
+                    <div class="split-options">
+                        <button class="split-option @(splitMode == "even" ? "selected" : "")" @onclick='() => SetSplitMode("even")'>
+                            Split Evenly
+                        </button>
+                        <button class="split-option @(splitMode == "custom" ? "selected" : "")" @onclick='() => SetSplitMode("custom")'>
+                            Custom Split
+                        </button>
+                    </div>
+
+                    @if (splitMode == "even")
+                    {
+                        <div class="split-count">
+                            <label>Number of people</label>
+                            <div class="number-selector">
+                                <button @onclick="() => splitCount = Math.Max(2, splitCount - 1)">-</button>
+                                <span>@splitCount</span>
+                                <button @onclick="() => splitCount = Math.Min(10, splitCount + 1)">+</button>
+                            </div>
+                            <div class="per-person-amount">
+                                $@((FinalTotal / splitCount).ToString("F2")) per person
+                            </div>
+                        </div>
+                    }
+
+                    <button class="cancel-split-button" @onclick="CancelSplitPayment">
+                        Cancel Split
+                    </button>
+                }
+            </div>
+        </div>
+
+        @if (showSuccessModal)
+        {
+            <div class="modal-overlay" @onclick="CloseSuccessModal">
+                <div class="success-modal" @onclick:stopPropagation="true">
+                    <div class="success-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                    <h3>Payment Successful!</h3>
+                    <p>Amount paid: $@FinalTotal.ToString("F2")</p>
+                    @if (!string.IsNullOrEmpty(invoiceNumber))
+                    {
+                        <p style="margin-top: 10px;">Invoice: <strong>@invoiceNumber</strong></p>
+                    }
+                    <div class="modal-actions">
+                        @if (invoiceId.HasValue)
+                        {
+                            <button class="btn-secondary" @onclick="ViewInvoice">View Invoice</button>
+                        }
+                        <button class="btn-secondary" @onclick="PrintReceipt">Print Receipt</button>
+                        <button class="btn-primary" @onclick="CloseSuccessModal">Done</button>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<style>
+    .payment-container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .payment-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .back-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+
+    .back-button:hover {
+        background: #f9fafb;
+    }
+
+    .payment-header h1 {
+        margin: 0;
+        color: #333;
+        font-size: 28px;
+    }
+
+    .subtitle {
+        margin: 5px 0 0 0;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .payment-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .order-summary-section, .payment-section {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .order-summary-section h2, .payment-section h2 {
+        margin: 0 0 20px 0;
+        color: #333;
+        font-size: 20px;
+    }
+
+    .order-items {
+        margin-bottom: 20px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .item-details {
+        display: flex;
+        gap: 12px;
+    }
+
+    .item-name {
+        color: #333;
+        font-weight: 500;
+    }
+
+    .item-quantity {
+        color: #666;
+    }
+
+    .item-price {
+        font-weight: 600;
+        color: #667eea;
+    }
+
+    .order-totals {
+        padding: 20px 0;
+        border-top: 2px solid #e5e7eb;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .total-row.grand-total {
+        font-size: 20px;
+        font-weight: 700;
+        color: #333;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 2px solid #e5e7eb;
+    }
+
+    .split-payment-button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px;
+        background: #f3f4f6;
+        border: 1px dashed #9ca3af;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        color: #374151;
+        transition: all 0.2s;
+        margin-top: 20px;
+    }
+
+    .split-payment-button:hover {
+        background: #e5e7eb;
+        border-color: #6b7280;
+    }
+
+    .payment-method-selector, .tip-section {
+        margin-bottom: 24px;
+    }
+
+    .payment-method-selector label, .tip-section label {
+        display: block;
+        margin-bottom: 12px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .method-options {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .method-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 16px;
+        background: #f9fafb;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #666;
+    }
+
+    .method-option:hover {
+        border-color: #667eea;
+    }
+
+    .method-option.selected {
+        background: #eef2ff;
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    .tip-presets {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .tip-presets button {
+        padding: 10px;
+        background: #f9fafb;
+        border: 2px solid #e5e7eb;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .tip-presets button.selected {
+        background: #eef2ff;
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    .custom-tip-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+
+    .tip-amount {
+        text-align: right;
+        font-weight: 600;
+        color: #667eea;
+        font-size: 16px;
+    }
+
+    .payment-summary {
+        background: #f9fafb;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .process-payment-button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 16px;
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .process-payment-button:hover:not(:disabled) {
+        background: #059669;
+    }
+
+    .process-payment-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .spinner-small {
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top: 2px solid white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        animation: spin 0.8s linear infinite;
+    }
+
+    .split-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .split-option {
+        padding: 12px;
+        background: #f9fafb;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .split-option.selected {
+        background: #eef2ff;
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    .split-count {
+        margin-bottom: 24px;
+    }
+
+    .split-count label {
+        display: block;
+        margin-bottom: 12px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .number-selector {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 12px;
+    }
+
+    .number-selector button {
+        width: 40px;
+        height: 40px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .number-selector button:hover {
+        background: #5568d3;
+    }
+
+    .number-selector span {
+        font-size: 32px;
+        font-weight: 700;
+        color: #333;
+        min-width: 60px;
+        text-align: center;
+    }
+
+    .per-person-amount {
+        text-align: center;
+        font-size: 18px;
+        font-weight: 600;
+        color: #667eea;
+    }
+
+    .cancel-split-button {
+        width: 100%;
+        padding: 12px;
+        background: #f3f4f6;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        color: #6b7280;
+        transition: all 0.2s;
+    }
+
+    .cancel-split-button:hover {
+        background: #e5e7eb;
+    }
+
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .success-modal {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        text-align: center;
+        max-width: 400px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .success-icon {
+        color: #10b981;
+        margin-bottom: 20px;
+    }
+
+    .success-modal h3 {
+        margin: 0 0 12px 0;
+        color: #333;
+        font-size: 24px;
+    }
+
+    .success-modal p {
+        margin: 0 0 24px 0;
+        color: #666;
+        font-size: 16px;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-primary, .btn-secondary {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #e5e7eb;
+        color: #333;
+    }
+
+    .loading-state, .empty-state, .error-message {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        color: #666;
+    }
+
+    .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @@media (max-width: 968px) {
+        .payment-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .method-options {
+            grid-template-columns: 1fr;
+        }
+
+        .tip-presets {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+</style>
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public Guid? OrderId { get; set; }
+
+    private Order? selectedOrder = null;
+    private bool isLoading = true;
+    private bool isProcessing = false;
+    private string? errorMessage = null;
+
+    private PaymentMethod paymentMethod = PaymentMethod.Card;
+    private int tipPercentage = 18;
+    private decimal customTipAmount = 0m;
+
+    private bool isSplitPayment = false;
+    private string splitMode = "even";
+    private int splitCount = 2;
+
+    private bool showSuccessModal = false;
+    private Guid? invoiceId = null;
+    private string? invoiceNumber = null;
+
+    private decimal CalculatedTip
+    {
+        get
+        {
+            if (selectedOrder == null) return 0m;
+
+            var orderTotal = selectedOrder.TotalAmount * 1.08m; // Including tax
+
+            if (tipPercentage == -1)
+                return customTipAmount;
+
+            return orderTotal * (tipPercentage / 100m);
+        }
+    }
+
+    private decimal FinalTotal => (selectedOrder?.TotalAmount * 1.08m ?? 0m) + CalculatedTip;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (OrderId.HasValue)
+        {
+            await LoadOrder();
+        }
+        else
+        {
+            errorMessage = "No order ID specified";
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadOrder()
+    {
+        isLoading = true;
+        try
+        {
+            var response = await ApiService.GetOrderByIdAsync(OrderId!.Value);
+            if (response.Success)
+            {
+                selectedOrder = response.Order;
+            }
+            else
+            {
+                errorMessage = response.ErrorMessage ?? "Failed to load order";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SelectTip(int percentage)
+    {
+        tipPercentage = percentage;
+        if (percentage != -1)
+        {
+            customTipAmount = 0m;
+        }
+    }
+
+    private void EnableSplitPayment()
+    {
+        isSplitPayment = true;
+    }
+
+    private void CancelSplitPayment()
+    {
+        isSplitPayment = false;
+    }
+
+    private void SetSplitMode(string mode)
+    {
+        splitMode = mode;
+    }
+
+    private async Task ProcessPayment()
+    {
+        if (selectedOrder == null) return;
+
+        isProcessing = true;
+        errorMessage = null;
+
+        try
+        {
+            var paymentRequest = new CreatePaymentRequest
+            {
+                OrderId = selectedOrder.Id,
+                Method = paymentMethod,
+                Amount = FinalTotal,
+                TipAmount = CalculatedTip
+            };
+
+            var response = await ApiService.CreatePaymentAsync(paymentRequest);
+
+            if (response.Success)
+            {
+                // Try to fetch the invoice for this order
+                try
+                {
+                    var invoiceResponse = await ApiService.GetInvoiceByOrderIdAsync(selectedOrder.Id);
+                    if (invoiceResponse.Success && invoiceResponse.Invoice != null)
+                    {
+                        invoiceId = invoiceResponse.Invoice.Id;
+                        invoiceNumber = invoiceResponse.Invoice.InvoiceNumber;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Could not fetch invoice: {ex.Message}");
+                }
+
+                showSuccessModal = true;
+            }
+            else
+            {
+                errorMessage = response.ErrorMessage ?? "Payment failed";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+
+    private void ViewInvoice()
+    {
+        if (invoiceId.HasValue)
+        {
+            var url = ApiService.GetInvoiceHtmlUrlAsync(invoiceId.Value).Result;
+            Navigation.NavigateTo(url, true);
+        }
+    }
+
+    private void PrintReceipt()
+    {
+        if (invoiceId.HasValue)
+        {
+            var url = ApiService.GetInvoiceHtmlUrlAsync(invoiceId.Value).Result;
+            Navigation.NavigateTo(url, true);
+        }
+        else
+        {
+            Console.WriteLine("Printing receipt...");
+        }
+    }
+
+    private void CloseSuccessModal()
+    {
+        showSuccessModal = false;
+        invoiceId = null;
+        invoiceNumber = null;
+        Navigation.NavigateTo("/tables");
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/tables");
+    }
+}

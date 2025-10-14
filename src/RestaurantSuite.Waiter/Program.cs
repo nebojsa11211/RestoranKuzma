@@ -19,6 +19,10 @@ builder.Services.AddBlazoredLocalStorage();
 // Register services
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ApiService>();
+builder.Services.AddScoped(sp => new SignalRService(
+    sp.GetRequiredService<AuthService>(),
+    apiBaseUrl
+));
 
 // Register Authentication services
 builder.Services.AddScoped<CustomAuthenticationStateProvider>();

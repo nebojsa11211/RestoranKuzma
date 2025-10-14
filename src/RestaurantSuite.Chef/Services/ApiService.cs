@@ -218,4 +218,78 @@ public class ApiService
             };
         }
     }
+
+    // Recipes - Chef view-only operations
+    public async Task<MenuItemsResponse> GetMenuItemsWithRecipesAsync(Guid restaurantId, Guid? categoryId = null)
+    {
+        try
+        {
+            await EnsureAuthenticatedAsync();
+            var queryString = $"?restaurantId={restaurantId}";
+            if (categoryId.HasValue)
+            {
+                queryString += $"&categoryId={categoryId.Value}";
+            }
+
+            var response = await _httpClient.GetAsync($"api/chef/menu-with-recipes{queryString}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var menuItems = await response.Content.ReadFromJsonAsync<List<MenuItemWithIngredients>>();
+                return new MenuItemsResponse
+                {
+                    Success = true,
+                    MenuItems = menuItems ?? new List<MenuItemWithIngredients>()
+                };
+            }
+
+            return new MenuItemsResponse
+            {
+                Success = false,
+                ErrorMessage = $"Failed to fetch menu items: {response.ReasonPhrase}"
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in GetMenuItemsWithRecipesAsync: {ex.Message}");
+            return new MenuItemsResponse
+            {
+                Success = false,
+                ErrorMessage = ex.Message
+            };
+        }
+    }
+
+    public async Task<CategoriesResponse> GetCategoriesAsync()
+    {
+        try
+        {
+            await EnsureAuthenticatedAsync();
+            var response = await _httpClient.GetAsync("api/categories");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var categories = await response.Content.ReadFromJsonAsync<List<Category>>();
+                return new CategoriesResponse
+                {
+                    Success = true,
+                    Categories = categories ?? new List<Category>()
+                };
+            }
+
+            return new CategoriesResponse
+            {
+                Success = false,
+                ErrorMessage = $"Failed to fetch categories: {response.ReasonPhrase}"
+            };
+        }
+        catch (Exception ex)
+        {
+            return new CategoriesResponse
+            {
+                Success = false,
+                ErrorMessage = ex.Message
+            };
+        }
+    }
 }

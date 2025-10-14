@@ -168,4 +168,28 @@ public class TablesController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    [HttpPut("{id}/cleaning")]
+    public async Task<IActionResult> MarkTableForCleaning(Guid id)
+    {
+        try
+        {
+            var table = await _tableRepository.GetByIdAsync(id);
+            if (table == null)
+            {
+                return NotFound();
+            }
+
+            table.MarkForCleaning();
+            _tableRepository.Update(table);
+            await _unitOfWork.SaveChangesAsync();
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error marking table for cleaning with id {Id}", id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
 }

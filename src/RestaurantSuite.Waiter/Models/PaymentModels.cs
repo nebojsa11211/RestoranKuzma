@@ -3,10 +3,12 @@ namespace RestaurantSuite.Waiter.Models;
 public enum PaymentMethod
 {
     Cash = 0,
-    CreditCard = 1,
-    DebitCard = 2,
-    MobilePayment = 3,
-    GiftCard = 4
+    Card = 1,
+    CreditCard = 2,
+    DebitCard = 3,
+    Terminal = 4,
+    MobilePayment = 5,
+    GiftCard = 6
 }
 
 public enum PaymentStatus

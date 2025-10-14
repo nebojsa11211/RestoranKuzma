@@ -23,4 +23,30 @@ public class RestaurantHub : Hub
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"order_{orderId}");
     }
+
+    // Server-side methods for broadcasting events
+    public async Task NotifyOrderCreated(string restaurantId, object order)
+    {
+        await Clients.Group($"restaurant_{restaurantId}").SendAsync("OrderCreated", order);
+    }
+
+    public async Task NotifyOrderStatusChanged(string restaurantId, string orderId, string status, DateTime timestamp)
+    {
+        await Clients.Group($"restaurant_{restaurantId}").SendAsync("OrderStatusChanged", orderId, status, timestamp);
+    }
+
+    public async Task NotifyTableStatusChanged(string restaurantId, string tableId, string status, DateTime timestamp)
+    {
+        await Clients.Group($"restaurant_{restaurantId}").SendAsync("TableStatusChanged", tableId, status, timestamp);
+    }
+
+    public async Task NotifyPaymentProcessed(string restaurantId, string orderId, object payment)
+    {
+        await Clients.Group($"restaurant_{restaurantId}").SendAsync("PaymentProcessed", orderId, payment);
+    }
+
+    public async Task SendNotification(string restaurantId, object notification)
+    {
+        await Clients.Group($"restaurant_{restaurantId}").SendAsync("NotificationReceived", notification);
+    }
 }

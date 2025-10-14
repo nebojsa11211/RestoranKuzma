@@ -25,9 +25,9 @@ public class CreateOrderCommandHandlerTests
         {
             TableId = Guid.NewGuid(),
             WaiterId = Guid.NewGuid(),
-            Items = new List<RestaurantSuite.Application.Commands.OrderItemDto>
+            Items = new List<RestaurantSuite.Application.Commands.CreateOrderItemRequest>
             {
-                new RestaurantSuite.Application.Commands.OrderItemDto
+                new RestaurantSuite.Application.Commands.CreateOrderItemRequest
                 {
                     MenuItemId = Guid.NewGuid(),
                     Quantity = 2,
@@ -60,7 +60,7 @@ public class CreateOrderCommandHandlerTests
         {
             TableId = Guid.NewGuid(),
             WaiterId = Guid.NewGuid(),
-            Items = new List<RestaurantSuite.Application.Commands.OrderItemDto>()
+            Items = new List<RestaurantSuite.Application.Commands.CreateOrderItemRequest>()
         };
 
         var handler = new RestaurantSuite.Application.Commands.CreateOrderCommandHandler(

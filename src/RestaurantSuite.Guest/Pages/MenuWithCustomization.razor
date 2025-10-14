@@ -1,0 +1,796 @@
+@page "/menu-custom"
+@using RestaurantSuite.Guest.Models
+@using RestaurantSuite.Guest.Services
+@inject ApiService ApiService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Menu - Restaurant Kuzma</PageTitle>
+
+<!-- Main Container -->
+<div id="menu-page-container" class="menu-container">
+
+    <!-- Header Section -->
+    <header id="menu-header-section" class="menu-header">
+        <h1 id="menu-page-title">Our Menu</h1>
+        <p id="menu-page-subtitle">Discover our delicious dishes and beverages</p>
+    </header>
+
+    <!-- Loading State -->
+    @if (isLoading)
+    {
+        <section id="menu-loading-section" class="loading-section">
+            <div class="loading-spinner"></div>
+            <span>Loading menu items...</span>
+        </section>
+    }
+    else if (menuItems == null || !menuItems.Any())
+    {
+        <!-- Empty State -->
+        <section id="menu-empty-section" class="empty-section">
+            <h2>No menu items available</h2>
+            <p>Please check back later or contact our staff.</p>
+            <button class="btn-retry" @onclick="LoadMenuItems">Try Again</button>
+        </section>
+    }
+    else
+    {
+        <!-- Menu Items Grid -->
+        <section id="menu-items-grid-section" class="menu-grid">
+            @foreach (var item in menuItems)
+            {
+                <article class="menu-card" data-item-id="@item.Id">
+                    <!-- Item Image -->
+                    <div class="menu-card-image">
+                        <img src="@(!string.IsNullOrEmpty(item.ImageUrl) ? item.ImageUrl : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop")"
+                             alt="@item.Name"
+                             loading="lazy" />
+                        <div class="availability-badge @(item.IsAvailable ? "available" : "unavailable")">
+                            @(item.IsAvailable ? "Available" : "Unavailable")
+                        </div>
+                    </div>
+
+                    <!-- Item Content -->
+                    <div class="menu-card-content">
+                        <!-- Header -->
+                        <header class="menu-card-header">
+                            <h3 title="@item.Name">@item.Name</h3>
+                            <span class="price">RSD @item.Price.ToString("F2")</span>
+                        </header>
+
+                        <!-- Description -->
+                        <p class="description">@item.Description</p>
+
+                        <!-- Preparation Time -->
+                        @if (item.PreparationTimeMinutes.HasValue)
+                        {
+                            <div class="prep-time">
+                                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 6v6l4 2"/>
+                                </svg>
+                                <span>~@item.PreparationTimeMinutes min</span>
+                            </div>
+                        }
+
+                        <!-- Ingredients -->
+                        @if (item.MainIngredients.Any())
+                        {
+                            <div class="ingredients">
+                                <strong>Ingredients:</strong>
+                                <span>@string.Join(", ", item.MainIngredients)</span>
+                            </div>
+                        }
+
+                        <!-- Footer -->
+                        <footer class="menu-card-footer">
+                            <span class="category-badge">@item.CategoryName</span>
+                            @if (item.IsAvailable)
+                            {
+                                <button class="btn-add-to-order" @onclick="() => ShowCustomizationModal(item)">
+                                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                    <span>Add to Order</span>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn-unavailable" disabled>Not Available</button>
+                            }
+                        </footer>
+                    </div>
+                </article>
+            }
+        </section>
+    }
+</div>
+
+<!-- Customization Modal -->
+@if (showCustomizationModal && selectedItem != null)
+{
+    <div class="modal-overlay" @onclick="CloseCustomizationModal">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>Customize: @selectedItem.Name</h3>
+                <button class="btn-close" @onclick="CloseCustomizationModal">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Quantity -->
+                <div class="form-group">
+                    <label>Quantity:</label>
+                    <div class="quantity-selector">
+                        <button class="btn-quantity" @onclick="DecrementQuantity" disabled="@(orderQuantity <= 1)">-</button>
+                        <input type="number" class="quantity-input" @bind="orderQuantity" min="1" max="20" />
+                        <button class="btn-quantity" @onclick="IncrementQuantity" disabled="@(orderQuantity >= 20)">+</button>
+                    </div>
+                </div>
+
+                <!-- Customizations -->
+                @if (selectedItem.MainIngredients.Any())
+                {
+                    <div class="form-group">
+                        <label>Customize Ingredients:</label>
+                        <div class="customization-list">
+                            @foreach (var ingredient in selectedItem.MainIngredients)
+                            {
+                                <div class="customization-item">
+                                    <span class="ingredient-name">@ingredient:</span>
+                                    <div class="customization-buttons">
+                                        <button class="btn-custom @(IsCustomizationActive(ingredient, CustomizationType.Less) ? "active less" : "")"
+                                                @onclick="() => ToggleCustomization(ingredient, CustomizationType.Less)">
+                                            Less
+                                        </button>
+                                        <button class="btn-custom @(IsCustomizationActive(ingredient, CustomizationType.More) ? "active more" : "")"
+                                                @onclick="() => ToggleCustomization(ingredient, CustomizationType.More)">
+                                            Extra
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Special Instructions -->
+                <div class="form-group">
+                    <label>Special Instructions:</label>
+                    <textarea class="form-textarea"
+                              @bind="specialInstructions"
+                              placeholder="Any special requests? (e.g., no onions, extra spicy)"
+                              rows="3"></textarea>
+                </div>
+
+                <!-- Current Customizations Summary -->
+                @if (currentCustomizations.Any())
+                {
+                    <div class="customizations-summary">
+                        <strong>Your Customizations:</strong>
+                        <ul>
+                            @foreach (var custom in currentCustomizations)
+                            {
+                                <li>
+                                    <span class="custom-type-@custom.CustomizationType.ToString().ToLower()">
+                                        @custom.IngredientName: @(custom.CustomizationType == CustomizationType.More ? "Extra" : "Less")
+                                    </span>
+                                    <button class="btn-remove-custom" @onclick="() => RemoveCustomization(custom)">×</button>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseCustomizationModal">Cancel</button>
+                <button class="btn-primary" @onclick="AddToOrderCart">Add to Order - RSD @GetTotalPrice().ToString("F2")</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<GuestMenuItemDto> menuItems = new();
+    private GuestMenuItemDto? selectedItem;
+    private bool isLoading = true;
+    private bool showCustomizationModal = false;
+
+    private int orderQuantity = 1;
+    private string specialInstructions = "";
+    private List<OrderItemCustomization> currentCustomizations = new();
+
+    // Replace with actual restaurant ID from configuration or authentication
+    private readonly Guid restaurantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMenuItems();
+    }
+
+    private async Task LoadMenuItems()
+    {
+        isLoading = true;
+        try
+        {
+            menuItems = await ApiService.GetGuestMenuAsync(restaurantId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading menu: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Failed to load menu items. Please try again.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ShowCustomizationModal(GuestMenuItemDto item)
+    {
+        selectedItem = item;
+        orderQuantity = 1;
+        specialInstructions = "";
+        currentCustomizations.Clear();
+        showCustomizationModal = true;
+    }
+
+    private void CloseCustomizationModal()
+    {
+        showCustomizationModal = false;
+        selectedItem = null;
+    }
+
+    private void IncrementQuantity()
+    {
+        if (orderQuantity < 20)
+            orderQuantity++;
+    }
+
+    private void DecrementQuantity()
+    {
+        if (orderQuantity > 1)
+            orderQuantity--;
+    }
+
+    private void ToggleCustomization(string ingredient, CustomizationType type)
+    {
+        var existing = currentCustomizations.FirstOrDefault(c => c.IngredientName == ingredient);
+
+        if (existing != null)
+        {
+            if (existing.CustomizationType == type)
+            {
+                // Remove if clicking the same type again
+                currentCustomizations.Remove(existing);
+            }
+            else
+            {
+                // Change to the new type
+                existing.CustomizationType = type;
+            }
+        }
+        else
+        {
+            // Add new customization
+            currentCustomizations.Add(new OrderItemCustomization
+            {
+                IngredientName = ingredient,
+                CustomizationType = type
+            });
+        }
+    }
+
+    private bool IsCustomizationActive(string ingredient, CustomizationType type)
+    {
+        var custom = currentCustomizations.FirstOrDefault(c => c.IngredientName == ingredient);
+        return custom != null && custom.CustomizationType == type;
+    }
+
+    private void RemoveCustomization(OrderItemCustomization customization)
+    {
+        currentCustomizations.Remove(customization);
+    }
+
+    private decimal GetTotalPrice()
+    {
+        return selectedItem != null ? selectedItem.Price * orderQuantity : 0;
+    }
+
+    private async Task AddToOrderCart()
+    {
+        if (selectedItem == null) return;
+
+        // Here you would add to a shopping cart or directly create an order
+        // For now, we'll just show a success message
+        var itemSummary = $"{orderQuantity}x {selectedItem.Name}";
+        if (currentCustomizations.Any())
+        {
+            itemSummary += $" with {currentCustomizations.Count} customization(s)";
+        }
+
+        await JSRuntime.InvokeVoidAsync("alert", $"Added to order: {itemSummary}");
+        CloseCustomizationModal();
+    }
+}
+
+<style>
+    .menu-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .menu-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .menu-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .menu-header p {
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    .loading-section, .empty-section {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #ff6b6b;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 24px;
+    }
+
+    .menu-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .menu-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .menu-card-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .menu-card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .availability-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .availability-badge.available {
+        background: #4caf50;
+        color: white;
+    }
+
+    .availability-badge.unavailable {
+        background: #f44336;
+        color: white;
+    }
+
+    .menu-card-content {
+        padding: 20px;
+    }
+
+    .menu-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 12px;
+    }
+
+    .menu-card-header h3 {
+        font-size: 1.3rem;
+        margin: 0;
+        color: #333;
+        flex: 1;
+    }
+
+    .menu-card-header .price {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #ff6b6b;
+        margin-left: 12px;
+    }
+
+    .description {
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 12px;
+    }
+
+    .prep-time {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+    }
+
+    .prep-time .icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .ingredients {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+    }
+
+    .ingredients strong {
+        color: #333;
+        margin-right: 6px;
+    }
+
+    .ingredients span {
+        color: #666;
+    }
+
+    .menu-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 16px;
+    }
+
+    .category-badge {
+        padding: 6px 12px;
+        background: #e3f2fd;
+        color: #1976d2;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .btn-add-to-order {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-add-to-order:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-add-to-order .icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .btn-unavailable {
+        padding: 10px 20px;
+        background: #ccc;
+        color: #666;
+        border: none;
+        border-radius: 8px;
+        cursor: not-allowed;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 12px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        color: #333;
+    }
+
+    .btn-close {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        color: #999;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+    }
+
+    .btn-close:hover {
+        color: #333;
+    }
+
+    .modal-body {
+        padding: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .quantity-selector {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .btn-quantity {
+        width: 40px;
+        height: 40px;
+        border: 2px solid #667eea;
+        background: white;
+        color: #667eea;
+        border-radius: 8px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-quantity:hover:not(:disabled) {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-quantity:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    .quantity-input {
+        width: 80px;
+        height: 40px;
+        text-align: center;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .customization-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .customization-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .ingredient-name {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .customization-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-custom {
+        padding: 6px 16px;
+        border: 2px solid #e0e0e0;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+
+    .btn-custom.active.more {
+        background: #4caf50;
+        color: white;
+        border-color: #4caf50;
+    }
+
+    .btn-custom.active.less {
+        background: #f44336;
+        color: white;
+        border-color: #f44336;
+    }
+
+    .btn-custom:hover:not(.active) {
+        border-color: #999;
+    }
+
+    .form-textarea {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 1rem;
+        resize: vertical;
+    }
+
+    .form-textarea:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .customizations-summary {
+        background: #fff9e6;
+        padding: 16px;
+        border-radius: 8px;
+        border-left: 4px solid #ffa500;
+    }
+
+    .customizations-summary strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .customizations-summary ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .customizations-summary li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+    }
+
+    .custom-type-more {
+        color: #2e7d32;
+        font-weight: 600;
+    }
+
+    .custom-type-less {
+        color: #c62828;
+        font-weight: 600;
+    }
+
+    .btn-remove-custom {
+        background: none;
+        border: none;
+        color: #f44336;
+        font-size: 1.5rem;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+    }
+
+    .btn-remove-custom:hover {
+        color: #d32f2f;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 20px;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .btn-secondary {
+        padding: 12px 24px;
+        border: 2px solid #999;
+        background: white;
+        color: #333;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+        background: #f5f5f5;
+    }
+
+    .btn-primary {
+        padding: 12px 24px;
+        border: none;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    @@media (max-width: 768px) {
+        .menu-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .modal-content {
+            max-height: 95vh;
+        }
+    }
+</style>

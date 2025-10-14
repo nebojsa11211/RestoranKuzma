@@ -8,15 +8,18 @@ public class UpdateOrderStatusCommandHandler : IRequestHandler<UpdateOrderStatus
     private readonly IOrderRepository _orderRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly INotificationService _notificationService;
+    private readonly IMediator _mediator;
 
     public UpdateOrderStatusCommandHandler(
         IOrderRepository orderRepository,
         IUnitOfWork unitOfWork,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IMediator mediator)
     {
         _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;
         _notificationService = notificationService;
+        _mediator = mediator;
     }
 
     public async Task<Unit> Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
@@ -32,6 +35,21 @@ public class UpdateOrderStatusCommandHandler : IRequestHandler<UpdateOrderStatus
                 break;
             case "start":
                 order.StartPreparation();
+
+                // AUTOMATED STOCK REDUCTION: Reduce inventory when order preparation starts
+                var stockReductionCommand = new ReduceStockForOrderCommand
+                {
+                    OrderId = order.Id,
+                    ProcessedBy = Guid.Empty // TODO: Get actual user ID from context
+                };
+                var stockResult = await _mediator.Send(stockReductionCommand, cancellationToken);
+
+                if (!stockResult.Success)
+                {
+                    // Log warning but don't fail the order status update
+                    // The order can still be prepared even if stock tracking fails
+                    // In a production system, you might want to send an alert
+                }
                 break;
             case "complete":
                 order.CompletePreparation();

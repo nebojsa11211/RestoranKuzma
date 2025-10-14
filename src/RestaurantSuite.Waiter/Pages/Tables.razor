@@ -1,0 +1,676 @@
+@page "/tables"
+@attribute [Authorize(Roles = "Waiter")]
+@using Microsoft.AspNetCore.Authorization
+@using RestaurantSuite.Waiter.Models
+@using RestaurantSuite.Waiter.Services
+@inject ApiService ApiService
+@inject NavigationManager Navigation
+
+<PageTitle>Tables - Waiter</PageTitle>
+
+<div class="tables-container">
+    <div class="tables-header">
+        <div>
+            <h1>Tables Management</h1>
+            <p class="subtitle">View and manage restaurant tables</p>
+        </div>
+        <div class="header-actions">
+            <div class="view-toggle">
+                <button class="@(viewMode == "grid" ? "active" : "")" @onclick='() => viewMode = "grid"'>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    Grid
+                </button>
+                <button class="@(viewMode == "list" ? "active" : "")" @onclick='() => viewMode = "list"'>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="8" y1="6" x2="21" y2="6"></line>
+                        <line x1="8" y1="12" x2="21" y2="12"></line>
+                        <line x1="8" y1="18" x2="21" y2="18"></line>
+                        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                    </svg>
+                    List
+                </button>
+            </div>
+            <div class="filter-group">
+                <label>Filter:</label>
+                <select @bind="statusFilter" @bind:after="@FilterTables">
+                    <option value="">All Statuses</option>
+                    <option value="Available">Available</option>
+                    <option value="Occupied">Occupied</option>
+                    <option value="Reserved">Reserved</option>
+                    <option value="Cleaning">Cleaning</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading tables...</p>
+        </div>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="error-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <p>@errorMessage</p>
+            <button @onclick="LoadTablesAsync" class="retry-button">Retry</button>
+        </div>
+    }
+    else if (filteredTables.Count == 0)
+    {
+        <div class="empty-state">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <p>No tables found</p>
+        </div>
+    }
+    else
+    {
+        <div class="tables-stats">
+            <div class="stat-badge available">
+                <span class="count">@tables.Count(t => t.Status == TableStatus.Available)</span>
+                <span class="label">Available</span>
+            </div>
+            <div class="stat-badge occupied">
+                <span class="count">@tables.Count(t => t.Status == TableStatus.Occupied)</span>
+                <span class="label">Occupied</span>
+            </div>
+            <div class="stat-badge reserved">
+                <span class="count">@tables.Count(t => t.Status == TableStatus.Reserved)</span>
+                <span class="label">Reserved</span>
+            </div>
+            <div class="stat-badge cleaning">
+                <span class="count">@tables.Count(t => t.Status == TableStatus.Cleaning)</span>
+                <span class="label">Cleaning</span>
+            </div>
+        </div>
+
+        @if (viewMode == "grid")
+        {
+            <div class="tables-grid">
+                @foreach (var table in filteredTables)
+                {
+                    <div class="table-card @table.Status.ToString().ToLower()" @onclick="() => SelectTable(table)">
+                        <div class="table-number">
+                            <span class="number">@table.TableNumber</span>
+                            <span class="status-badge">@table.Status</span>
+                        </div>
+                        <div class="table-info">
+                            <div class="info-row">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                <span>@table.Capacity seats</span>
+                            </div>
+                            @if (table.CurrentOrderId != null)
+                            {
+                                <div class="info-row">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                    <span>Active Order</span>
+                                </div>
+                            }
+                        </div>
+                        <div class="table-actions">
+                            @if (table.Status == TableStatus.Available)
+                            {
+                                <button @onclick="() => CreateOrder(table)" @onclick:stopPropagation="true" class="btn-primary">
+                                    New Order
+                                </button>
+                            }
+                            else if (table.Status == TableStatus.Occupied)
+                            {
+                                <button @onclick="() => ViewOrder(table)" @onclick:stopPropagation="true" class="btn-secondary">
+                                    View Order
+                                </button>
+                                <button @onclick="() => ClearTable(table)" @onclick:stopPropagation="true" class="btn-outline">
+                                    Clear
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="tables-list">
+                @foreach (var table in filteredTables)
+                {
+                    <div class="table-list-item @table.Status.ToString().ToLower()" @onclick="() => SelectTable(table)">
+                        <div class="list-item-main">
+                            <div class="table-number-col">
+                                <span class="number">Table @table.TableNumber</span>
+                                <span class="capacity">@table.Capacity seats</span>
+                            </div>
+                            <div class="status-col">
+                                <span class="status-badge @table.Status.ToString().ToLower()">@table.Status</span>
+                            </div>
+                            <div class="order-col">
+                                @if (table.CurrentOrderId != null)
+                                {
+                                    <span class="has-order">Active Order</span>
+                                }
+                                else
+                                {
+                                    <span class="no-order">No Order</span>
+                                }
+                            </div>
+                            <div class="actions-col">
+                                @if (table.Status == TableStatus.Available)
+                                {
+                                    <button @onclick="() => CreateOrder(table)" @onclick:stopPropagation="true" class="btn-sm btn-primary">
+                                        New Order
+                                    </button>
+                                }
+                                else if (table.Status == TableStatus.Occupied)
+                                {
+                                    <button @onclick="() => ViewOrder(table)" @onclick:stopPropagation="true" class="btn-sm btn-secondary">
+                                        View Order
+                                    </button>
+                                    <button @onclick="() => ClearTable(table)" @onclick:stopPropagation="true" class="btn-sm btn-outline">
+                                        Clear
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+<style>
+    .tables-container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .tables-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .tables-header h1 {
+        margin: 0;
+        color: #333;
+        font-size: 28px;
+    }
+
+    .subtitle {
+        margin: 5px 0 0 0;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .view-toggle {
+        display: flex;
+        gap: 5px;
+        background: #f5f5f5;
+        padding: 4px;
+        border-radius: 8px;
+    }
+
+    .view-toggle button {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 16px;
+        border: none;
+        background: transparent;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #666;
+        transition: all 0.2s;
+    }
+
+    .view-toggle button.active {
+        background: white;
+        color: #667eea;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-group label {
+        font-size: 14px;
+        color: #666;
+        font-weight: 500;
+    }
+
+    .filter-group select {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .tables-stats {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+
+    .stat-badge {
+        display: flex;
+        flex-direction: column;
+        padding: 15px 25px;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        min-width: 100px;
+    }
+
+    .stat-badge .count {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .stat-badge .label {
+        font-size: 12px;
+        text-transform: uppercase;
+        opacity: 0.7;
+    }
+
+    .stat-badge.available .count { color: #10b981; }
+    .stat-badge.occupied .count { color: #ef4444; }
+    .stat-badge.reserved .count { color: #f59e0b; }
+    .stat-badge.cleaning .count { color: #8b5cf6; }
+
+    .tables-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 2px solid transparent;
+    }
+
+    .table-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+
+    .table-card.available { border-color: #10b981; }
+    .table-card.occupied { border-color: #ef4444; }
+    .table-card.reserved { border-color: #f59e0b; }
+    .table-card.cleaning { border-color: #8b5cf6; }
+
+    .table-number {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .table-number .number {
+        font-size: 32px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-badge.available { background: #d1fae5; color: #065f46; }
+    .status-badge.occupied { background: #fee2e2; color: #991b1b; }
+    .status-badge.reserved { background: #fef3c7; color: #92400e; }
+    .status-badge.cleaning { background: #ede9fe; color: #5b21b6; }
+
+    .table-info {
+        margin-bottom: 15px;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .table-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .btn-primary, .btn-secondary, .btn-outline, .btn-sm {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+        flex: 1;
+    }
+
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #5568d3;
+    }
+
+    .btn-secondary {
+        background: #e5e7eb;
+        color: #333;
+    }
+
+    .btn-secondary:hover {
+        background: #d1d5db;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 1px solid #ddd;
+        color: #666;
+    }
+
+    .btn-outline:hover {
+        background: #f9fafb;
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
+    .tables-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .table-list-item {
+        background: white;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        cursor: pointer;
+        transition: all 0.2s;
+        border-left: 4px solid;
+    }
+
+    .table-list-item.available { border-left-color: #10b981; }
+    .table-list-item.occupied { border-left-color: #ef4444; }
+    .table-list-item.reserved { border-left-color: #f59e0b; }
+    .table-list-item.cleaning { border-left-color: #8b5cf6; }
+
+    .table-list-item:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
+    .list-item-main {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 2fr;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .table-number-col .number {
+        font-weight: 600;
+        font-size: 16px;
+        color: #333;
+        display: block;
+    }
+
+    .table-number-col .capacity {
+        font-size: 13px;
+        color: #666;
+    }
+
+    .actions-col {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .has-order {
+        color: #10b981;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .no-order {
+        color: #9ca3af;
+        font-size: 14px;
+    }
+
+    .loading-state, .error-state, .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        color: #666;
+    }
+
+    .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .error-state svg {
+        color: #ef4444;
+        margin-bottom: 15px;
+    }
+
+    .retry-button {
+        margin-top: 15px;
+        padding: 10px 24px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    @@media (max-width: 768px) {
+        .tables-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .tables-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .list-item-main {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .actions-col {
+            justify-content: flex-start;
+        }
+    }
+</style>
+
+@code {
+    private List<Table> tables = new();
+    private List<Table> filteredTables = new();
+    private bool isLoading = true;
+    private string? errorMessage = null;
+    private string viewMode = "grid";
+    private string statusFilter = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTablesAsync();
+    }
+
+    private async Task LoadTablesAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            var response = await ApiService.GetTablesAsync();
+            if (response.Success)
+            {
+                tables = response.Tables;
+                FilterTables();
+            }
+            else
+            {
+                errorMessage = response.ErrorMessage ?? "Failed to load tables";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void FilterTables()
+    {
+        if (string.IsNullOrEmpty(statusFilter))
+        {
+            filteredTables = tables;
+        }
+        else
+        {
+            if (Enum.TryParse<TableStatus>(statusFilter, out var status))
+            {
+                filteredTables = tables.Where(t => t.Status == status).ToList();
+            }
+            else
+            {
+                filteredTables = tables;
+            }
+        }
+        StateHasChanged();
+    }
+
+    private void SelectTable(Table table)
+    {
+        if (table.Status == TableStatus.Occupied && table.CurrentOrderId != null)
+        {
+            ViewOrder(table);
+        }
+    }
+
+    private void CreateOrder(Table table)
+    {
+        Navigation.NavigateTo($"/order-entry?tableId={table.Id}");
+    }
+
+    private void ViewOrder(Table table)
+    {
+        if (table.CurrentOrderId != null)
+        {
+            Navigation.NavigateTo($"/order-entry?orderId={table.CurrentOrderId}");
+        }
+    }
+
+    private async Task ClearTable(Table table)
+    {
+        if (confirm($"Are you sure you want to clear Table {table.TableNumber}?"))
+        {
+            try
+            {
+                var updateRequest = new UpdateTableStatusRequest
+                {
+                    TableId = table.Id,
+                    NewStatus = TableStatus.Cleaning
+                };
+
+                var response = await ApiService.UpdateTableStatusAsync(updateRequest);
+                if (response.Success)
+                {
+                    await LoadTablesAsync();
+                }
+                else
+                {
+                    errorMessage = response.ErrorMessage;
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error clearing table: {ex.Message}";
+            }
+        }
+    }
+
+    private bool confirm(string message)
+    {
+        // In a real app, use a modal dialog
+        // For now, we'll just return true
+        return true;
+    }
+}

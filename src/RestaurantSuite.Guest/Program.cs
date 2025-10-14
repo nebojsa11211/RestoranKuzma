@@ -25,6 +25,9 @@ builder.Services.AddScoped<CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider =>
     provider.GetRequiredService<CustomAuthenticationStateProvider>());
 
+// Register Mobile Interaction service
+builder.Services.AddScoped<MobileInteractionService>();
+
 // Add authorization services
 builder.Services.AddAuthorizationCore();
 

@@ -12,6 +12,7 @@ public class MenuItemDto
     public decimal Price { get; set; }
     public string? ImageUrl { get; set; }
     public bool IsAvailable { get; set; }
+    public int? PreparationTimeMinutes { get; set; }
     public string CategoryName { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }

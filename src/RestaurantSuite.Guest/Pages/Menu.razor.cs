@@ -5,7 +5,7 @@ using RestaurantSuite.Guest.Services;
 
 namespace RestaurantSuite.Guest.Pages
 {
-    public partial class Menu
+    public partial class Menu : IAsyncDisposable
     {
         [Inject]
         private ApiService ApiService { get; set; } = default!;
@@ -15,6 +15,9 @@ namespace RestaurantSuite.Guest.Pages
 
         [Inject]
         private IJSRuntime JSRuntime { get; set; } = default!;
+
+        [Inject]
+        private MobileInteractionService MobileService { get; set; } = default!;
 
         // Component State
         private List<MenuItemDto>? menuItems;
@@ -37,6 +40,37 @@ namespace RestaurantSuite.Guest.Pages
             {
                 Console.WriteLine($"❌ Menu.razor OnInitializedAsync() - ERROR: {ex.Message}");
                 Console.WriteLine($"❌ Stack Trace: {ex.StackTrace}");
+            }
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                // Initialize pull-to-refresh
+                MobileService.OnPullToRefreshRequested += HandleRefresh;
+                await MobileService.InitializePullToRefreshAsync("menu-page-container");
+                Console.WriteLine("✅ Pull-to-refresh initialized on Menu page");
+            }
+        }
+
+        private async Task HandleRefresh()
+        {
+            Console.WriteLine("🔄 Refresh triggered by pull-to-refresh");
+            await MobileService.HapticAsync("light");
+
+            try
+            {
+                await LoadCategories();
+                await LoadMenuItems();
+                StateHasChanged();
+                Console.WriteLine("✅ Menu refreshed successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error refreshing menu: {ex.Message}");
+                await MobileService.HapticAsync("error");
+                throw;
             }
         }
 
@@ -119,8 +153,9 @@ namespace RestaurantSuite.Guest.Pages
                 : menuItems.Where(item => item.CategoryName == selectedCategory).ToList();
         }
 
-        private void AddToOrder(MenuItemDto item)
+        private async Task AddToOrder(MenuItemDto item)
         {
+            await MobileService.HapticAsync("success");
             Console.WriteLine($"Added {item.Name} to order");
             // TODO: Implement actual order functionality
         }
@@ -260,6 +295,19 @@ namespace RestaurantSuite.Guest.Pages
                     CreatedAt = DateTime.UtcNow
                 }
             };
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            try
+            {
+                MobileService.OnPullToRefreshRequested -= HandleRefresh;
+                await MobileService.DisposePullToRefreshAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error disposing Menu component: {ex.Message}");
+            }
         }
     }
 }

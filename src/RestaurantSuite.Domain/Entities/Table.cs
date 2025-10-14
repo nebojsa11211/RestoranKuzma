@@ -49,6 +49,12 @@ public class Table
         UpdatedAt = DateTime.UtcNow;
     }
 
+    public void MarkForCleaning()
+    {
+        Status = TableStatus.Cleaning;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
     public void UpdateCapacity(int newCapacity)
     {
         if (newCapacity <= 0)

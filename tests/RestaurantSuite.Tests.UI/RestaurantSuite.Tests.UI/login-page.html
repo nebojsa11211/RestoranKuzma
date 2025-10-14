@@ -1,0 +1,236 @@
+<!DOCTYPE html><html lang="en" style="--blazor-load-percentage: 100%; --blazor-load-percentage-text: &quot;100%&quot;;"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <base href="/">
+    <link href="css/tailwind.output.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="RestaurantSuite.Guest.styles.css" rel="stylesheet">
+<!--!--><!--!--><!--!--><title>Login - Restaurant Suite</title><!--!--><!--!--><!--!--></head>
+
+<body>
+    <div id="app"><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!--><!--!-->
+
+<!--!--><a href="#main-content" class="skip-to-content" b-x2y2m80582="">Skip to main content</a>
+
+<div class="flex min-h-screen bg-neutral-50" b-x2y2m80582=""><aside class="fixed top-0 left-0 bottom-0 z-30 w-64 bg-white border-r border-neutral-200 shadow-soft-md overflow-y-auto scrollbar-thin transition-transform duration-300 ease-in-out lg:translate-x-0 -translate-x-full" b-x2y2m80582=""><!--!--><div id="navmenu-brand-section" class="h-16 px-5 border-b border-slate-200 flex items-center justify-between bg-white" b-722k5ksfmj=""><!--!--><div id="navmenu-brand-content" class="flex items-center gap-3" b-722k5ksfmj=""><div id="navmenu-brand-icon-container" class="flex-shrink-0" b-722k5ksfmj=""><svg id="navmenu-brand-icon" class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" b-722k5ksfmj=""><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L3 7V17C3 18.1046 3.89543 19 5 19H19C20.1046 19 21 18.1046 21 17V7L12 2Z" b-722k5ksfmj=""></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22V19" b-722k5ksfmj=""></path>
+                <circle cx="12" cy="12" r="2" fill="currentColor" b-722k5ksfmj=""></circle></svg></div>
+        
+        <div id="navmenu-brand-text-container" class="flex flex-col" b-722k5ksfmj=""><span id="navmenu-brand-name" class="text-lg font-bold text-slate-900 leading-tight" b-722k5ksfmj="">Restaurant</span>
+            <span id="navmenu-brand-subtitle" class="text-xs font-medium text-primary-600 leading-tight" b-722k5ksfmj="">Guest Suite</span></div></div>
+
+    
+    <button id="navmenu-close-btn" class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all duration-200" aria-label="Close menu" b-722k5ksfmj=""><!--!--><svg id="navmenu-close-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" b-722k5ksfmj=""><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" b-722k5ksfmj=""></path></svg></button></div><!--!-->
+
+
+<nav id="navmenu-main-nav" class="flex-1 px-3 py-4 space-y-1 overflow-y-auto" aria-label="Main navigation" b-722k5ksfmj=""><!--!--><a id="navmenu-home-link" href="" class="group flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-700 rounded-lg hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition-all duration-200 active:bg-primary-50 active:text-primary-700 active:font-semibold active:shadow-inner-soft"><!--!--><svg id="navmenu-home-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" b-722k5ksfmj=""><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9l9-7 9 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" b-722k5ksfmj=""></path></svg>
+        <!--!--><span id="navmenu-home-text" class="font-medium" b-722k5ksfmj="">Home</span></a><!--!-->
+
+    
+    <!--!--><a id="navmenu-menu-link" href="menu" class="group flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-700 rounded-lg hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition-all duration-200 active:bg-primary-50 active:text-primary-700 active:font-semibold active:shadow-inner-soft"><!--!--><svg id="navmenu-menu-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" b-722k5ksfmj=""><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" b-722k5ksfmj=""></path></svg>
+        <!--!--><span id="navmenu-menu-text" class="font-medium" b-722k5ksfmj="">Menu</span></a><!--!-->
+
+    
+    <!--!--><a id="navmenu-tables-link" href="tables" class="group flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-700 rounded-lg hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition-all duration-200 active:bg-primary-50 active:text-primary-700 active:font-semibold active:shadow-inner-soft"><!--!--><svg id="navmenu-tables-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" b-722k5ksfmj=""><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" b-722k5ksfmj=""></path></svg>
+        <!--!--><span id="navmenu-tables-text" class="font-medium" b-722k5ksfmj="">Our Tables</span></a><!--!-->
+
+    
+    <!--!--><a id="navmenu-reserve-table-link" href="reserve-table" class="group flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-700 rounded-lg hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition-all duration-200 active:bg-primary-50 active:text-primary-700 active:font-semibold active:shadow-inner-soft"><!--!--><svg id="navmenu-reserve-table-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" b-722k5ksfmj=""><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a4 4 0 118 0v4m-4 8a2 2 0 100 4 2 2 0 000-4zm-6-4a6 6 0 1112 0v3h-2V11a4 4 0 00-8 0v2H6v-3z" b-722k5ksfmj=""></path></svg>
+        <!--!--><span id="navmenu-reserve-table-text" class="font-medium" b-722k5ksfmj="">Reserve Table</span></a><!--!-->
+
+    
+    <!--!--><a id="navmenu-order-link" href="order" class="group flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-700 rounded-lg hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition-all duration-200 active:bg-primary-50 active:text-primary-700 active:font-semibold active:shadow-inner-soft"><!--!--><svg id="navmenu-order-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" b-722k5ksfmj=""><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" b-722k5ksfmj=""></path></svg>
+        <!--!--><span id="navmenu-order-text" class="font-medium" b-722k5ksfmj="">Place Order</span></a></nav><!--!-->
+
+
+<div id="navmenu-auth-section" class="px-3 py-4 border-t border-slate-200 bg-slate-50" b-722k5ksfmj=""><!--!--><!--!--><a id="navmenu-login-link" href="login" class="group flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-700 rounded-lg hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition-all duration-200 active:bg-primary-50 active:text-primary-700 active:font-semibold active:shadow-inner-soft mb-2 active" aria-current="page"><!--!--><svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" b-722k5ksfmj=""><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" b-722k5ksfmj=""></path></svg>
+                <!--!--><span class="font-medium" b-722k5ksfmj="">Login</span></a><!--!-->
+            
+            <!--!--><a id="navmenu-register-link" href="register" style="color: white !important;" class="group flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition-all duration-200 active:font-semibold active:shadow-inner-soft bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800"><!--!--><svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" b-722k5ksfmj=""><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" b-722k5ksfmj=""></path></svg>
+                <!--!--><span class="font-medium" b-722k5ksfmj="">Register</span></a></div><!--!-->
+
+
+<!--!--><div id="navmenu-footer" class="px-5 py-4 border-t border-slate-200 bg-white" b-722k5ksfmj=""><div id="navmenu-footer-content" class="flex items-center gap-2 text-xs text-slate-500" b-722k5ksfmj=""><svg id="navmenu-footer-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" b-722k5ksfmj=""><circle cx="12" cy="12" r="10" stroke-width="2" b-722k5ksfmj=""></circle>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2" b-722k5ksfmj=""></path></svg>
+        <span id="navmenu-footer-version" b-722k5ksfmj="">v1.0.0</span></div></div></aside><div class="flex-1 flex flex-col min-h-screen lg:ml-64" b-x2y2m80582=""><header class="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-neutral-200 shadow-soft" b-x2y2m80582=""><div class="h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between" b-x2y2m80582=""><div class="flex items-center gap-3" b-x2y2m80582=""><button class="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-lg text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 transition-all duration-200" aria-label="Toggle navigation menu" b-x2y2m80582=""><!--!--><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" b-x2y2m80582=""><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" b-x2y2m80582=""></path></svg></button><!--!-->
+
+                    
+                    <!--!--><h1 class="text-base sm:text-lg font-semibold text-neutral-900" b-x2y2m80582="" tabindex="-1">Guest Portal</h1></div><!--!-->
+
+                
+                <!--!--><div class="flex items-center gap-2 sm:gap-4" b-x2y2m80582=""><a href="https://learn.microsoft.com/aspnet/core/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 transition-all duration-200" b-x2y2m80582=""><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" b-x2y2m80582=""><circle cx="12" cy="12" r="10" stroke-width="2" b-x2y2m80582=""></circle>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v-4m0-4h.01" b-x2y2m80582=""></path></svg>
+                        <span class="hidden sm:inline" b-x2y2m80582="">Help</span></a></div></div></header><!--!-->
+
+        
+        <main id="main-content" class="flex-1 p-4 sm:p-6 lg:p-8 animate-slide-in-bottom" b-x2y2m80582=""><!--!--><!--!--><!--!--><!--!-->
+
+<div class="login-container"><div class="login-card"><!--!--><div class="login-icon"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle></svg></div>
+        <!--!--><h2>Welcome Back</h2>
+        <!--!--><p class="subtitle">Sign in to your account</p><!--!--><form><!--!--><!--!--><!--!-->
+
+            <div class="form-group"><!--!--><label for="email"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 5px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline></svg>
+                    Email
+                </label>
+                <!--!--><input id="email" placeholder="Enter your email" class="form-control valid" _bl_2="" style=""><!--!-->
+                <!--!--></div><!--!-->
+
+            <div class="form-group"><!--!--><label for="password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 5px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    Password
+                </label>
+                <!--!--><input id="password" type="password" placeholder="Enter your password" class="form-control valid" _bl_3="" style=""><!--!-->
+                <!--!--></div><!--!-->
+
+            <div class="form-group remember-me"><label class="checkbox-label"><!--!--><input type="checkbox" class="valid" value="True" _bl_4="" style=""><!--!-->
+                    <!--!--><span>Remember me for 30 days</span></label></div><!--!-->
+
+            <button type="submit" class="btn btn-primary btn-block"><!--!--><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 8px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                        <polyline points="10 17 15 12 10 7"></polyline>
+                        <line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                    <!--!--><span>Login</span></button></form><!--!-->
+
+        <!--!--><div class="login-footer"><p>Don't have an account? <a href="/register">Register here</a></p></div></div></div><!--!-->
+
+<!--!--><style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 20px;
+    }
+
+    .login-card {
+        background: white;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .login-icon {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        color: #007bff;
+    }
+
+    .login-card h2 {
+        margin-bottom: 10px;
+        color: #333;
+        text-align: center;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 30px;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+
+    .remember-me {
+        margin-bottom: 15px;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        cursor: pointer;
+        width: 16px;
+        height: 16px;
+    }
+
+    .btn-block {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+    }
+
+    .alert {
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .alert-error {
+        background-color: #fee;
+        color: #c33;
+        border: 1px solid #fcc;
+    }
+
+    .alert-success {
+        background-color: #efe;
+        color: #3c3;
+        border: 1px solid #cfc;
+    }
+
+    .login-footer {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .login-footer a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .login-footer a:hover {
+        text-decoration: underline;
+    }
+</style></main></div></div><!--!-->
+            <!--!--></div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="." class="reload">Reload</a>
+        <span class="dismiss">🗙</span>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+
+
+
+</body></html>

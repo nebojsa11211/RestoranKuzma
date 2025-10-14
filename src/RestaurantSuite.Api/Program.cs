@@ -22,13 +22,22 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Resta
 builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
+builder.Services.AddScoped<IMenuItemIngredientRepository, MenuItemIngredientRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ITableRepository, TableRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
+builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
+builder.Services.AddScoped<IStockTransactionRepository, StockTransactionRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Authentication Service
 builder.Services.AddScoped<IAuthenticationService, JwtAuthenticationService>();
+
+// Invoice Service
+builder.Services.AddScoped<IInvoiceService, RestaurantSuite.Infrastructure.EF.Services.InvoiceService>();
 
 // Mock notification service for now
 builder.Services.AddScoped<INotificationService, MockNotificationService>();

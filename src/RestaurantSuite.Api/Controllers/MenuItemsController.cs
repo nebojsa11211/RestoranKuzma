@@ -214,4 +214,74 @@ public class MenuItemsController : ControllerBase
             return NotFound(new { message = ex.Message });
         }
     }
+
+    /// <summary>
+    /// Update menu item preparation time (Admin only)
+    /// </summary>
+    /// <param name="id">Menu item ID</param>
+    /// <param name="preparationTimeMinutes">Preparation time in minutes (null to clear)</param>
+    /// <returns>No content on success</returns>
+    [HttpPatch("admin/menu/{id}/preparation-time")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdatePreparationTime(Guid id, [FromBody] int? preparationTimeMinutes)
+    {
+        try
+        {
+            var command = new UpdateMenuItemPreparationTimeCommand
+            {
+                Id = id,
+                PreparationTimeMinutes = preparationTimeMinutes
+            };
+
+            await _mediator.Send(command);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get menu with full recipe details (Chef/Admin only)
+    /// </summary>
+    /// <param name="categoryId">Optional category filter</param>
+    /// <param name="restaurantId">Restaurant ID</param>
+    /// <returns>List of menu items with full ingredient details</returns>
+    [HttpGet("chef/menu-with-recipes")]
+    [Authorize(Roles = "Chef,Admin")]
+    public async Task<IActionResult> GetMenuWithRecipes([FromQuery] Guid? categoryId, [FromQuery] Guid restaurantId)
+    {
+        var query = new GetMenuWithRecipesQuery
+        {
+            CategoryId = categoryId,
+            RestaurantId = restaurantId
+        };
+
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get menu with simplified ingredients (Guest view)
+    /// </summary>
+    /// <param name="categoryId">Optional category filter</param>
+    /// <param name="restaurantId">Restaurant ID</param>
+    /// <returns>List of menu items with main ingredients only</returns>
+    [HttpGet("guest/menu")]
+    public async Task<IActionResult> GetGuestMenu([FromQuery] Guid? categoryId, [FromQuery] Guid restaurantId)
+    {
+        var query = new GetGuestMenuQuery
+        {
+            CategoryId = categoryId,
+            RestaurantId = restaurantId
+        };
+
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
 }

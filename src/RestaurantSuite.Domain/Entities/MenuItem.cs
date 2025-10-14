@@ -9,11 +9,15 @@ public class MenuItem
     public decimal Price { get; private set; }
     public string? ImageUrl { get; private set; }
     public bool IsAvailable { get; private set; }
+    public int? PreparationTimeMinutes { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; } = null;
 
     // Navigation properties
     public Category Category { get; private set; }
+
+    private readonly List<MenuItemIngredient> _ingredients = new();
+    public IReadOnlyCollection<MenuItemIngredient> Ingredients => _ingredients.AsReadOnly();
 
     private MenuItem() { }
 
@@ -73,5 +77,32 @@ public class MenuItem
     {
         IsAvailable = false;
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void SetPreparationTime(int? preparationTimeMinutes)
+    {
+        if (preparationTimeMinutes.HasValue && preparationTimeMinutes.Value <= 0)
+            throw new ArgumentException("Preparation time must be greater than zero", nameof(preparationTimeMinutes));
+
+        PreparationTimeMinutes = preparationTimeMinutes;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public Guid AddIngredient(string ingredientName, decimal quantityInGrams, bool isMainIngredient, int displayOrder)
+    {
+        var ingredient = MenuItemIngredient.Create(Id, ingredientName, quantityInGrams, isMainIngredient, displayOrder);
+        _ingredients.Add(ingredient);
+        UpdatedAt = DateTime.UtcNow;
+        return ingredient.Id;
+    }
+
+    public void RemoveIngredient(Guid ingredientId)
+    {
+        var ingredient = _ingredients.FirstOrDefault(i => i.Id == ingredientId);
+        if (ingredient != null)
+        {
+            _ingredients.Remove(ingredient);
+            UpdatedAt = DateTime.UtcNow;
+        }
     }
 }

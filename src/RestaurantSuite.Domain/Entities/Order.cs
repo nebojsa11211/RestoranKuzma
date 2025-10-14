@@ -37,7 +37,7 @@ public class Order
         };
     }
 
-    public void AddItem(Guid menuItemId, int quantity, decimal unitPrice, string? specialInstructions)
+    public OrderItem AddItem(Guid menuItemId, int quantity, decimal unitPrice, string? specialInstructions)
     {
         if (quantity <= 0)
             throw new ArgumentException("Quantity must be greater than zero", nameof(quantity));
@@ -48,6 +48,7 @@ public class Order
         var orderItem = OrderItem.Create(Id, menuItemId, quantity, unitPrice, specialInstructions);
         _orderItems.Add(orderItem);
         RecalculateTotalAmount();
+        return orderItem;
     }
 
     public void RemoveItem(Guid orderItemId)

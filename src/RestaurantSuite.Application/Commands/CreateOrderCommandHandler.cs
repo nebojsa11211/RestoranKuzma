@@ -29,7 +29,16 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Gui
 
         foreach (var item in request.Items)
         {
-            order.AddItem(item.MenuItemId, item.Quantity, item.UnitPrice, item.SpecialInstructions);
+            var orderItem = order.AddItem(item.MenuItemId, item.Quantity, item.UnitPrice, item.SpecialInstructions);
+
+            // Add customizations to the order item
+            foreach (var customization in item.Customizations)
+            {
+                orderItem.AddCustomization(
+                    customization.IngredientName,
+                    customization.CustomizationType,
+                    customization.Notes);
+            }
         }
 
         await _orderRepository.AddAsync(order, cancellationToken);

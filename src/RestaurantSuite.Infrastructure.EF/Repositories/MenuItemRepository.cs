@@ -18,6 +18,13 @@ public class MenuItemRepository : IMenuItemRepository
         return await _context.MenuItems.FindAsync(new object[] { id }, cancellationToken);
     }
 
+    public async Task<MenuItem?> GetByIdWithIngredientsAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _context.MenuItems
+            .Include(m => m.Ingredients.OrderBy(i => i.DisplayOrder))
+            .FirstOrDefaultAsync(m => m.Id == id, cancellationToken);
+    }
+
     public async Task<IEnumerable<MenuItem>> GetByRestaurantIdAsync(Guid restaurantId, CancellationToken cancellationToken = default)
     {
         // Single-restaurant architecture: no RestaurantId filtering needed
@@ -39,6 +46,16 @@ public class MenuItemRepository : IMenuItemRepository
         return await _context.MenuItems
             .Where(m => m.IsAvailable)
             .Include(m => m.Category)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<MenuItem>> GetAvailableWithIngredientsAsync(Guid restaurantId, CancellationToken cancellationToken = default)
+    {
+        // Single-restaurant architecture: no RestaurantId filtering needed
+        return await _context.MenuItems
+            .Where(m => m.IsAvailable)
+            .Include(m => m.Category)
+            .Include(m => m.Ingredients.OrderBy(i => i.DisplayOrder))
             .ToListAsync(cancellationToken);
     }
 

@@ -8,14 +8,14 @@
 
 <PageTitle>Dashboard - Waiter</PageTitle>
 
-<div class="dashboard-container">
-    <div class="welcome-section">
-        <div class="welcome-card">
-            <h1>Welcome, @waiterName!</h1>
-            <p class="subtitle">Your shift dashboard</p>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">
+<div id="waiter-dashboard-container" class="dashboard-container">
+    <div id="waiter-welcome-section" class="welcome-section">
+        <div id="waiter-welcome-card" class="welcome-card">
+            <h1 id="waiter-welcome-title">Welcome, @waiterName!</h1>
+            <p id="waiter-welcome-subtitle" class="subtitle">Your shift dashboard</p>
+            <div id="waiter-stats-grid" class="stats-grid">
+                <div id="waiter-tables-active-card" class="stat-card">
+                    <div id="waiter-tables-active-icon" class="stat-icon">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                             <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -23,81 +23,81 @@
                             <line x1="3" y1="10" x2="21" y2="10"></line>
                         </svg>
                     </div>
-                    <div class="stat-content">
-                        <div class="stat-value">--</div>
-                        <div class="stat-label">Tables Active</div>
+                    <div id="waiter-tables-active-content" class="stat-content">
+                        <div id="waiter-tables-active-value" class="stat-value">--</div>
+                        <div id="waiter-tables-active-label" class="stat-label">Tables Active</div>
                     </div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon">
+                <div id="waiter-pending-orders-card" class="stat-card">
+                    <div id="waiter-pending-orders-icon" class="stat-icon">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"></circle>
                             <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
                     </div>
-                    <div class="stat-content">
-                        <div class="stat-value">--</div>
-                        <div class="stat-label">Pending Orders</div>
+                    <div id="waiter-pending-orders-content" class="stat-content">
+                        <div id="waiter-pending-orders-value" class="stat-value">--</div>
+                        <div id="waiter-pending-orders-label" class="stat-label">Pending Orders</div>
                     </div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon">
+                <div id="waiter-today-sales-card" class="stat-card">
+                    <div id="waiter-today-sales-icon" class="stat-icon">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="1" x2="12" y2="23"></line>
                             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                         </svg>
                     </div>
-                    <div class="stat-content">
-                        <div class="stat-value">$0.00</div>
-                        <div class="stat-label">Today's Sales</div>
+                    <div id="waiter-today-sales-content" class="stat-content">
+                        <div id="waiter-today-sales-value" class="stat-value">$0.00</div>
+                        <div id="waiter-today-sales-label" class="stat-label">Today's Sales</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="quick-actions">
-        <h2>Quick Actions</h2>
-        <div class="action-grid">
-            <a href="/tables" class="action-card">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div id="waiter-quick-actions" class="quick-actions">
+        <h2 id="waiter-quick-actions-title">Quick Actions</h2>
+        <div id="waiter-action-grid" class="action-grid">
+            <a id="waiter-tables-action" href="/tables" class="action-card">
+                <svg id="waiter-tables-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
-                <h3>Tables</h3>
-                <p>View and manage tables</p>
+                <h3 id="waiter-tables-title">Tables</h3>
+                <p id="waiter-tables-description">View and manage tables</p>
             </a>
 
-            <a href="/orders" class="action-card">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <a id="waiter-orders-action" href="/orders" class="action-card">
+                <svg id="waiter-orders-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                     <line x1="16" y1="13" x2="8" y2="13"></line>
                     <line x1="16" y1="17" x2="8" y2="17"></line>
                     <polyline points="10 9 9 9 8 9"></polyline>
                 </svg>
-                <h3>Orders</h3>
-                <p>View all orders</p>
+                <h3 id="waiter-orders-title">Orders</h3>
+                <p id="waiter-orders-description">View all orders</p>
             </a>
 
-            <a href="/menu" class="action-card">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <a id="waiter-menu-action" href="/menu" class="action-card">
+                <svg id="waiter-menu-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                 </svg>
-                <h3>Menu</h3>
-                <p>Browse menu items</p>
+                <h3 id="waiter-menu-title">Menu</h3>
+                <p id="waiter-menu-description">Browse menu items</p>
             </a>
 
-            <a href="/payment" class="action-card">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <a id="waiter-payment-action" href="/payment" class="action-card">
+                <svg id="waiter-payment-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
                     <line x1="1" y1="10" x2="23" y2="10"></line>
                 </svg>
-                <h3>Payment</h3>
-                <p>Process payments</p>
+                <h3 id="waiter-payment-title">Payment</h3>
+                <p id="waiter-payment-description">Process payments</p>
             </a>
         </div>
     </div>

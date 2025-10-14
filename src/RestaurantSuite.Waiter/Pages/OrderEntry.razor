@@ -1,0 +1,968 @@
+@page "/order-entry"
+@attribute [Authorize(Roles = "Waiter")]
+@using Microsoft.AspNetCore.Authorization
+@using RestaurantSuite.Waiter.Models
+@using RestaurantSuite.Waiter.Services
+@inject ApiService ApiService
+@inject NavigationManager Navigation
+
+<PageTitle>Order Entry - Waiter</PageTitle>
+
+<div id="waiter-order-entry-container" class="order-entry-container">
+    <div id="waiter-order-header" class="order-header">
+        <button id="waiter-order-back-btn" class="back-button" @onclick="GoBack">
+            <svg id="waiter-order-back-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back
+        </button>
+        <div id="waiter-order-title-section">
+            <h1 id="waiter-order-title">@(isEditMode ? "Edit Order" : "New Order")</h1>
+            @if (selectedTable != null)
+            {
+                <p id="waiter-order-subtitle" class="subtitle">Table @selectedTable.TableNumber</p>
+            }
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div id="waiter-order-loading" class="loading-state">
+            <div id="waiter-order-spinner" class="spinner"></div>
+            <p id="waiter-order-loading-text">Loading...</p>
+        </div>
+    }
+    else if (errorMessage != null)
+    {
+        <div id="waiter-order-error" class="error-message">
+            <svg id="waiter-order-error-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            @errorMessage
+        </div>
+    }
+    else
+    {
+        <div id="waiter-order-layout" class="order-layout">
+            <!-- Menu Section -->
+            <div id="waiter-menu-section" class="menu-section">
+                <div id="waiter-menu-header" class="menu-header">
+                    <h2 id="waiter-menu-title">Menu</h2>
+                    <div id="waiter-menu-search" class="search-box">
+                        <svg id="waiter-menu-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <input id="waiter-menu-search-input" type="text" placeholder="Search menu items..." @bind="searchQuery" @bind:event="oninput" @bind:after="FilterMenuItems" />
+                    </div>
+                </div>
+
+                @if (menuItems.Count == 0)
+                {
+                    <div id="waiter-menu-empty" class="empty-menu">
+                        <p id="waiter-menu-empty-text">No menu items available</p>
+                    </div>
+                }
+                else
+                {
+                    <div id="waiter-menu-items" class="menu-items">
+                        @foreach (var item in filteredMenuItems)
+                        {
+                            <div id="waiter-menu-item-@item.Id" class="menu-item @(!item.IsAvailable ? "unavailable" : "")" @onclick="() => AddToCart(item)">
+                                <div id="waiter-menu-item-@item.Id-info" class="item-info">
+                                    <div id="waiter-menu-item-@item.Id-name" class="item-name">@item.Name</div>
+                                    @if (!string.IsNullOrEmpty(item.Description))
+                                    {
+                                        <div id="waiter-menu-item-@item.Id-description" class="item-description">@item.Description</div>
+                                    }
+                                    <div id="waiter-menu-item-@item.Id-price" class="item-price">$@item.Price.ToString("F2")</div>
+                                </div>
+                                @if (!item.IsAvailable)
+                                {
+                                    <span id="waiter-menu-item-@item.Id-unavailable" class="unavailable-badge">Unavailable</span>
+                                }
+                                else
+                                {
+                                    <button id="waiter-menu-item-@item.Id-add-btn" class="add-button" @onclick:stopPropagation="true">
+                                        <svg id="waiter-menu-item-@item.Id-add-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg>
+                                    </button>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Cart Section -->
+            <div id="waiter-cart-section" class="cart-section">
+                <div id="waiter-cart-header" class="cart-header">
+                    <h2 id="waiter-cart-title">Order Items</h2>
+                    @if (cartItems.Count > 0)
+                    {
+                        <button id="waiter-cart-clear-btn" class="clear-cart" @onclick="ClearCart">Clear All</button>
+                    }
+                </div>
+
+                @if (cartItems.Count == 0)
+                {
+                    <div id="waiter-cart-empty" class="empty-cart">
+                        <svg id="waiter-cart-empty-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                        <p id="waiter-cart-empty-text">Cart is empty</p>
+                        <span id="waiter-cart-empty-subtext">Add items from the menu</span>
+                    </div>
+                }
+                else
+                {
+                    <div id="waiter-cart-items" class="cart-items">
+                        @foreach (var item in cartItems)
+                        {
+                            <div id="waiter-cart-item-@item.Id" class="cart-item">
+                                <div id="waiter-cart-item-@item.Id-header" class="cart-item-header">
+                                    <span id="waiter-cart-item-@item.Id-name" class="cart-item-name">@item.MenuItemName</span>
+                                    <button id="waiter-cart-item-@item.Id-remove-btn" class="remove-button" @onclick="() => RemoveFromCart(item)">
+                                        <svg id="waiter-cart-item-@item.Id-remove-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div id="waiter-cart-item-@item.Id-quantity" class="cart-item-quantity">
+                                    <button id="waiter-cart-item-@item.Id-decrease-btn" @onclick="() => DecreaseQuantity(item)">
+                                        <svg id="waiter-cart-item-@item.Id-decrease-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg>
+                                    </button>
+                                    <span id="waiter-cart-item-@item.Id-quantity-value">@item.Quantity</span>
+                                    <button id="waiter-cart-item-@item.Id-increase-btn" @onclick="() => IncreaseQuantity(item)">
+                                        <svg id="waiter-cart-item-@item.Id-increase-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div id="waiter-cart-item-@item.Id-price" class="cart-item-price">$@(item.UnitPrice * item.Quantity).ToString("F2")</div>
+                                @if (!string.IsNullOrEmpty(item.SpecialInstructions))
+                                {
+                                    <div id="waiter-cart-item-@item.Id-instructions" class="special-instructions">
+                                        <small>Note: @item.SpecialInstructions</small>
+                                    </div>
+                                }
+                                <button id="waiter-cart-item-@item.Id-note-btn" class="add-note-button" @onclick="() => ShowNotesDialog(item)">
+                                    @(string.IsNullOrEmpty(item.SpecialInstructions) ? "Add Note" : "Edit Note")
+                                </button>
+                            </div>
+                        }
+                    </div>
+
+                    <div id="waiter-cart-summary" class="cart-summary">
+                        <div id="waiter-cart-subtotal" class="summary-row">
+                            <span id="waiter-cart-subtotal-label">Subtotal</span>
+                            <span id="waiter-cart-subtotal-value">$@subtotal.ToString("F2")</span>
+                        </div>
+                        <div id="waiter-cart-tax" class="summary-row">
+                            <span id="waiter-cart-tax-label">Tax (8%)</span>
+                            <span id="waiter-cart-tax-value">$@tax.ToString("F2")</span>
+                        </div>
+                        <div id="waiter-cart-total" class="summary-row total">
+                            <span id="waiter-cart-total-label">Total</span>
+                            <span id="waiter-cart-total-value">$@total.ToString("F2")</span>
+                        </div>
+                    </div>
+
+                    <div id="waiter-cart-actions" class="cart-actions">
+                        @if (isEditMode)
+                        {
+                            <button id="waiter-cart-payment-btn" class="btn-payment" @onclick="ProcessPayment">
+                                <svg id="waiter-cart-payment-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                                </svg>
+                                Process Payment
+                            </button>
+                        }
+                        else
+                        {
+                            <button id="waiter-cart-draft-btn" class="btn-secondary" @onclick="SaveDraft">Save Draft</button>
+                        }
+                        <button id="waiter-cart-submit-btn" class="btn-primary" @onclick="SubmitOrder">
+                            @(isEditMode ? "Update Order" : "Send to Kitchen")
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@if (showNotesDialog)
+{
+    <div class="modal-overlay" @onclick="CloseNotesDialog">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>Special Instructions</h3>
+                <button @onclick="CloseNotesDialog">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <textarea @bind="noteText" placeholder="Enter special instructions (e.g., no onions, extra sauce)..." rows="4"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseNotesDialog">Cancel</button>
+                <button class="btn-primary" @onclick="SaveNotes">Save</button>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .order-entry-container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .order-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .back-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+
+    .back-button:hover {
+        background: #f9fafb;
+    }
+
+    .order-header h1 {
+        margin: 0;
+        color: #333;
+        font-size: 28px;
+    }
+
+    .subtitle {
+        margin: 5px 0 0 0;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .order-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        min-height: 600px;
+    }
+
+    .menu-section, .cart-section {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .menu-header, .cart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .menu-header h2, .cart-header h2 {
+        margin: 0;
+        color: #333;
+        font-size: 20px;
+    }
+
+    .search-box {
+        position: relative;
+        width: 300px;
+    }
+
+    .search-box svg {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 10px 10px 10px 40px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .menu-items {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .menu-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .menu-item:hover:not(.unavailable) {
+        border-color: #667eea;
+        background: #f9fafb;
+    }
+
+    .menu-item.unavailable {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .item-info {
+        flex: 1;
+    }
+
+    .item-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 4px;
+    }
+
+    .item-description {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    .item-price {
+        font-weight: 600;
+        color: #667eea;
+        font-size: 16px;
+    }
+
+    .add-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .add-button:hover {
+        background: #5568d3;
+        transform: scale(1.1);
+    }
+
+    .unavailable-badge {
+        padding: 4px 12px;
+        background: #fee2e2;
+        color: #991b1b;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .clear-cart {
+        padding: 6px 12px;
+        background: transparent;
+        border: 1px solid #ef4444;
+        color: #ef4444;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+    .clear-cart:hover {
+        background: #fef2f2;
+    }
+
+    .empty-cart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        color: #9ca3af;
+        text-align: center;
+    }
+
+    .empty-cart svg {
+        margin-bottom: 20px;
+    }
+
+    .empty-cart p {
+        margin: 0 0 8px 0;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .empty-cart span {
+        font-size: 14px;
+    }
+
+    .cart-items {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-height: 400px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+    }
+
+    .cart-item {
+        padding: 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #f9fafb;
+    }
+
+    .cart-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .cart-item-name {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .remove-button {
+        background: none;
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        padding: 4px;
+    }
+
+    .cart-item-quantity {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 8px;
+    }
+
+    .cart-item-quantity button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .cart-item-quantity button:hover {
+        background: #667eea;
+        border-color: #667eea;
+        color: white;
+    }
+
+    .cart-item-quantity span {
+        min-width: 30px;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .cart-item-price {
+        font-weight: 600;
+        color: #667eea;
+        margin-bottom: 8px;
+    }
+
+    .special-instructions {
+        margin-top: 8px;
+        padding: 8px;
+        background: white;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #666;
+    }
+
+    .add-note-button {
+        margin-top: 8px;
+        padding: 6px 12px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.2s;
+    }
+
+    .add-note-button:hover {
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    .cart-summary {
+        border-top: 2px solid #e5e7eb;
+        padding-top: 16px;
+        margin-bottom: 20px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .summary-row.total {
+        font-size: 18px;
+        font-weight: 700;
+        color: #333;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 2px solid #e5e7eb;
+    }
+
+    .cart-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-primary, .btn-secondary, .btn-payment {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #5568d3;
+    }
+
+    .btn-secondary {
+        background: #e5e7eb;
+        color: #333;
+    }
+
+    .btn-secondary:hover {
+        background: #d1d5db;
+    }
+
+    .btn-payment {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-payment:hover {
+        background: #059669;
+    }
+
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        color: #333;
+    }
+
+    .modal-header button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #666;
+        padding: 4px;
+    }
+
+    .modal-body textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .loading-state, .error-message {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        color: #666;
+    }
+
+    .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .error-message {
+        flex-direction: row;
+        gap: 10px;
+        background: #fef2f2;
+        color: #991b1b;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    @@media (max-width: 968px) {
+        .order-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .search-box {
+            width: 100%;
+        }
+    }
+</style>
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public Guid? TableId { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public Guid? OrderId { get; set; }
+
+    private List<MenuItemDto> menuItems = new();
+    private List<MenuItemDto> filteredMenuItems = new();
+    private List<OrderItem> cartItems = new();
+    private Table? selectedTable = null;
+    private Order? existingOrder = null;
+
+    private bool isLoading = true;
+    private bool isEditMode = false;
+    private string? errorMessage = null;
+    private string searchQuery = "";
+
+    private bool showNotesDialog = false;
+    private OrderItem? currentNoteItem = null;
+    private string noteText = "";
+
+    private decimal subtotal => cartItems.Sum(i => i.UnitPrice * i.Quantity);
+    private decimal tax => subtotal * 0.08m; // 8% tax
+    private decimal total => subtotal + tax;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            // Load menu items
+            menuItems = await ApiService.GetMenuItemsAsync();
+            filteredMenuItems = menuItems;
+
+            // Check if editing existing order
+            if (OrderId.HasValue)
+            {
+                isEditMode = true;
+                await LoadExistingOrder();
+            }
+            // Or load table info for new order
+            else if (TableId.HasValue)
+            {
+                await LoadTable();
+            }
+            else
+            {
+                errorMessage = "No table or order specified";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadTable()
+    {
+        var response = await ApiService.GetTableByIdAsync(TableId!.Value);
+        if (response.Success)
+        {
+            selectedTable = response.Table;
+        }
+        else
+        {
+            errorMessage = "Failed to load table information";
+        }
+    }
+
+    private async Task LoadExistingOrder()
+    {
+        var response = await ApiService.GetOrderByIdAsync(OrderId!.Value);
+        if (response.Success && response.Order != null)
+        {
+            existingOrder = response.Order;
+            selectedTable = new Table { Id = existingOrder.TableId, TableNumber = existingOrder.TableNumber ?? "?" };
+
+            // Load order items into cart
+            cartItems = existingOrder.OrderItems;
+        }
+        else
+        {
+            errorMessage = "Failed to load order";
+        }
+    }
+
+    private void FilterMenuItems()
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            filteredMenuItems = menuItems;
+        }
+        else
+        {
+            var query = searchQuery.ToLower();
+            filteredMenuItems = menuItems
+                .Where(m => m.Name.ToLower().Contains(query) ||
+                           (m.Description?.ToLower().Contains(query) ?? false))
+                .ToList();
+        }
+    }
+
+    private void AddToCart(MenuItemDto menuItem)
+    {
+        if (!menuItem.IsAvailable) return;
+
+        var existingItem = cartItems.FirstOrDefault(i => i.MenuItemId == menuItem.Id && string.IsNullOrEmpty(i.SpecialInstructions));
+        if (existingItem != null)
+        {
+            existingItem.Quantity++;
+            existingItem.Subtotal = existingItem.UnitPrice * existingItem.Quantity;
+        }
+        else
+        {
+            cartItems.Add(new OrderItem
+            {
+                Id = Guid.NewGuid(),
+                MenuItemId = menuItem.Id,
+                MenuItemName = menuItem.Name,
+                MenuItemDescription = menuItem.Description,
+                Quantity = 1,
+                UnitPrice = menuItem.Price,
+                Subtotal = menuItem.Price
+            });
+        }
+    }
+
+    private void RemoveFromCart(OrderItem item)
+    {
+        cartItems.Remove(item);
+    }
+
+    private void IncreaseQuantity(OrderItem item)
+    {
+        item.Quantity++;
+        item.Subtotal = item.UnitPrice * item.Quantity;
+    }
+
+    private void DecreaseQuantity(OrderItem item)
+    {
+        if (item.Quantity > 1)
+        {
+            item.Quantity--;
+            item.Subtotal = item.UnitPrice * item.Quantity;
+        }
+        else
+        {
+            RemoveFromCart(item);
+        }
+    }
+
+    private void ClearCart()
+    {
+        cartItems.Clear();
+    }
+
+    private void ShowNotesDialog(OrderItem item)
+    {
+        currentNoteItem = item;
+        noteText = item.SpecialInstructions ?? "";
+        showNotesDialog = true;
+    }
+
+    private void CloseNotesDialog()
+    {
+        showNotesDialog = false;
+        currentNoteItem = null;
+        noteText = "";
+    }
+
+    private void SaveNotes()
+    {
+        if (currentNoteItem != null)
+        {
+            currentNoteItem.SpecialInstructions = noteText;
+        }
+        CloseNotesDialog();
+    }
+
+    private async Task SaveDraft()
+    {
+        // Future: Save to local storage or backend as draft
+        await Task.CompletedTask;
+    }
+
+    private async Task SubmitOrder()
+    {
+        if (cartItems.Count == 0)
+        {
+            errorMessage = "Cart is empty";
+            return;
+        }
+
+        if (selectedTable == null)
+        {
+            errorMessage = "No table selected";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var request = new CreateOrderRequest
+            {
+                TableId = selectedTable.Id,
+                Items = cartItems.Select(i => new CreateOrderItemRequest
+                {
+                    MenuItemId = i.MenuItemId,
+                    Quantity = i.Quantity,
+                    SpecialInstructions = i.SpecialInstructions
+                }).ToList()
+            };
+
+            var response = await ApiService.CreateOrderAsync(request);
+
+            if (response.Success)
+            {
+                Navigation.NavigateTo("/tables");
+            }
+            else
+            {
+                errorMessage = response.ErrorMessage ?? "Failed to create order";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/tables");
+    }
+
+    private void ProcessPayment()
+    {
+        if (existingOrder != null)
+        {
+            Navigation.NavigateTo($"/payment?OrderId={existingOrder.Id}");
+        }
+    }
+}

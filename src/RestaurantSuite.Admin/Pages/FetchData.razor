@@ -4,35 +4,39 @@
 
 @using RestaurantSuite.Admin.Data
 
-<h1>Weather forecast</h1>
+<div id="fetchdata-page">
+    <h1 id="fetchdata-title">Weather forecast</h1>
 
-<p>This component demonstrates fetching data from a service.</p>
+    <p id="fetchdata-description">This component demonstrates fetching data from a service.</p>
 
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+    @if (forecasts == null)
+    {
+        <p id="fetchdata-loading"><em>Loading...</em></p>
+    }
+    else
+    {
+        <div id="fetchdata-table-container">
+            <table id="fetchdata-table" class="table">
+                <thead id="fetchdata-table-head">
+                    <tr id="fetchdata-table-header-row">
+                        <th id="fetchdata-col-date">Date</th>
+                        <th id="fetchdata-col-temp-c">Temp. (C)</th>
+                        <th id="fetchdata-col-temp-f">Temp. (F)</th>
+                        <th id="fetchdata-col-summary">Summary</th>
+                    </tr>
+                </thead>
+                <tbody id="fetchdata-table-body">
+                    @foreach (var forecast in forecasts)
+                    {
+                        <tr id="fetchdata-row-@forecast.Date.ToString("yyyy-MM-dd")" class="fetchdata-row">
+                            <td id="fetchdata-date-@forecast.Date.ToString("yyyy-MM-dd")">@forecast.Date.ToShortDateString()</td>
+                            <td id="fetchdata-temp-c-@forecast.Date.ToString("yyyy-MM-dd")">@forecast.TemperatureC</td>
+                            <td id="fetchdata-temp-f-@forecast.Date.ToString("yyyy-MM-dd")">@forecast.TemperatureF</td>
+                            <td id="fetchdata-summary-@forecast.Date.ToString("yyyy-MM-dd")">@forecast.Summary</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
