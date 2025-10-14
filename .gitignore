@@ -131,6 +131,8 @@ staticwebassets/
 
 # SQLite databases (uncomment if you want to ignore local db files)
 *.db
+# Exception: Track the main database file
+!src/RestaurantSuite.Api/restorankuzma.db
 *.db-shm
 *.db-wal
 *.sqlite
