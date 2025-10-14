@@ -187,3 +187,4 @@ mono_crash.*
 
 # Design-specific Blazor cache files
 *.dswa.cache.json
+.env

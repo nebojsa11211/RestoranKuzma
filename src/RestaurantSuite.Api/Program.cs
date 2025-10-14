@@ -11,9 +11,23 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-// Database - Using SQLite for easier setup (no external database required)
+// Database - Environment-based selection
+// Development: SQLite (no IPv6 issues, fast local dev)
+// Production: Supabase PostgreSQL (when deployed to cloud with IPv6)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var databaseProvider = builder.Configuration["DatabaseProvider"] ?? "Sqlite"; // Default to SQLite
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite("Data Source=restorankuzma.db"));
+{
+    if (databaseProvider.Equals("PostgreSQL", StringComparison.OrdinalIgnoreCase))
+    {
+        options.UseNpgsql(connectionString);
+    }
+    else
+    {
+        options.UseSqlite(connectionString);
+    }
+});
 
 // MediatR
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(RestaurantSuite.Application.Commands.CreateRestaurantCommand).Assembly));
