@@ -1,0 +1,105 @@
+@* Pagination component for database browser *@
+
+<div class="db-pagination">
+    <div class="db-pagination-info">
+        Showing @((CurrentPage - 1) * PageSize + 1) to @Math.Min(CurrentPage * PageSize, TotalRecords) of @TotalRecords.ToString("N0") records
+    </div>
+
+    <div class="db-pagination-controls">
+        <button
+            class="db-pagination-btn"
+            disabled="@(CurrentPage == 1)"
+            @onclick="() => ChangePage(1)"
+            title="First page">
+            ⏮️
+        </button>
+
+        <button
+            class="db-pagination-btn"
+            disabled="@(CurrentPage == 1)"
+            @onclick="() => ChangePage(CurrentPage - 1)"
+            title="Previous page">
+            ←
+        </button>
+
+        @foreach (var pageNumber in GetVisiblePages())
+        {
+            <button
+                class="db-pagination-btn @(pageNumber == CurrentPage ? "active" : "")"
+                @onclick="() => ChangePage(pageNumber)">
+                @pageNumber
+            </button>
+        }
+
+        <button
+            class="db-pagination-btn"
+            disabled="@(CurrentPage == TotalPages)"
+            @onclick="() => ChangePage(CurrentPage + 1)"
+            title="Next page">
+            →
+        </button>
+
+        <button
+            class="db-pagination-btn"
+            disabled="@(CurrentPage == TotalPages)"
+            @onclick="() => ChangePage(TotalPages)"
+            title="Last page">
+            ⏭️
+        </button>
+    </div>
+
+    <div class="db-pagination-page-size">
+        <span>Page @CurrentPage of @TotalPages</span>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int CurrentPage { get; set; }
+    [Parameter] public int TotalPages { get; set; }
+    [Parameter] public int TotalRecords { get; set; }
+    [Parameter] public int PageSize { get; set; }
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+
+    private async Task ChangePage(int newPage)
+    {
+        if (newPage < 1 || newPage > TotalPages || newPage == CurrentPage)
+            return;
+
+        await OnPageChanged.InvokeAsync(newPage);
+    }
+
+    private List<int> GetVisiblePages()
+    {
+        var pages = new List<int>();
+        var startPage = Math.Max(1, CurrentPage - 2);
+        var endPage = Math.Min(TotalPages, CurrentPage + 2);
+
+        // Always show first page
+        if (startPage > 1)
+        {
+            pages.Add(1);
+            if (startPage > 2)
+            {
+                pages.Add(-1); // Ellipsis placeholder
+            }
+        }
+
+        // Show middle pages
+        for (int i = startPage; i <= endPage; i++)
+        {
+            pages.Add(i);
+        }
+
+        // Always show last page
+        if (endPage < TotalPages)
+        {
+            if (endPage < TotalPages - 1)
+            {
+                pages.Add(-1); // Ellipsis placeholder
+            }
+            pages.Add(TotalPages);
+        }
+
+        return pages;
+    }
+}

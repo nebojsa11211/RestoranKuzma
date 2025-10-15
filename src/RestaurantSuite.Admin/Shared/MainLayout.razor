@@ -45,25 +45,74 @@
 
                     <!-- User Menu -->
                     <div id="user-menu-container" class="relative">
-                        <button id="user-menu-btn" @onclick="ToggleUserMenu" class="flex items-center space-x-3 p-2 rounded-md hover:bg-slate-100">
-                            <div id="user-avatar" class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
-                                <svg id="user-avatar-icon" class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        @if (isLoggedIn)
+                        {
+                            <!-- Logged In State -->
+                            <button id="user-menu-btn" @onclick="ToggleUserMenu" class="flex items-center space-x-3 p-2 rounded-lg bg-green-50 hover:bg-green-100 border border-green-200 transition-colors">
+                                <div id="user-avatar" class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center relative">
+                                    <svg id="user-avatar-icon" class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    <!-- Green Online Status Badge -->
+                                    <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                                </div>
+                                <div class="hidden sm:block">
+                                    <div class="text-xs text-green-600 font-semibold">LOGGED IN</div>
+                                    <div class="text-sm font-medium text-slate-700">@userName</div>
+                                </div>
+                                <svg id="user-menu-chevron" class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
-                            </div>
-                            <span id="user-name" class="hidden sm:block text-sm font-medium text-slate-700">Admin User</span>
-                            <svg id="user-menu-chevron" class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        
+                            </button>
+                        }
+                        else
+                        {
+                            <!-- Logged Out State -->
+                            <button id="user-menu-btn" @onclick="ToggleUserMenu" class="flex items-center space-x-3 p-2 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 transition-colors">
+                                <div id="user-avatar" class="w-8 h-8 bg-slate-300 rounded-full flex items-center justify-center relative">
+                                    <svg id="user-avatar-icon" class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    <!-- Red Offline Status Badge -->
+                                    <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-red-500 border-2 border-white rounded-full"></span>
+                                </div>
+                                <div class="hidden sm:block">
+                                    <div class="text-xs text-red-600 font-semibold">NOT LOGGED IN</div>
+                                    <div class="text-sm font-medium text-slate-500">Guest</div>
+                                </div>
+                                <svg id="user-menu-chevron" class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                        }
+
                         @if (userMenuOpen)
                         {
                             <div id="user-menu-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-slate-200">
-                                <a href="#" id="user-menu-profile" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Profile</a>
-                                <a href="#" id="user-menu-settings" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Settings</a>
-                                <hr id="user-menu-divider" class="my-1">
-                                <a href="#" id="user-menu-signout" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Sign out</a>
+                                @if (isLoggedIn)
+                                {
+                                    <div class="px-4 py-2 border-b border-slate-100">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                            <span class="text-xs font-semibold text-green-600">Online</span>
+                                        </div>
+                                    </div>
+                                    <button @onclick="() => NavigateToProfile()" id="user-menu-profile" class="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Profile</button>
+                                    <button @onclick="() => NavigateToSettings()" id="user-menu-settings" class="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Settings</button>
+                                    <hr id="user-menu-divider" class="my-1">
+                                    <button @onclick="() => SignOut()" id="user-menu-signout" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium">Sign out</button>
+                                }
+                                else
+                                {
+                                    <div class="px-4 py-2 border-b border-slate-100">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                                            <span class="text-xs font-semibold text-red-600">Offline</span>
+                                        </div>
+                                    </div>
+                                    <button @onclick="() => SignIn()" class="block w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50 font-medium">Sign in</button>
+                                    <button @onclick="() => NavigateToSettings()" id="user-menu-settings" class="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Settings</button>
+                                }
                             </div>
                         }
                     </div>
@@ -141,6 +190,16 @@
                             Reports
                         </NavLink>
                     </li>
+                    <li id="nav-item-database-browser">
+                        <NavLink id="nav-link-database-browser" href="database-browser" class="flex items-center px-4 py-3 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors">
+                            <svg id="nav-icon-database-browser" class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <ellipse stroke-linecap="round" stroke-linejoin="round" stroke-width="2" cx="12" cy="5" rx="9" ry="3"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                            </svg>
+                            Database Browser
+                        </NavLink>
+                    </li>
                     <li id="nav-item-settings">
                         <NavLink id="nav-link-settings" href="settings" class="flex items-center px-4 py-3 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors">
                             <svg id="nav-icon-settings" class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,9 +228,56 @@
     </div>
 </div>
 
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 @code {
     private bool sidebarOpen = false;
     private bool userMenuOpen = false;
+    private bool isLoggedIn = false;
+    private string? userName = "Admin User";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isLoggedIn = authState.User.Identity?.IsAuthenticated ?? false;
+
+        if (isLoggedIn)
+        {
+            // Get user name from claims
+            userName = authState.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value
+                      ?? authState.User.Claims.FirstOrDefault(c => c.Type == "email")?.Value
+                      ?? "Admin User";
+        }
+
+        // Subscribe to authentication state changes
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+    }
+
+    private async void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        var authState = await task;
+        isLoggedIn = authState.User.Identity?.IsAuthenticated ?? false;
+
+        if (isLoggedIn)
+        {
+            userName = authState.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value
+                      ?? authState.User.Claims.FirstOrDefault(c => c.Type == "email")?.Value
+                      ?? "Admin User";
+        }
+        else
+        {
+            userName = "Guest";
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
 
     private void ToggleSidebar()
     {
@@ -181,6 +287,30 @@
     private void ToggleUserMenu()
     {
         userMenuOpen = !userMenuOpen;
+    }
+
+    private void NavigateToProfile()
+    {
+        userMenuOpen = false;
+        Navigation.NavigateTo("/profile");
+    }
+
+    private void NavigateToSettings()
+    {
+        userMenuOpen = false;
+        Navigation.NavigateTo("/settings");
+    }
+
+    private void SignIn()
+    {
+        userMenuOpen = false;
+        Navigation.NavigateTo("/login");
+    }
+
+    private void SignOut()
+    {
+        userMenuOpen = false;
+        Navigation.NavigateTo("/logout");
     }
 
     private string GetSidebarClasses()

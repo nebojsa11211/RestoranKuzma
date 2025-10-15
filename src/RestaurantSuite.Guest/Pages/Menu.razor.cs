@@ -8,7 +8,10 @@ namespace RestaurantSuite.Guest.Pages
     public partial class Menu : IAsyncDisposable
     {
         [Inject]
-        private ApiService ApiService { get; set; } = default!;
+        private MenuApiService MenuApiService { get; set; } = default!;
+
+        [Inject]
+        private CategoriesApiService CategoriesApiService { get; set; } = default!;
 
         [Inject]
         private NavigationManager NavigationManager { get; set; } = default!;
@@ -80,8 +83,8 @@ namespace RestaurantSuite.Guest.Pages
             Console.WriteLine("📋 Menu.razor LoadCategories() - Starting");
             try
             {
-                Console.WriteLine("📡 Calling ApiService.GetCategoriesAsync()...");
-                var categories = await ApiService.GetCategoriesAsync();
+                Console.WriteLine("📡 Calling CategoriesApiService.GetCategoriesAsync()...");
+                var categories = await CategoriesApiService.GetCategoriesAsync();
                 Console.WriteLine($"📊 Received {categories?.Count ?? 0} categories from API");
                 
                 if (categories != null && categories.Any())
@@ -108,8 +111,8 @@ namespace RestaurantSuite.Guest.Pages
             try
             {
                 isLoading = true;
-                Console.WriteLine("🔄 LoadMenuItems() - Calling ApiService.GetMenuItemsAsync()...");
-                menuItems = await ApiService.GetMenuItemsAsync();
+                Console.WriteLine("🔄 LoadMenuItems() - Calling MenuApiService.GetMenuItemsAsync()...");
+                menuItems = await MenuApiService.GetMenuItemsAsync();
                 Console.WriteLine($"✅ LoadMenuItems() - Successfully loaded {menuItems?.Count ?? 0} menu items from API");
                 FilterMenuItems();
             }

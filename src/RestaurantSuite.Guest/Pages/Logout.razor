@@ -1,0 +1,32 @@
+@page "/logout"
+@using RestaurantSuite.Guest.Services
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Signing Out - Restaurant Suite</PageTitle>
+
+<div class="min-h-screen flex items-center justify-center bg-slate-50">
+    <div class="text-center">
+        <div class="w-16 h-16 bg-teal-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-900 mb-2">Signing you out...</h1>
+        <p class="text-slate-600">Please wait while we securely log you out.</p>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Call auth service to logout
+        await AuthService.LogoutAsync();
+
+        // Small delay for UX
+        await Task.Delay(500);
+
+        // Redirect to login page
+        Navigation.NavigateTo("/login", true); // The 'true' forces a full page reload
+    }
+}

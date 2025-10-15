@@ -1,0 +1,88 @@
+@using RestaurantSuite.Application.DTOs.DatabaseBrowser
+
+<div class="db-table-list">
+    <div class="db-table-list-header">
+        <h3 class="db-list-title">Database Tables</h3>
+        @if (Tables.Any())
+        {
+            <span class="db-table-count">@Tables.Count tables</span>
+        }
+    </div>
+
+    @if (IsLoading)
+    {
+        <div class="db-loading-sidebar">
+            <div class="db-spinner-small"></div>
+            <p>Loading tables...</p>
+        </div>
+    }
+    else if (!Tables.Any())
+    {
+        <div class="db-no-tables">
+            <p>No tables found</p>
+        </div>
+    }
+    else
+    {
+        <div class="db-table-search">
+            <input
+                type="text"
+                class="db-search-input"
+                placeholder="Search tables..."
+                @bind="searchTerm"
+                @bind:event="oninput" />
+        </div>
+
+        <div class="db-table-items">
+            @foreach (var table in FilteredTables)
+            {
+                <div class="db-table-item @(table.TableName == SelectedTable ? "active" : "")"
+                     @onclick="() => SelectTable(table.TableName)">
+                    <div class="db-table-item-content">
+                        <div class="db-table-item-main">
+                            <div class="db-table-name-container">
+                                <span class="db-table-icon">📋</span>
+                                <span class="db-table-name">@table.DisplayName</span>
+                            </div>
+                            @if (table.TableName == SelectedTable)
+                            {
+                                <span class="db-table-selected-check">✓</span>
+                            }
+                        </div>
+                        <div class="db-table-meta">
+                            <span class="db-table-row-count">@table.EstimatedRowCount.ToString("N0") rows</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<DatabaseTableInfo> Tables { get; set; } = new();
+    [Parameter] public string? SelectedTable { get; set; }
+    [Parameter] public EventCallback<string> OnTableSelected { get; set; }
+    [Parameter] public bool IsLoading { get; set; }
+
+    private string searchTerm = "";
+
+    private List<DatabaseTableInfo> FilteredTables
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return Tables;
+
+            return Tables.Where(t =>
+                t.TableName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                t.DisplayName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+    }
+
+    private async Task SelectTable(string tableName)
+    {
+        await OnTableSelected.InvokeAsync(tableName);
+    }
+}

@@ -18,15 +18,18 @@ namespace RestaurantSuite.Admin.Pages
         private int occupancyPercentage = 0;
 
         [Inject]
-        private ApiService ApiService { get; set; } = default!;
+        private RestaurantsApiService RestaurantsApiService { get; set; } = default!;
+
+        [Inject]
+        private TablesApiService TablesApiService { get; set; } = default!;
 
         protected override async Task OnInitializedAsync()
         {
             // Load restaurant and table data
             try
             {
-                restaurants = await ApiService.GetRestaurantsAsync();
-                tables = await ApiService.GetTablesAsync();
+                restaurants = await RestaurantsApiService.GetRestaurantsAsync();
+                tables = await TablesApiService.GetTablesAsync();
                 
                 // Calculate table statistics
                 CalculateTableStatistics();

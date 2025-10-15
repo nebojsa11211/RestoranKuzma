@@ -3,7 +3,9 @@
 @using Microsoft.AspNetCore.Authorization
 @using RestaurantSuite.Waiter.Models
 @using RestaurantSuite.Waiter.Services
-@inject ApiService ApiService
+@inject OrdersApiService OrdersApiService
+@inject PaymentsApiService PaymentsApiService
+@inject InvoicesApiService InvoicesApiService
 @inject NavigationManager Navigation
 
 <PageTitle>Payment - Waiter</PageTitle>
@@ -768,7 +770,7 @@
         isLoading = true;
         try
         {
-            var response = await ApiService.GetOrderByIdAsync(OrderId!.Value);
+            var response = await OrdersApiService.GetOrderByIdAsync(OrderId!.Value);
             if (response.Success)
             {
                 selectedOrder = response.Order;
@@ -829,14 +831,14 @@
                 TipAmount = CalculatedTip
             };
 
-            var response = await ApiService.CreatePaymentAsync(paymentRequest);
+            var response = await PaymentsApiService.CreatePaymentAsync(paymentRequest);
 
             if (response.Success)
             {
                 // Try to fetch the invoice for this order
                 try
                 {
-                    var invoiceResponse = await ApiService.GetInvoiceByOrderIdAsync(selectedOrder.Id);
+                    var invoiceResponse = await InvoicesApiService.GetInvoiceByOrderIdAsync(selectedOrder.Id);
                     if (invoiceResponse.Success && invoiceResponse.Invoice != null)
                     {
                         invoiceId = invoiceResponse.Invoice.Id;
@@ -869,7 +871,7 @@
     {
         if (invoiceId.HasValue)
         {
-            var url = ApiService.GetInvoiceHtmlUrlAsync(invoiceId.Value).Result;
+            var url = InvoicesApiService.GetInvoiceHtmlUrlAsync(invoiceId.Value).Result;
             Navigation.NavigateTo(url, true);
         }
     }
@@ -878,7 +880,7 @@
     {
         if (invoiceId.HasValue)
         {
-            var url = ApiService.GetInvoiceHtmlUrlAsync(invoiceId.Value).Result;
+            var url = InvoicesApiService.GetInvoiceHtmlUrlAsync(invoiceId.Value).Result;
             Navigation.NavigateTo(url, true);
         }
         else

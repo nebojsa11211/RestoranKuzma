@@ -1,7 +1,8 @@
 @page "/recipes"
 @using RestaurantSuite.Chef.Services
 @using RestaurantSuite.Chef.Models
-@inject ApiService ApiService
+@inject MenuApiService MenuApiService
+@inject CategoriesApiService CategoriesApiService
 
 <PageTitle>Recipes - Chef</PageTitle>
 
@@ -390,14 +391,14 @@
         StateHasChanged();
 
         // Load categories
-        var categoriesResponse = await ApiService.GetCategoriesAsync();
+        var categoriesResponse = await CategoriesApiService.GetCategoriesAsync();
         if (categoriesResponse.Success)
         {
             categories = categoriesResponse.Categories ?? new List<Category>();
         }
 
         // Load menu items with recipes
-        var menuResponse = await ApiService.GetMenuItemsWithRecipesAsync(restaurantId);
+        var menuResponse = await MenuApiService.GetMenuItemsWithRecipesAsync(restaurantId);
         if (menuResponse.Success)
         {
             menuItems = menuResponse.MenuItems ?? new List<MenuItemWithIngredients>();

@@ -1,9 +1,8 @@
 @page "/login"
+@using System.ComponentModel.DataAnnotations
 @using RestaurantSuite.Waiter.Services
 @using RestaurantSuite.Waiter.Models
-@using Microsoft.AspNetCore.Components.Authorization
 @inject AuthService AuthService
-@inject CustomAuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 
 <PageTitle>Waiter Login - Restaurant Suite</PageTitle>
@@ -263,15 +262,8 @@
             if (result.Success)
             {
                 successMessage = "Login successful! Welcome back.";
-
-                // Notify authentication state changed
-                if (!string.IsNullOrEmpty(result.AccessToken))
-                {
-                    AuthStateProvider.NotifyUserAuthentication(result.AccessToken);
-                }
-
                 await Task.Delay(1000); // Brief delay to show success message
-                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo("/", true); // Force full reload
             }
             else
             {

@@ -1,0 +1,221 @@
+@using RestaurantSuite.Application.DTOs.DatabaseBrowser
+
+<div class="db-table-viewer">
+    <!-- Header with table info and search -->
+    <div class="db-viewer-header">
+        <div class="db-viewer-title-section">
+            <h2 class="db-viewer-title">@TableName</h2>
+            <div class="db-viewer-meta">
+                <span>@Schema.Columns.Count columns</span>
+                <span>•</span>
+                <span>@TableData.TotalRows.ToString("N0") total records</span>
+            </div>
+        </div>
+
+        <div class="db-viewer-actions">
+            <button class="db-btn db-btn-secondary" @onclick="RefreshData">
+                🔄 Refresh
+            </button>
+        </div>
+    </div>
+
+    <div class="db-search-bar">
+        <input
+            type="text"
+            class="db-search-input-large"
+            placeholder="Search across all text columns..."
+            @bind="searchTerm"
+            @bind:event="oninput"
+            @onkeydown="HandleSearchKeyDown" />
+        <button class="db-btn db-btn-primary" @onclick="PerformSearch">
+            Search
+        </button>
+        @if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            <button class="db-btn db-btn-link" @onclick="ClearSearch">
+                Clear
+            </button>
+        }
+    </div>
+
+    <!-- Data Table -->
+    <div class="db-table-container">
+        <table class="db-data-table">
+            <thead>
+                <tr>
+                    @foreach (var column in Schema.Columns)
+                    {
+                        <th class="@GetColumnClass(column)">
+                            <div class="db-column-header" @onclick="() => HandleSort(column.ColumnName)">
+                                <span class="db-column-name">@column.ColumnName</span>
+                                @if (currentSortColumn == column.ColumnName)
+                                {
+                                    <span class="db-sort-indicator">@(currentSortDirection == "asc" ? "↑" : "↓")</span>
+                                }
+                            </div>
+                            <div class="db-column-type">
+                                @column.DatabaseType
+                                @if (column.IsPrimaryKey)
+                                {
+                                    <span class="db-pk-badge">PK</span>
+                                }
+                                @if (column.IsForeignKey)
+                                {
+                                    <span class="db-fk-badge">FK</span>
+                                }
+                            </div>
+                        </th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (TableData.Rows.Any())
+                {
+                    @foreach (var row in TableData.Rows)
+                    {
+                        <tr>
+                            @foreach (var column in Schema.Columns)
+                            {
+                                <td>
+                                    @FormatCellValue(row, column.ColumnName)
+                                </td>
+                            }
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="@Schema.Columns.Count" class="db-no-data-cell">
+                            <div class="db-no-data">
+                                No records found
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (TableData.TotalRows > 0)
+    {
+        <DatabasePagination
+            CurrentPage="@TableData.Page"
+            TotalPages="@TableData.TotalPages"
+            TotalRecords="@((int)TableData.TotalRows)"
+            PageSize="@TableData.PageSize"
+            OnPageChanged="@OnPageChanged" />
+    }
+</div>
+
+@code {
+    [Parameter] public string TableName { get; set; } = "";
+    [Parameter] public TableSchemaResponse Schema { get; set; } = null!;
+    [Parameter] public TableDataResponse TableData { get; set; } = null!;
+    [Parameter] public int CurrentPage { get; set; }
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+    [Parameter] public EventCallback<(string column, string direction)> OnSortChanged { get; set; }
+    [Parameter] public EventCallback<string> OnSearchChanged { get; set; }
+
+    private string searchTerm = "";
+    private string currentSortColumn = "";
+    private string currentSortDirection = "asc";
+
+    private async Task HandleSort(string column)
+    {
+        if (currentSortColumn == column)
+        {
+            // Toggle direction
+            currentSortDirection = currentSortDirection == "asc" ? "desc" : "asc";
+        }
+        else
+        {
+            currentSortColumn = column;
+            currentSortDirection = "asc";
+        }
+
+        await OnSortChanged.InvokeAsync((currentSortColumn, currentSortDirection));
+    }
+
+    private async Task PerformSearch()
+    {
+        await OnSearchChanged.InvokeAsync(searchTerm);
+    }
+
+    private async Task ClearSearch()
+    {
+        searchTerm = "";
+        await OnSearchChanged.InvokeAsync(searchTerm);
+    }
+
+    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await PerformSearch();
+        }
+    }
+
+    private async Task RefreshData()
+    {
+        await OnSearchChanged.InvokeAsync(searchTerm);
+    }
+
+    private string GetColumnClass(TableColumnInfo column)
+    {
+        var classes = new List<string>();
+
+        if (column.IsPrimaryKey)
+            classes.Add("db-pk-column");
+
+        if (column.IsNullable)
+            classes.Add("db-nullable-column");
+
+        return string.Join(" ", classes);
+    }
+
+    private string FormatCellValue(Dictionary<string, object?> row, string columnName)
+    {
+        if (!row.TryGetValue(columnName, out var value) || value == null)
+        {
+            return "NULL";
+        }
+
+        // Handle different value types
+        if (value is bool boolValue)
+        {
+            return boolValue ? "✓ True" : "✗ False";
+        }
+
+        if (value is DateTime dateValue)
+        {
+            return dateValue.ToString("yyyy-MM-dd HH:mm:ss");
+        }
+
+        if (value is decimal decimalValue)
+        {
+            return decimalValue.ToString("N2");
+        }
+
+        if (value is double doubleValue)
+        {
+            return doubleValue.ToString("N2");
+        }
+
+        if (value is Guid guidValue)
+        {
+            return guidValue.ToString();
+        }
+
+        var stringValue = value.ToString() ?? "";
+
+        // Truncate long strings
+        if (stringValue.Length > 100)
+        {
+            return stringValue.Substring(0, 100) + "...";
+        }
+
+        return stringValue;
+    }
+}

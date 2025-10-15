@@ -6,7 +6,7 @@ namespace RestaurantSuite.Admin.Pages
     public partial class Settings
     {
         [Inject]
-        private ApiService ApiService { get; set; } = default!;
+        private RestaurantsApiService ApiService { get; set; } = default!;
 
         protected override async Task OnInitializedAsync()
         {

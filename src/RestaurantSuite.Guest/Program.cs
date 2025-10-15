@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.AspNetCore.Components.Authorization;
 using RestaurantSuite.Guest;
 using RestaurantSuite.Guest.Services;
 using Blazored.LocalStorage;
@@ -11,24 +10,17 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // Configure HttpClient for API communication
 var apiBaseUrl = builder.Configuration.GetValue<string>("ApiBaseUrl") ?? "http://localhost:5213";
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
 
 // Register LocalStorage service
 builder.Services.AddBlazoredLocalStorage();
 
-// Register API service
-builder.Services.AddScoped<ApiService>();
-
-// Register Authentication services
+// Register HttpClient and Services
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
 builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<CustomAuthenticationStateProvider>();
-builder.Services.AddScoped<AuthenticationStateProvider>(provider =>
-    provider.GetRequiredService<CustomAuthenticationStateProvider>());
-
-// Register Mobile Interaction service
+builder.Services.AddScoped<MenuApiService>();
+builder.Services.AddScoped<CategoriesApiService>();
+builder.Services.AddScoped<OrdersApiService>();
+builder.Services.AddScoped<TablesApiService>();
 builder.Services.AddScoped<MobileInteractionService>();
-
-// Add authorization services
-builder.Services.AddAuthorizationCore();
 
 await builder.Build().RunAsync();

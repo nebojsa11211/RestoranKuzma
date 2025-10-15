@@ -3,16 +3,15 @@ using RestaurantSuite.Guest.Models;
 
 namespace RestaurantSuite.Guest.Services;
 
-public class ApiService
+public class MenuApiService
 {
     private readonly HttpClient _httpClient;
 
-    public ApiService(HttpClient httpClient)
+    public MenuApiService(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }
 
-    // Menu Items
     public async Task<List<MenuItemDto>> GetMenuItemsAsync(Guid? categoryId = null, bool? availableOnly = null)
     {
         try
@@ -115,107 +114,4 @@ public class ApiService
     {
         return await _httpClient.GetFromJsonAsync<MenuItemDto>($"api/menu/{id}");
     }
-
-    // Categories
-    public async Task<List<CategoryDto>> GetCategoriesAsync()
-    {
-        try
-        {
-            var response = await _httpClient.GetAsync("api/categories");
-            
-            if (response.IsSuccessStatusCode)
-            {
-                var content = await response.Content.ReadFromJsonAsync<List<CategoryDto>>();
-                return content ?? new List<CategoryDto>();
-            }
-            else
-            {
-                Console.WriteLine($"API Error in GetCategoriesAsync: {response.StatusCode} - {response.ReasonPhrase}");
-                return new List<CategoryDto>();
-            }
-        }
-        catch (HttpRequestException ex)
-        {
-            Console.WriteLine($"HTTP Request Error in GetCategoriesAsync: {ex.Message}");
-            Console.WriteLine($"Base Address: {_httpClient.BaseAddress}");
-            return new List<CategoryDto>();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Unexpected Error in GetCategoriesAsync: {ex.Message}");
-            return new List<CategoryDto>();
-        }
-    }
-
-    // Orders
-    public async Task<Guid> CreateOrderAsync(CreateOrderDto order)
-    {
-        var response = await _httpClient.PostAsJsonAsync("api/orders", order);
-        response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<CreateOrderResponse>();
-        return result?.Id ?? Guid.Empty;
-    }
-
-    // Tables
-    public async Task<List<TableDto>> GetTablesAsync()
-    {
-        return await _httpClient.GetFromJsonAsync<List<TableDto>>("api/tables") ?? new List<TableDto>();
-    }
-
-    public async Task<TableDto?> GetTableByIdAsync(Guid id)
-    {
-        return await _httpClient.GetFromJsonAsync<TableDto>($"api/tables/{id}");
-    }
-
-    public async Task ReserveTableAsync(Guid id, string customerName, string customerPhone, DateTime reservationTime, int numberOfGuests)
-    {
-        var command = new
-        {
-            CustomerName = customerName,
-            CustomerPhone = customerPhone,
-            ReservationTime = reservationTime,
-            NumberOfGuests = numberOfGuests
-        };
-        var response = await _httpClient.PutAsJsonAsync($"api/tables/{id}/reserve", command);
-        response.EnsureSuccessStatusCode();
-    }
-}
-
-public class CreateOrderResponse
-{
-    public Guid Id { get; set; }
-}
-
-public class TableDto
-{
-    public Guid Id { get; set; }
-    public string TableNumber { get; set; } = string.Empty;
-    public int Capacity { get; set; }
-    public string Status { get; set; } = string.Empty;
-    public string? CurrentReservation { get; set; }
-}
-
-public class CreateOrderDto
-{
-    public Guid RestaurantId { get; set; }
-    public Guid? TableId { get; set; }
-    public string CustomerName { get; set; } = string.Empty;
-    public string CustomerPhone { get; set; } = string.Empty;
-    public List<OrderItemDto> Items { get; set; } = new();
-}
-
-public class OrderItemDto
-{
-    public Guid MenuItemId { get; set; }
-    public int Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
-    public string? SpecialInstructions { get; set; }
-    public List<OrderItemCustomizationDto> Customizations { get; set; } = new();
-}
-
-public class OrderItemCustomizationDto
-{
-    public string IngredientName { get; set; } = string.Empty;
-    public int CustomizationType { get; set; } // 0 = More, 1 = Less
-    public string? Notes { get; set; }
 }

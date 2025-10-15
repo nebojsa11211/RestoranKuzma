@@ -3,7 +3,9 @@
 @using Microsoft.AspNetCore.Authorization
 @using RestaurantSuite.Waiter.Models
 @using RestaurantSuite.Waiter.Services
-@inject ApiService ApiService
+@inject OrdersApiService OrdersApiService
+@inject TablesApiService TablesApiService
+@inject MenuApiService MenuApiService
 @inject NavigationManager Navigation
 
 <PageTitle>Order Entry - Waiter</PageTitle>
@@ -744,7 +746,7 @@
         try
         {
             // Load menu items
-            menuItems = await ApiService.GetMenuItemsAsync();
+            menuItems = await MenuApiService.GetMenuItemsAsync();
             filteredMenuItems = menuItems;
 
             // Check if editing existing order
@@ -775,7 +777,7 @@
 
     private async Task LoadTable()
     {
-        var response = await ApiService.GetTableByIdAsync(TableId!.Value);
+        var response = await TablesApiService.GetTableByIdAsync(TableId!.Value);
         if (response.Success)
         {
             selectedTable = response.Table;
@@ -788,7 +790,7 @@
 
     private async Task LoadExistingOrder()
     {
-        var response = await ApiService.GetOrderByIdAsync(OrderId!.Value);
+        var response = await OrdersApiService.GetOrderByIdAsync(OrderId!.Value);
         if (response.Success && response.Order != null)
         {
             existingOrder = response.Order;
@@ -932,7 +934,7 @@
                 }).ToList()
             };
 
-            var response = await ApiService.CreateOrderAsync(request);
+            var response = await OrdersApiService.CreateOrderAsync(request);
 
             if (response.Success)
             {

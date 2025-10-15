@@ -4,12 +4,12 @@ using RestaurantSuite.Chef.Models;
 
 namespace RestaurantSuite.Chef.Services;
 
-public class ApiService
+public class OrdersApiService
 {
     private readonly HttpClient _httpClient;
     private readonly AuthService _authService;
 
-    public ApiService(HttpClient httpClient, AuthService authService)
+    public OrdersApiService(HttpClient httpClient, AuthService authService)
     {
         _httpClient = httpClient;
         _authService = authService;
@@ -24,7 +24,6 @@ public class ApiService
         }
     }
 
-    // Orders - Chef specific operations
     public async Task<OrderListResponse> GetOrdersAsync(OrderStatus? status = null)
     {
         try
@@ -93,7 +92,6 @@ public class ApiService
         }
     }
 
-    // Chef-specific: Start preparation (Confirmed -> InProgress)
     public async Task<OrderResponse> StartPreparationAsync(Guid orderId)
     {
         try
@@ -132,7 +130,6 @@ public class ApiService
         }
     }
 
-    // Chef-specific: Mark as ready (InProgress -> Ready)
     public async Task<OrderResponse> MarkAsReadyAsync(Guid orderId)
     {
         try
@@ -171,7 +168,6 @@ public class ApiService
         }
     }
 
-    // Get kitchen statistics
     public async Task<KitchenStatsResponse> GetKitchenStatsAsync()
     {
         try
@@ -212,80 +208,6 @@ public class ApiService
         catch (Exception ex)
         {
             return new KitchenStatsResponse
-            {
-                Success = false,
-                ErrorMessage = ex.Message
-            };
-        }
-    }
-
-    // Recipes - Chef view-only operations
-    public async Task<MenuItemsResponse> GetMenuItemsWithRecipesAsync(Guid restaurantId, Guid? categoryId = null)
-    {
-        try
-        {
-            await EnsureAuthenticatedAsync();
-            var queryString = $"?restaurantId={restaurantId}";
-            if (categoryId.HasValue)
-            {
-                queryString += $"&categoryId={categoryId.Value}";
-            }
-
-            var response = await _httpClient.GetAsync($"api/chef/menu-with-recipes{queryString}");
-
-            if (response.IsSuccessStatusCode)
-            {
-                var menuItems = await response.Content.ReadFromJsonAsync<List<MenuItemWithIngredients>>();
-                return new MenuItemsResponse
-                {
-                    Success = true,
-                    MenuItems = menuItems ?? new List<MenuItemWithIngredients>()
-                };
-            }
-
-            return new MenuItemsResponse
-            {
-                Success = false,
-                ErrorMessage = $"Failed to fetch menu items: {response.ReasonPhrase}"
-            };
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error in GetMenuItemsWithRecipesAsync: {ex.Message}");
-            return new MenuItemsResponse
-            {
-                Success = false,
-                ErrorMessage = ex.Message
-            };
-        }
-    }
-
-    public async Task<CategoriesResponse> GetCategoriesAsync()
-    {
-        try
-        {
-            await EnsureAuthenticatedAsync();
-            var response = await _httpClient.GetAsync("api/categories");
-
-            if (response.IsSuccessStatusCode)
-            {
-                var categories = await response.Content.ReadFromJsonAsync<List<Category>>();
-                return new CategoriesResponse
-                {
-                    Success = true,
-                    Categories = categories ?? new List<Category>()
-                };
-            }
-
-            return new CategoriesResponse
-            {
-                Success = false,
-                ErrorMessage = $"Failed to fetch categories: {response.ReasonPhrase}"
-            };
-        }
-        catch (Exception ex)
-        {
-            return new CategoriesResponse
             {
                 Success = false,
                 ErrorMessage = ex.Message

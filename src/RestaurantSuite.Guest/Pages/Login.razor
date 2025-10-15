@@ -1,9 +1,8 @@
 @page "/login"
+@using System.ComponentModel.DataAnnotations
 @using RestaurantSuite.Guest.Services
 @using RestaurantSuite.Guest.Models
-@using Microsoft.AspNetCore.Components.Authorization
 @inject AuthService AuthService
-@inject CustomAuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 
 <PageTitle>Login - Restaurant Suite</PageTitle>
@@ -240,15 +239,8 @@
             if (result.Success)
             {
                 successMessage = "Login successful! Redirecting...";
-
-                // Notify authentication state changed
-                if (!string.IsNullOrEmpty(result.AccessToken))
-                {
-                    AuthStateProvider.NotifyUserAuthentication(result.AccessToken);
-                }
-
                 await Task.Delay(1000); // Brief delay to show success message
-                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo("/", true); // Force full reload
             }
             else
             {

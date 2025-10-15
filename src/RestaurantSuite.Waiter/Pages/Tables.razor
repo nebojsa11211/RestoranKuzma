@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using RestaurantSuite.Waiter.Models
 @using RestaurantSuite.Waiter.Services
-@inject ApiService ApiService
+@inject TablesApiService TablesApiService
 @inject NavigationManager Navigation
 
 <PageTitle>Tables - Waiter</PageTitle>
@@ -575,7 +575,7 @@
 
         try
         {
-            var response = await ApiService.GetTablesAsync();
+            var response = await TablesApiService.GetTablesAsync();
             if (response.Success)
             {
                 tables = response.Tables;
@@ -650,7 +650,7 @@
                     NewStatus = TableStatus.Cleaning
                 };
 
-                var response = await ApiService.UpdateTableStatusAsync(updateRequest);
+                var response = await TablesApiService.UpdateTableStatusAsync(updateRequest);
                 if (response.Success)
                 {
                     await LoadTablesAsync();

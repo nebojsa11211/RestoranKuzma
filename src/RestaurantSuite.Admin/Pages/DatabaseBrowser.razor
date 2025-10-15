@@ -1,0 +1,292 @@
+@page "/database-browser"
+@using RestaurantSuite.Application.DTOs.DatabaseBrowser
+@using RestaurantSuite.Admin.Components.DatabaseBrowser
+@using RestaurantSuite.Admin.Services
+@inject DatabaseBrowserApiService ApiService
+
+<PageTitle>Database Browser - Restaurant Suite Admin</PageTitle>
+
+<link rel="stylesheet" href="css/database-browser.css" />
+
+<div class="database-browser-container">
+    <!-- Header -->
+    <div class="db-header">
+        <div class="db-header-content">
+            <div>
+                <h1 class="db-title">Database Browser</h1>
+                <p class="db-subtitle">Explore and analyze database tables and records</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="db-layout">
+        <!-- Sidebar: Table List -->
+        <aside class="db-sidebar">
+            @if (authErrorMessage != null)
+            {
+                <div class="db-alert db-alert-auth">
+                    <div class="db-alert-icon">🔒</div>
+                    <div class="db-alert-content">
+                        <h4 class="db-alert-title">Authentication Required</h4>
+                        <p class="db-alert-message">@authErrorMessage</p>
+                        <a href="/login" class="db-alert-link">Go to Login</a>
+                    </div>
+                </div>
+            }
+            else if (errorMessage != null && isLoadingTables == false)
+            {
+                <div class="db-alert db-alert-error">
+                    <div class="db-alert-icon">⚠️</div>
+                    <div class="db-alert-content">
+                        <h4 class="db-alert-title">Error Loading Tables</h4>
+                        <p class="db-alert-message">@errorMessage</p>
+                        <button class="db-alert-btn" @onclick="LoadTables">Retry</button>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <DatabaseTableList
+                    Tables="@tables"
+                    SelectedTable="@selectedTableName"
+                    OnTableSelected="@HandleTableSelected"
+                    IsLoading="@isLoadingTables" />
+            }
+        </aside>
+
+        <!-- Main Content: Table Viewer -->
+        <main class="db-content">
+            @if (selectedTableName == null)
+            {
+                <div class="db-empty-state">
+                    <div class="db-empty-icon">📊</div>
+                    <h3 class="db-empty-title">Select a Table</h3>
+                    <p class="db-empty-text">Choose a table from the sidebar to view its data</p>
+                </div>
+            }
+            else if (isLoadingData)
+            {
+                <div class="db-loading-overlay">
+                    <div class="db-spinner"></div>
+                    <p>Loading data...</p>
+                </div>
+            }
+            else if (errorMessage != null && selectedTableName != null)
+            {
+                <div class="db-error-state">
+                    <div class="db-error-icon">⚠️</div>
+                    <h3 class="db-error-title">Failed to load table data</h3>
+                    <p class="db-error-text">@errorMessage</p>
+                    <button class="db-btn-retry" @onclick="LoadTableDataAndSchema">Retry</button>
+                </div>
+            }
+            else if (currentSchema != null && currentTableData != null)
+            {
+                <DatabaseTableViewer
+                    TableName="@selectedTableName"
+                    Schema="@currentSchema"
+                    TableData="@currentTableData"
+                    CurrentPage="@currentPage"
+                    OnPageChanged="@HandlePageChanged"
+                    OnSortChanged="@HandleSortChanged"
+                    OnSearchChanged="@HandleSearchChanged" />
+            }
+            else if (selectedTableName != null)
+            {
+                <div class="db-error-state">
+                    <div class="db-error-icon">⚠️</div>
+                    <h3 class="db-error-title">Failed to load table data</h3>
+                    <p class="db-error-text">Could not retrieve data for table '@selectedTableName'</p>
+                    <button class="db-btn-retry" @onclick="LoadTableDataAndSchema">Retry</button>
+                </div>
+            }
+        </main>
+    </div>
+</div>
+
+@code {
+    private List<DatabaseTableInfo> tables = new();
+    private string? selectedTableName;
+    private TableSchemaResponse? currentSchema;
+    private TableDataResponse? currentTableData;
+    private int currentPage = 1;
+    private string currentSortColumn = "";
+    private string currentSortDirection = "asc";
+    private string currentSearchTerm = "";
+
+    private bool isLoadingTables = true;
+    private bool isLoadingData = false;
+    private string? errorMessage = null;
+    private string? authErrorMessage = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTables();
+    }
+
+    private async Task LoadTables()
+    {
+        isLoadingTables = true;
+        errorMessage = null;
+        authErrorMessage = null;
+
+        try
+        {
+            tables = await ApiService.GetDatabaseTablesAsync();
+
+            if (!tables.Any())
+            {
+                errorMessage = "No tables found in the database. The database may be empty or not properly configured.";
+            }
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            authErrorMessage = "You need to be logged in as an Admin to access the Database Browser. Please log in and try again.";
+            Console.WriteLine($"Authentication error: {ex.Message}");
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        {
+            authErrorMessage = "Access Denied: Only administrators can access the Database Browser. Your account does not have sufficient permissions.";
+            Console.WriteLine($"Authorization error: {ex.Message}");
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Network Error: Unable to connect to the API server. Please ensure the API is running at the configured URL. (Status: {ex.StatusCode})";
+            Console.WriteLine($"HTTP error loading tables: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Unexpected Error: {ex.Message}";
+            Console.WriteLine($"Error loading tables: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingTables = false;
+        }
+    }
+
+    private async Task HandleTableSelected(string tableName)
+    {
+        if (selectedTableName == tableName) return;
+
+        selectedTableName = tableName;
+        currentPage = 1;
+        currentSortColumn = "";
+        currentSearchTerm = "";
+
+        await LoadTableDataAndSchema();
+    }
+
+    private async Task LoadTableDataAndSchema()
+    {
+        if (string.IsNullOrEmpty(selectedTableName)) return;
+
+        isLoadingData = true;
+        currentSchema = null;
+        currentTableData = null;
+        errorMessage = null;
+
+        try
+        {
+            // Load schema and data in parallel
+            var schemaTask = ApiService.GetTableSchemaAsync(selectedTableName);
+            var dataTask = ApiService.GetTableDataAsync(
+                selectedTableName,
+                currentPage,
+                pageSize: 50,
+                currentSortColumn,
+                currentSortDirection,
+                currentSearchTerm
+            );
+
+            await Task.WhenAll(schemaTask, dataTask);
+
+            currentSchema = await schemaTask;
+            currentTableData = await dataTask;
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            authErrorMessage = "Session expired or authentication required. Please log in again.";
+            Console.WriteLine($"Authentication error: {ex.Message}");
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        {
+            errorMessage = "Access denied to this table. Admin permissions required.";
+            Console.WriteLine($"Authorization error: {ex.Message}");
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Failed to load table '{selectedTableName}': Network error (Status: {ex.StatusCode})";
+            Console.WriteLine($"HTTP error loading table data: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load table '{selectedTableName}': {ex.Message}";
+            Console.WriteLine($"Error loading table data: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingData = false;
+        }
+    }
+
+    private async Task HandlePageChanged(int newPage)
+    {
+        currentPage = newPage;
+        await LoadTableData();
+    }
+
+    private async Task HandleSortChanged((string column, string direction) sortInfo)
+    {
+        currentSortColumn = sortInfo.column;
+        currentSortDirection = sortInfo.direction;
+        currentPage = 1; // Reset to first page when sorting changes
+        await LoadTableData();
+    }
+
+    private async Task HandleSearchChanged(string searchTerm)
+    {
+        currentSearchTerm = searchTerm;
+        currentPage = 1; // Reset to first page when search changes
+        await LoadTableData();
+    }
+
+    private async Task LoadTableData()
+    {
+        if (string.IsNullOrEmpty(selectedTableName)) return;
+
+        isLoadingData = true;
+        errorMessage = null;
+
+        try
+        {
+            currentTableData = await ApiService.GetTableDataAsync(
+                selectedTableName,
+                currentPage,
+                pageSize: 50,
+                currentSortColumn,
+                currentSortDirection,
+                currentSearchTerm
+            );
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            authErrorMessage = "Session expired. Please log in again.";
+            Console.WriteLine($"Authentication error: {ex.Message}");
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Failed to load data: Network error (Status: {ex.StatusCode})";
+            Console.WriteLine($"HTTP error loading table data: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load data: {ex.Message}";
+            Console.WriteLine($"Error loading table data: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingData = false;
+        }
+    }
+}

@@ -13,7 +13,7 @@ namespace RestaurantSuite.Admin.Pages
         private string? errorMessage;
 
         [Inject]
-        private ApiService ApiService { get; set; } = default!;
+        private TablesApiService ApiService { get; set; } = default!;
 
         [Inject]
         private IJSRuntime JSRuntime { get; set; } = default!;

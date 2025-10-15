@@ -1,285 +1,142 @@
 @page "/login"
+@using System.ComponentModel.DataAnnotations
 @using RestaurantSuite.Chef.Services
 @using RestaurantSuite.Chef.Models
-@using Microsoft.AspNetCore.Components.Authorization
 @inject AuthService AuthService
-@inject CustomAuthenticationStateProvider AuthStateProvider
-@inject NavigationManager NavigationManager
+@inject NavigationManager Navigation
 
 <PageTitle>Chef Login - Restaurant Suite</PageTitle>
 
-<div id="chef-login-container" class="login-container">
-    <div id="chef-login-card" class="login-card">
-        <div id="chef-login-icon" class="login-icon">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6z"></path>
-                <line x1="6" y1="17" x2="18" y2="17"></line>
-            </svg>
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <!-- Logo and Header -->
+        <div class="text-center">
+            <div class="flex justify-center">
+                <div class="w-16 h-16 bg-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6z"/>
+                        <line x1="6" y1="17" x2="18" y2="17"/>
+                    </svg>
+                </div>
+            </div>
+            <h2 class="mt-6 text-3xl font-bold text-slate-900">Chef Portal</h2>
+            <p class="mt-2 text-sm text-slate-600">Sign in to access the kitchen</p>
         </div>
-        <h2>Chef Login</h2>
-        <p class="subtitle">Restaurant Suite - Kitchen Access</p>
 
-        @if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <div id="chef-login-error" class="alert alert-error">
-                @errorMessage
-            </div>
-        }
+        <!-- Login Form -->
+        <div class="bg-white rounded-xl shadow-xl p-8">
+            <EditForm Model="@loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
+                <DataAnnotationsValidator />
 
-        @if (!string.IsNullOrEmpty(successMessage))
-        {
-            <div id="chef-login-success" class="alert alert-success">
-                @successMessage
-            </div>
-        }
-
-        <EditForm Model="@loginRequest" OnValidSubmit="HandleLogin">
-            <DataAnnotationsValidator />
-
-            <div id="chef-email-group" class="form-group">
-                <label for="email" id="chef-email-label">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 5px;">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                        <polyline points="22,6 12,13 2,6"></polyline>
-                    </svg>
-                    Email
-                </label>
-                <InputText id="chef-email-input" @bind-Value="loginRequest.Email" class="form-control" placeholder="Enter your email" />
-                <ValidationMessage For="@(() => loginRequest.Email)" />
-            </div>
-
-            <div id="chef-password-group" class="form-group">
-                <label for="password" id="chef-password-label">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 5px;">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                    Password
-                </label>
-                <InputText id="chef-password-input" type="password" @bind-Value="loginRequest.Password" class="form-control" placeholder="Enter your password" />
-                <ValidationMessage For="@(() => loginRequest.Password)" />
-            </div>
-
-            <div id="chef-remember-group" class="form-group remember-me">
-                <label for="chef-remember-checkbox" class="checkbox-label">
-                    <InputCheckbox id="chef-remember-checkbox" @bind-Value="loginRequest.RememberMe" />
-                    <span>Remember me for 30 days</span>
-                </label>
-            </div>
-
-            <button id="chef-login-button" type="submit" class="btn btn-primary btn-block" disabled="@isLoading">
-                @if (isLoading)
+                @if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 5px; animation: spin 1s linear infinite;">
-                        <line x1="12" y1="2" x2="12" y2="6"></line>
-                        <line x1="12" y1="18" x2="12" y2="22"></line>
-                        <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
-                        <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
-                        <line x1="2" y1="12" x2="6" y2="12"></line>
-                        <line x1="18" y1="12" x2="22" y2="12"></line>
-                        <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
-                        <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
-                    </svg>
-                    <span>Logging in...</span>
+                    <div class="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-sm">@errorMessage</span>
+                        </div>
+                    </div>
                 }
-                else
-                {
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 5px;">
-                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                        <polyline points="10,17 15,12 10,7"></polyline>
-                        <line x1="15" y1="12" x2="3" y2="12"></line>
-                    </svg>
-                    <span>Login</span>
-                }
-            </button>
-        </EditForm>
 
-        <div id="chef-login-footer" class="login-footer">
-            <p id="chef-login-help-text" class="help-text">Contact your manager if you need access</p>
+                <div class="space-y-4">
+                    <!-- Email Field -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+                        <InputText id="email" @bind-Value="loginModel.Email"
+                                   class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                                   placeholder="chef@restorankuzma.rs" />
+                        <ValidationMessage For="@(() => loginModel.Email)" class="text-red-600 text-sm mt-1" />
+                    </div>
+
+                    <!-- Password Field -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                        <InputText id="password" type="password" @bind-Value="loginModel.Password"
+                                   class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                                   placeholder="Enter your password" />
+                        <ValidationMessage For="@(() => loginModel.Password)" class="text-red-600 text-sm mt-1" />
+                    </div>
+
+                    <!-- Remember Me -->
+                    <div class="flex items-center">
+                        <InputCheckbox id="rememberMe" @bind-Value="loginModel.RememberMe"
+                                       class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-slate-300 rounded" />
+                        <label for="rememberMe" class="ml-2 block text-sm text-slate-700">
+                            Remember me for 30 days
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit"
+                            disabled="@isLoading"
+                            class="w-full flex justify-center items-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        @if (isLoading)
+                        {
+                            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Signing in...</span>
+                        }
+                        else
+                        {
+                            <span>Sign in</span>
+                        }
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="text-center text-sm text-slate-600">
+            <p>Default credentials: chef@restorankuzma.rs / Chef123!</p>
         </div>
     </div>
 </div>
 
-<style>
-    .login-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        padding: 20px;
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
-
-    .login-card {
-        background: white;
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        max-width: 400px;
-        width: 100%;
-    }
-
-    .login-icon {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 20px;
-        color: #f5576c;
-    }
-
-    .login-card h2 {
-        margin-bottom: 10px;
-        color: #333;
-        text-align: center;
-        font-size: 28px;
-    }
-
-    .subtitle {
-        text-align: center;
-        color: #666;
-        margin-bottom: 30px;
-        font-size: 14px;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        color: #333;
-        font-weight: 500;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 14px;
-        transition: border-color 0.3s;
-        box-sizing: border-box;
-    }
-
-    .form-control:focus {
-        outline: none;
-        border-color: #f5576c;
-        box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
-    }
-
-    .remember-me {
-        margin-bottom: 15px;
-    }
-
-    .checkbox-label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-        font-size: 14px;
-        color: #666;
-    }
-
-    .checkbox-label input[type="checkbox"] {
-        cursor: pointer;
-        width: 16px;
-        height: 16px;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .btn-primary:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
-    }
-
-    .btn-primary:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    .btn-block {
-        width: 100%;
-        padding: 12px;
-        margin-top: 10px;
-    }
-
-    .alert {
-        padding: 12px;
-        border-radius: 6px;
-        margin-bottom: 20px;
-        font-size: 14px;
-    }
-
-    .alert-error {
-        background-color: #fee;
-        color: #c33;
-        border: 1px solid #fcc;
-    }
-
-    .alert-success {
-        background-color: #efe;
-        color: #3c3;
-        border: 1px solid #cfc;
-    }
-
-    .login-footer {
-        margin-top: 20px;
-        text-align: center;
-    }
-
-    .help-text {
-        font-size: 13px;
-        color: #999;
-        margin: 0;
-    }
-
-    @@keyframes spin {
-        from {
-            transform: rotate(0deg);
-        }
-        to {
-            transform: rotate(360deg);
-        }
-    }
-</style>
-
 @code {
-    private LoginRequest loginRequest = new();
-    private string? errorMessage;
-    private string? successMessage;
+    private LoginModel loginModel = new();
     private bool isLoading = false;
+    private string? errorMessage;
+
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    private string? ReturnUrl { get; set; }
+
+    private class LoginModel
+    {
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        public string Email { get; set; } = "chef@restorankuzma.rs";
+
+        [Required(ErrorMessage = "Password is required")]
+        public string Password { get; set; } = string.Empty;
+
+        public bool RememberMe { get; set; } = false;
+    }
 
     private async Task HandleLogin()
     {
         isLoading = true;
         errorMessage = null;
-        successMessage = null;
 
         try
         {
-            var result = await AuthService.LoginAsync(loginRequest);
+            var request = new LoginRequest
+            {
+                Email = loginModel.Email,
+                Password = loginModel.Password,
+                RememberMe = loginModel.RememberMe
+            };
+
+            var result = await AuthService.LoginAsync(request);
 
             if (result.Success)
             {
-                successMessage = "Login successful! Welcome to the kitchen.";
-
-                // Notify authentication state changed
-                if (!string.IsNullOrEmpty(result.AccessToken))
-                {
-                    AuthStateProvider.NotifyUserAuthentication(result.AccessToken);
-                }
-
-                await Task.Delay(1000);
-                NavigationManager.NavigateTo("/");
+                // Navigate to return URL or dashboard
+                var redirectUrl = !string.IsNullOrEmpty(ReturnUrl) ? ReturnUrl : "/";
+                Navigation.NavigateTo(redirectUrl, true);
             }
             else
             {

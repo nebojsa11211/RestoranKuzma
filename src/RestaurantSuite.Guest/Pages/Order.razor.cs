@@ -9,7 +9,16 @@ namespace RestaurantSuite.Guest.Pages
     public partial class Order
     {
         [Inject]
-        private ApiService ApiService { get; set; } = default!;
+        private MenuApiService MenuApiService { get; set; } = default!;
+
+        [Inject]
+        private CategoriesApiService CategoriesApiService { get; set; } = default!;
+
+        [Inject]
+        private OrdersApiService OrdersApiService { get; set; } = default!;
+
+        [Inject]
+        private TablesApiService TablesApiService { get; set; } = default!;
 
         [Inject]
         private NavigationManager NavigationManager { get; set; } = default!;
@@ -38,7 +47,7 @@ namespace RestaurantSuite.Guest.Pages
         {
             try
             {
-                var categories = await ApiService.GetCategoriesAsync();
+                var categories = await CategoriesApiService.GetCategoriesAsync();
                 menuCategories = categories.Where(c => c.IsActive).OrderBy(c => c.DisplayOrder).ToList();
             }
             catch (Exception ex)
@@ -52,7 +61,7 @@ namespace RestaurantSuite.Guest.Pages
         {
             try
             {
-                menuItems = await ApiService.GetMenuItemsAsync();
+                menuItems = await MenuApiService.GetMenuItemsAsync();
             }
             catch (Exception ex)
             {

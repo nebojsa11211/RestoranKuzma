@@ -1,7 +1,7 @@
 @page "/kitchen"
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Chef")]
-@inject ApiService ApiService
+@inject OrdersApiService OrdersApiService
 
 <PageTitle>Kitchen Orders - Chef</PageTitle>
 
@@ -409,7 +409,7 @@
         isLoading = true;
         StateHasChanged();
 
-        var response = await ApiService.GetOrdersAsync();
+        var response = await OrdersApiService.GetOrdersAsync();
         if (response.Success)
         {
             var orders = response.Orders ?? new List<Order>();
@@ -423,7 +423,7 @@
 
     private async Task StartPreparation(Guid orderId)
     {
-        var result = await ApiService.StartPreparationAsync(orderId);
+        var result = await OrdersApiService.StartPreparationAsync(orderId);
         if (result.Success)
         {
             await LoadOrders();
@@ -432,7 +432,7 @@
 
     private async Task MarkAsReady(Guid orderId)
     {
-        var result = await ApiService.MarkAsReadyAsync(orderId);
+        var result = await OrdersApiService.MarkAsReadyAsync(orderId);
         if (result.Success)
         {
             await LoadOrders();

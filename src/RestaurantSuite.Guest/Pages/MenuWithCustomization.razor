@@ -1,7 +1,10 @@
 @page "/menu-custom"
 @using RestaurantSuite.Guest.Models
 @using RestaurantSuite.Guest.Services
-@inject ApiService ApiService
+@inject MenuApiService MenuApiService
+@inject CategoriesApiService CategoriesApiService
+@inject OrdersApiService OrdersApiService
+@inject TablesApiService TablesApiService
 @inject IJSRuntime JSRuntime
 
 <PageTitle>Menu - Restaurant Kuzma</PageTitle>
@@ -212,7 +215,7 @@
         isLoading = true;
         try
         {
-            menuItems = await ApiService.GetGuestMenuAsync(restaurantId);
+            menuItems = await MenuApiService.GetGuestMenuAsync(restaurantId);
         }
         catch (Exception ex)
         {

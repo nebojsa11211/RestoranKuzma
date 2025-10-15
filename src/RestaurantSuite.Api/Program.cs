@@ -53,8 +53,14 @@ builder.Services.AddScoped<IAuthenticationService, JwtAuthenticationService>();
 // Invoice Service
 builder.Services.AddScoped<IInvoiceService, RestaurantSuite.Infrastructure.EF.Services.InvoiceService>();
 
+// Database Browser Service (Admin tool)
+builder.Services.AddScoped<IDatabaseBrowserService, RestaurantSuite.Infrastructure.EF.Services.DatabaseBrowserService>();
+
 // Mock notification service for now
 builder.Services.AddScoped<INotificationService, MockNotificationService>();
+
+// Memory cache for database browser metadata caching
+builder.Services.AddMemoryCache();
 
 // JWT Authentication Configuration
 var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "development-secret-key-minimum-32-characters-long-for-security";
@@ -109,6 +115,39 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "API for Restaurant Management System"
     });
+
+    // Add JWT Authentication to Swagger
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+
+    // Include XML comments if available
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
 });
 
 var app = builder.Build();
