@@ -1,0 +1,84 @@
+@page "/chat"
+@page "/chat/{SessionId:guid}"
+@using RestaurantSuite.Admin.Models
+@using RestaurantSuite.Admin.Services
+@using Microsoft.JSInterop
+
+<h3 id="admin-chat-title">Customer Chat</h3>
+
+@if (ChatSessions.Any())
+{
+    <div id="admin-chat-sessions-list" class="chat-sessions-list">
+        @foreach (var session in ChatSessions.OrderByDescending(s => s.UpdatedAt ?? s.CreatedAt))
+        {
+            <div id="admin-chat-session-@session.Id" class="chat-session-item @(session.UnreadCount > 0 ? "unread" : "")">
+                <div id="admin-chat-session-content-@session.Id" class="chat-session-content" @onclick="() => OpenSession(session.Id)">
+                    <div id="admin-chat-session-header-@session.Id">
+                        <strong id="admin-chat-session-title-@session.Id">@session.Title</strong>
+                        @if (session.UnreadCount > 0)
+                        {
+                            <span id="admin-chat-session-unread-@session.Id" class="unread-badge">@session.UnreadCount</span>
+                        }
+                    </div>
+                    <div id="admin-chat-session-info-@session.Id" class="text-sm text-gray-600">
+                        @session.InitiatedByUserName - @session.CreatedAt.ToLocalTime().ToString("MM/dd HH:mm")
+                    </div>
+                    @if (session.LastMessage != null)
+                    {
+                        <div id="admin-chat-session-preview-@session.Id" class="text-sm">@session.LastMessage.Content</div>
+                    }
+                </div>
+                <button id="btn-delete-session-@session.Id" class="delete-btn" @onclick="() => DeleteSession(session.Id)" @onclick:stopPropagation="true" title="Delete chat">
+                    <svg id="admin-chat-delete-icon-@session.Id" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                </button>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p id="admin-chat-empty-state">No active chat sessions.</p>
+}
+
+@if (ActiveSession != null)
+{
+    <div id="admin-chat-modal" class="chat-modal" @onclick="CloseChat">
+        <div id="admin-chat-modal-content" class="chat-modal-content" @onclick:stopPropagation="true">
+            <div id="admin-chat-modal-header" class="chat-header">
+                <h4 id="admin-chat-modal-title">@ActiveSession.Title</h4>
+                <button id="btn-close-chat" @onclick="CloseChat">×</button>
+            </div>
+            <div id="admin-chat-messages-container" class="messages-container">
+                @foreach (var msg in ActiveSession.Messages.OrderBy(m => m.SentAt))
+                {
+                    <div id="admin-chat-message-@msg.Id" class="message @(msg.SenderName.Contains("Admin") ? "sent" : "received")">
+                        <div id="admin-chat-message-content-@msg.Id"><strong id="admin-chat-message-sender-@msg.Id">@msg.SenderName:</strong> @msg.Content</div>
+                        <small id="admin-chat-message-time-@msg.Id">@msg.SentAt.ToLocalTime().ToString("HH:mm")</small>
+                        @if (msg.Status == MessageStatus.Read)
+                        {
+                            <div id="admin-chat-message-status-@msg.Id" class="message-read-status">✓✓</div>
+                        }
+                        else if (msg.Status == MessageStatus.Delivered)
+                        {
+                            <div id="admin-chat-message-status-@msg.Id" class="message-read-status">✓</div>
+                        }
+                        else if (msg.Status == MessageStatus.Sent)
+                        {
+                            <div id="admin-chat-message-status-@msg.Id" class="message-read-status">✓</div>
+                        }
+                    </div>
+                }
+            </div>
+            <div id="admin-chat-message-input-container" class="message-input">
+                <input id="input-admin-chat-message" @bind="NewMessage" @onkeydown="HandleKeyDown" placeholder="Type a message..." />
+                <button id="btn-admin-send-message" @onclick="SendMessage" disabled="@string.IsNullOrWhiteSpace(NewMessage)">Send</button>
+            </div>
+        </div>
+    </div>
+}
+

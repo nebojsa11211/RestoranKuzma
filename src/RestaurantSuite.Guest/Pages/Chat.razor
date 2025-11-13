@@ -1,0 +1,286 @@
+@page "/chat"
+@page "/chat/{SessionId:guid}"
+@implements IAsyncDisposable
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<Chat> Localizer
+@inject ChatHubService ChatHubService
+@inject ChatApiService ChatApiService
+@inject NavigationManager NavigationManager
+
+<div id="guest-chat-page" class="chat-page">
+    @if (IsLoading)
+    {
+        <div id="guest-chat-loading" class="loading-spinner">
+            <p id="guest-chat-loading-text">@Localizer["LoadingChat"]</p>
+        </div>
+    }
+    else if (ActiveChatSession != null)
+    {
+        <!-- Chat View -->
+        <div id="guest-chat-container" class="chat-container">
+            <!-- Chat Header -->
+            <div id="guest-chat-header" class="chat-header">
+                <button id="btn-back-to-home" @onclick="BackToHome" class="back-button">
+                    ← @Localizer["BackButton"]
+                </button>
+                <div id="guest-chat-title-section" class="chat-title">
+                    <h1 id="guest-chat-title">@ActiveChatSession.Title</h1>
+                    <p id="guest-chat-participants" class="text-sm text-gray-600">
+                        @ActiveChatSession.Participants.Count @Localizer["ParticipantsLabel"]
+                    </p>
+                </div>
+            </div>
+
+            <!-- Messages Container -->
+            <div id="guest-chat-messages-container" class="messages-container" @ref="messagesContainer">
+                @if (ActiveChatSession.Messages.Any())
+                {
+                    @foreach (var message in ActiveChatSession.Messages.OrderBy(m => m.SentAt))
+                    {
+                        <div id="guest-chat-message-@message.Id" class="message @GetMessageClass(message)">
+                            <div id="guest-chat-message-sender-@message.Id" class="message-sender">@message.SenderName</div>
+                            <div id="guest-chat-message-content-@message.Id" class="message-content">@message.Content</div>
+                            <div id="guest-chat-message-time-@message.Id" class="message-time">@message.SentAt.ToLocalTime().ToString("h:mm tt")</div>
+                            @if (message.Status == MessageStatus.Read)
+                            {
+                                <div id="guest-chat-message-status-@message.Id" class="message-read-status">✓✓</div>
+                            }
+                            else if (message.Status == MessageStatus.Delivered)
+                            {
+                                <div id="guest-chat-message-status-@message.Id" class="message-read-status">✓</div>
+                            }
+                            else if (message.Status == MessageStatus.Sent)
+                            {
+                                <div id="guest-chat-message-status-@message.Id" class="message-read-status">✓</div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div id="guest-chat-messages-empty" class="empty-state">
+                        <p id="guest-chat-empty-text">@Localizer["EmptyMessagesState"]</p>
+                    </div>
+                }
+
+                @if (TypingUsers.Any())
+                {
+                    <div id="guest-chat-typing-indicator" class="typing-indicator">
+                        @string.Join(", ", TypingUsers) @(TypingUsers.Count == 1 ? Localizer["TypingIs"].Value : Localizer["TypingAre"].Value) @Localizer["TypingText"]
+                    </div>
+                }
+            </div>
+
+            <!-- Message Input -->
+            <div id="guest-chat-input-container" class="message-input-container">
+                <input
+                    id="input-guest-chat-message"
+                    type="text"
+                    class="message-input"
+                    placeholder="@Localizer["MessageInputPlaceholder"]"
+                    @bind="NewMessageText"
+                    @bind:event="oninput"
+                    @onkeydown="HandleKeyDown"
+                    @onfocus="HandleInputFocus"
+                    @onblur="HandleInputBlur"
+                />
+                <button
+                    id="btn-guest-send-message"
+                    @onclick="SendMessage"
+                    class="send-button"
+                    disabled="@string.IsNullOrWhiteSpace(NewMessageText)">
+                    @Localizer["SendButton"]
+                </button>
+            </div>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div id="guest-chat-error-container" class="error-container">
+            <div id="guest-chat-error" class="error-message">
+                @ErrorMessage
+            </div>
+            <button id="btn-retry-chat" @onclick="CreateNewChat" class="btn-primary">
+                Retry
+            </button>
+        </div>
+    }
+</div>
+
+<style>
+    .chat-page {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: #f5f5f5;
+    }
+
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background: white;
+    }
+
+    .chat-header {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+        background: white;
+    }
+
+    .back-button {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        margin-right: 1rem;
+    }
+
+    .chat-title h1 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .messages-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        background: #f9fafb;
+        scroll-behavior: smooth;
+    }
+
+    .message {
+        margin-bottom: 1rem;
+        max-width: 70%;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        position: relative;
+    }
+
+    .message.sent {
+        margin-left: auto;
+        background: #3b82f6;
+        color: white;
+    }
+
+    .message.received {
+        margin-right: auto;
+        background: white;
+        border: 1px solid #e5e7eb;
+    }
+
+    .message-sender {
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .message.sent .message-sender {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .message.received .message-sender {
+        color: #6b7280;
+    }
+
+    .message-content {
+        word-wrap: break-word;
+    }
+
+    .message-time {
+        font-size: 0.625rem;
+        margin-top: 0.25rem;
+        opacity: 0.7;
+    }
+
+    .message-read-status {
+        font-size: 0.75rem;
+        position: absolute;
+        bottom: 0.5rem;
+        right: 0.5rem;
+    }
+
+    .typing-indicator {
+        font-size: 0.875rem;
+        font-style: italic;
+        color: #6b7280;
+        padding: 0.5rem;
+    }
+
+    .message-input-container {
+        display: flex;
+        padding: 1rem;
+        border-top: 1px solid #e5e7eb;
+        background: white;
+        gap: 0.5rem;
+    }
+
+    .message-input {
+        flex: 1;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .send-button {
+        padding: 0.75rem 1.5rem;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .send-button:disabled {
+        background: #d1d5db;
+        cursor: not-allowed;
+    }
+
+    .error-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        height: 100vh;
+        gap: 1rem;
+    }
+
+    .error-message {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border-left: 4px solid #dc2626;
+        max-width: 400px;
+        text-align: center;
+    }
+
+    .btn-primary {
+        background: #3b82f6;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+        background: #2563eb;
+    }
+</style>
