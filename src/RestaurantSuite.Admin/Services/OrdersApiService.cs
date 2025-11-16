@@ -13,6 +13,11 @@ public class OrdersApiService
         _httpClient = httpClient;
     }
 
+    public async Task<List<OrderDto>> GetAllOrdersAsync()
+    {
+        return await _httpClient.GetFromJsonAsync<List<OrderDto>>("api/orders") ?? new List<OrderDto>();
+    }
+
     public async Task<List<OrderDto>> GetOrdersByRestaurantAsync(Guid restaurantId)
     {
         return await _httpClient.GetFromJsonAsync<List<OrderDto>>($"api/orders/restaurant/{restaurantId}") ?? new List<OrderDto>();

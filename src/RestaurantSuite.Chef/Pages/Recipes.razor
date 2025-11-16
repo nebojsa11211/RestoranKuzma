@@ -1,9 +1,6 @@
 @page "/recipes"
 @using RestaurantSuite.Chef.Services
 @using RestaurantSuite.Chef.Models
-@inject MenuApiService MenuApiService
-@inject CategoriesApiService CategoriesApiService
-
 <PageTitle>Recipes - Chef</PageTitle>
 
 <div id="chef-recipes-container" class="recipes-container">
@@ -369,59 +366,3 @@
         }
     }
 </style>
-
-@code {
-    private List<MenuItemWithIngredients> menuItems = new();
-    private List<MenuItemWithIngredients> filteredMenuItems = new();
-    private List<Category> categories = new();
-    private Guid? selectedCategoryId = null;
-    private bool isLoading = true;
-
-    // Hard-coded restaurant ID for now (should be from user context)
-    private Guid restaurantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-    }
-
-    private async Task LoadData()
-    {
-        isLoading = true;
-        StateHasChanged();
-
-        // Load categories
-        var categoriesResponse = await CategoriesApiService.GetCategoriesAsync();
-        if (categoriesResponse.Success)
-        {
-            categories = categoriesResponse.Categories ?? new List<Category>();
-        }
-
-        // Load menu items with recipes
-        var menuResponse = await MenuApiService.GetMenuItemsWithRecipesAsync(restaurantId);
-        if (menuResponse.Success)
-        {
-            menuItems = menuResponse.MenuItems ?? new List<MenuItemWithIngredients>();
-            filteredMenuItems = menuItems;
-        }
-
-        isLoading = false;
-        StateHasChanged();
-    }
-
-    private void FilterByCategory(Guid? categoryId)
-    {
-        selectedCategoryId = categoryId;
-
-        if (categoryId == null)
-        {
-            filteredMenuItems = menuItems;
-        }
-        else
-        {
-            filteredMenuItems = menuItems.Where(m => m.CategoryId == categoryId).ToList();
-        }
-
-        StateHasChanged();
-    }
-}

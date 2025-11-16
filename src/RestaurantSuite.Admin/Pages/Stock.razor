@@ -1,7 +1,6 @@
 @page "/stock"
+@attribute [Authorize(Roles = "Admin")]
 @using RestaurantSuite.Admin.Services
-@inject InventoryApiService ApiService
-
 <PageTitle>Stock Management - Restaurant Suite</PageTitle>
 
 <!-- Page Header -->
@@ -173,65 +172,3 @@
         </table>
     </div>
 </div>
-
-@code {
-    private List<StockItem> stockItems = new();
-    private bool showAddStockModal = false;
-    private bool showEditStockModal = false;
-    private StockItem editingItem = new();
-
-    private int lowStockCount => stockItems.Count(s => s.CurrentStock > 0 && s.CurrentStock <= s.MinLevel);
-    private int outOfStockCount => stockItems.Count(s => s.CurrentStock <= 0);
-    private decimal totalStockValue => stockItems.Sum(s => s.CurrentStock * s.UnitPrice);
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadStockData();
-    }
-
-    private async Task LoadStockData()
-    {
-        // Mock data for now - replace with API call later
-        stockItems = new List<StockItem>
-        {
-            new() { Id = Guid.NewGuid(), Name = "Beef", Category = "Meat", CurrentStock = 25, Unit = "kg", MinLevel = 20, UnitPrice = 850 },
-            new() { Id = Guid.NewGuid(), Name = "Chicken", Category = "Meat", CurrentStock = 15, Unit = "kg", MinLevel = 20, UnitPrice = 450 },
-            new() { Id = Guid.NewGuid(), Name = "Tomatoes", Category = "Vegetables", CurrentStock = 40, Unit = "kg", MinLevel = 15, UnitPrice = 120 },
-            new() { Id = Guid.NewGuid(), Name = "Onions", Category = "Vegetables", CurrentStock = 30, Unit = "kg", MinLevel = 10, UnitPrice = 80 },
-            new() { Id = Guid.NewGuid(), Name = "Cheese", Category = "Dairy", CurrentStock = 12, Unit = "kg", MinLevel = 15, UnitPrice = 650 },
-            new() { Id = Guid.NewGuid(), Name = "Milk", Category = "Dairy", CurrentStock = 0, Unit = "L", MinLevel = 20, UnitPrice = 120 },
-            new() { Id = Guid.NewGuid(), Name = "Bread", Category = "Bakery", CurrentStock = 50, Unit = "pcs", MinLevel = 30, UnitPrice = 45 },
-            new() { Id = Guid.NewGuid(), Name = "Flour", Category = "Dry Goods", CurrentStock = 100, Unit = "kg", MinLevel = 50, UnitPrice = 60 }
-        };
-
-        await Task.CompletedTask;
-    }
-
-    private void ShowAddStockModal()
-    {
-        showAddStockModal = true;
-    }
-
-    private void ShowEditStockModal(StockItem item)
-    {
-        editingItem = item;
-        showEditStockModal = true;
-    }
-
-    private async Task DeleteStockItem(Guid id)
-    {
-        stockItems.RemoveAll(s => s.Id == id);
-        await Task.CompletedTask;
-    }
-
-    private class StockItem
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Category { get; set; } = string.Empty;
-        public decimal CurrentStock { get; set; }
-        public string Unit { get; set; } = string.Empty;
-        public decimal MinLevel { get; set; }
-        public decimal UnitPrice { get; set; }
-    }
-}

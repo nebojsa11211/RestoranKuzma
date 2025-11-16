@@ -24,15 +24,3 @@
         </div>
     </div>
 </div>
-
-@code {
-    [Parameter] public StaffMemberDto? Staff { get; set; }
-    [Parameter] public EventCallback OnClose { get; set; }
-    [Parameter] public EventCallback OnStaffUpdated { get; set; }
-    
-    private async Task OnSave()
-    {
-        await OnStaffUpdated.InvokeAsync();
-        await OnClose.InvokeAsync();
-    }
-}

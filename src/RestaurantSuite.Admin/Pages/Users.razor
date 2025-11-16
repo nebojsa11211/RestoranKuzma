@@ -1,7 +1,6 @@
 @page "/users"
+@attribute [Authorize(Roles = "Admin")]
 @using RestaurantSuite.Admin.Services
-@inject UsersApiService ApiService
-
 <PageTitle>User Management - Restaurant Suite</PageTitle>
 
 <link rel="stylesheet" href="css/staff.css" />
@@ -169,96 +168,4 @@
     <div class="text-center py-12">
         <p class="text-slate-500">No users found for the selected filter.</p>
     </div>
-}
-
-@code {
-    private List<UserDto> users = new();
-    private UserCountsDto? userCounts;
-    private string activeRole = "all";
-
-    private IEnumerable<UserDto> FilteredUsers =>
-        activeRole == "all" ? users : users.Where(u => u.Role == activeRole);
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadUsers();
-        await LoadUserCounts();
-    }
-
-    private async Task LoadUsers()
-    {
-        try
-        {
-            users = await ApiService.GetAllUsersAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading users: {ex.Message}");
-            users = new List<UserDto>();
-        }
-    }
-
-    private async Task LoadUserCounts()
-    {
-        try
-        {
-            userCounts = await ApiService.GetUserCountsAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading user counts: {ex.Message}");
-        }
-    }
-
-    private void SetActiveRole(string role)
-    {
-        activeRole = role;
-    }
-
-    private void SetAllRole() => activeRole = "all";
-    private void SetGuestRole() => activeRole = "Guest";
-    private void SetWaiterRole() => activeRole = "Waiter";
-    private void SetChefRole() => activeRole = "Chef";
-    private void SetAdminRole() => activeRole = "Admin";
-
-    private string GetAvatarColor(Guid userId)
-    {
-        var colors = new[] { "avatar-blue", "avatar-purple", "avatar-green", "avatar-orange", "avatar-red", "avatar-teal" };
-        var index = userId.GetHashCode() % colors.Length;
-        return colors[Math.Abs(index)];
-    }
-
-    private string GetRoleColor(string role)
-    {
-        return role switch
-        {
-            "Guest" => "text-purple-600",
-            "Waiter" => "text-green-600",
-            "Chef" => "text-orange-600",
-            "Admin" => "text-red-600",
-            _ => "text-slate-600"
-        };
-    }
-
-    private string GetRoleBadgeColor(string role)
-    {
-        return role switch
-        {
-            "Guest" => "bg-purple-100 text-purple-800",
-            "Waiter" => "bg-green-100 text-green-800",
-            "Chef" => "bg-orange-100 text-orange-800",
-            "Admin" => "bg-red-100 text-red-800",
-            _ => "bg-slate-100 text-slate-800"
-        };
-    }
-
-    private string GetInitials(string fullName)
-    {
-        var names = fullName.Split(' ');
-        if (names.Length >= 2)
-        {
-            return $"{names[0][0]}{names[1][0]}".ToUpper();
-        }
-        return names[0].Length >= 2 ? names[0].Substring(0, 2).ToUpper() : names[0].ToUpper();
-    }
 }

@@ -1,9 +1,6 @@
 @page "/"
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Chef")]
-@inject OrdersApiService OrdersApiService
-@inject AuthenticationStateProvider AuthStateProvider
-
 <PageTitle>Dashboard - Chef</PageTitle>
 
 <div id="chef-dashboard-container" class="dashboard-container">
@@ -195,37 +192,3 @@
         font-size: 14px;
     }
 </style>
-
-@code {
-    private string chefName = "Chef";
-    private KitchenStats? stats;
-
-    protected override async Task OnInitializedAsync()
-    {
-        Console.WriteLine("Dashboard page initialized");
-        
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated == true)
-        {
-            chefName = user.Identity.Name ?? "Chef";
-            Console.WriteLine($"Dashboard loaded for user: {chefName}");
-        }
-        else
-        {
-            Console.WriteLine("Dashboard loaded for unauthenticated user");
-        }
-
-        await LoadStats();
-    }
-
-    private async Task LoadStats()
-    {
-        var response = await OrdersApiService.GetKitchenStatsAsync();
-        if (response.Success)
-        {
-            stats = response.Stats;
-        }
-    }
-}

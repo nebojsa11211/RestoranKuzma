@@ -26,6 +26,14 @@ public class ApplicationDbContext : DbContext
     public DbSet<Recipe> Recipes { get; set; } = null!;
     public DbSet<RecipeIngredient> RecipeIngredients { get; set; } = null!;
     public DbSet<StockTransaction> StockTransactions { get; set; } = null!;
+    public DbSet<Reservation> Reservations { get; set; } = null!;
+    public DbSet<DailyMenu> DailyMenus { get; set; } = null!;
+    public DbSet<DailyMenuItem> DailyMenuItems { get; set; } = null!;
+    public DbSet<ChatSession> ChatSessions { get; set; } = null!;
+    public DbSet<ChatMessage> ChatMessages { get; set; } = null!;
+    public DbSet<ChatParticipant> ChatParticipants { get; set; } = null!;
+    public DbSet<OrderSession> OrderSessions { get; set; } = null!;
+    public DbSet<RestaurantSettings> RestaurantSettings { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

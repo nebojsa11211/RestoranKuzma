@@ -13,6 +13,7 @@ var apiBaseUrl = builder.Configuration.GetValue<string>("ApiBaseUrl") ?? "http:/
 
 // Authentication Services
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddSingleton<ServerSideTokenStorage>(); // Server-side token storage for SignalR (Singleton to persist across circuits)
 builder.Services.AddScoped<CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider =>
     provider.GetRequiredService<CustomAuthenticationStateProvider>());
@@ -86,6 +87,20 @@ builder.Services.AddHttpClient<DatabaseBrowserApiService>(client =>
     client.BaseAddress = new Uri(apiBaseUrl);
     client.Timeout = TimeSpan.FromSeconds(30);
 }).AddHttpMessageHandler<AuthMessageHandler>();
+
+builder.Services.AddHttpClient<ChatApiService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+    client.Timeout = TimeSpan.FromSeconds(30);
+}).AddHttpMessageHandler<AuthMessageHandler>();
+
+builder.Services.AddHttpClient<DailyMenuApiService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+    client.Timeout = TimeSpan.FromSeconds(30);
+}).AddHttpMessageHandler<AuthMessageHandler>();
+
+builder.Services.AddScoped<ChatHubService>();
 
 var app = builder.Build();
 

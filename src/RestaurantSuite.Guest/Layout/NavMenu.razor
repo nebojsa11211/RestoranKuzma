@@ -45,20 +45,23 @@
         <span id="navmenu-menu-text" class="font-medium">Menu</span>
     </NavLink>
 
-    <!-- View Tables -->
+    <!-- Daily Menu (Only show if enabled) -->
+    @if (IsDailyMenuEnabled)
+    {
+        <NavLink id="navmenu-daily-menu-link" href="daily-menu" class="@GetNavLinkClasses()">
+            <svg id="navmenu-daily-menu-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+            </svg>
+            <span id="navmenu-daily-menu-text" class="font-medium">Daily Menu</span>
+        </NavLink>
+    }
+
+    <!-- Tables & Reservations -->
     <NavLink id="navmenu-tables-link" href="tables" class="@GetNavLinkClasses()">
         <svg id="navmenu-tables-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
         </svg>
-        <span id="navmenu-tables-text" class="font-medium">Our Tables</span>
-    </NavLink>
-
-    <!-- Reserve Table -->
-    <NavLink id="navmenu-reserve-table-link" href="reserve-table" class="@GetNavLinkClasses()">
-        <svg id="navmenu-reserve-table-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a4 4 0 118 0v4m-4 8a2 2 0 100 4 2 2 0 000-4zm-6-4a6 6 0 1112 0v3h-2V11a4 4 0 00-8 0v2H6v-3z"/>
-        </svg>
-        <span id="navmenu-reserve-table-text" class="font-medium">Reserve Table</span>
+        <span id="navmenu-tables-text" class="font-medium">Tables & Reserve</span>
     </NavLink>
 
     <!-- Order -->
@@ -67,6 +70,35 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"/>
         </svg>
         <span id="navmenu-order-text" class="font-medium">Place Order</span>
+    </NavLink>
+
+    <!-- Chat -->
+    <NavLink id="navmenu-chat-link" href="chat" class="@GetNavLinkClasses()">
+        <svg id="navmenu-chat-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+        <span id="navmenu-chat-text" class="font-medium">Chat</span>
+    </NavLink>
+
+    <!-- My Orders -->
+    <AuthorizeView>
+        <Authorized>
+            <NavLink id="navmenu-my-orders-link" href="my-orders" class="@GetNavLinkClasses()">
+                <svg id="navmenu-my-orders-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                </svg>
+                <span id="navmenu-my-orders-text" class="font-medium">My Orders</span>
+            </NavLink>
+        </Authorized>
+    </AuthorizeView>
+
+    <!-- Location -->
+    <NavLink id="navmenu-location-link" href="location" class="@GetNavLinkClasses()">
+        <svg id="navmenu-location-icon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <span id="navmenu-location-text" class="font-medium">Location</span>
     </NavLink>
 </nav>
 
@@ -130,62 +162,3 @@
 @using RestaurantSuite.Guest.Services
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
-@inject AuthService AuthService
-@inject CustomAuthenticationStateProvider AuthStateProvider
-@inject NavigationManager NavigationManager
-
-@code {
-    private bool collapseNavMenu = true;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-
-    private string GetNavLinkClasses()
-    {
-        return "group flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-700 rounded-lg hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition-all duration-200 active:bg-primary-50 active:text-primary-700 active:font-semibold active:shadow-inner-soft";
-    }
-
-    private string GetRegisterButtonClasses()
-    {
-        return "group flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 focus:ring-offset-white transition-all duration-200 active:font-semibold active:shadow-inner-soft bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800";
-    }
-
-    private async Task HandleLogout()
-    {
-        await AuthService.LogoutAsync();
-        AuthStateProvider.NotifyUserLogout();
-        NavigationManager.NavigateTo("/", forceLoad: true);
-    }
-
-    private void HandleUserProfile()
-    {
-        // Navigate to user profile page (to be implemented)
-        NavigationManager.NavigateTo("/profile");
-    }
-
-    private string GetUserName(ClaimsPrincipal user)
-    {
-        return user.FindFirst(ClaimTypes.Name)?.Value
-            ?? user.FindFirst("name")?.Value
-            ?? "Guest User";
-    }
-
-    private string GetUserInitials(ClaimsPrincipal user)
-    {
-        var name = GetUserName(user);
-        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-        if (parts.Length >= 2)
-        {
-            return $"{parts[0][0]}{parts[1][0]}".ToUpper();
-        }
-        else if (parts.Length == 1 && parts[0].Length >= 2)
-        {
-            return parts[0].Substring(0, 2).ToUpper();
-        }
-
-        return "GU";
-    }
-}

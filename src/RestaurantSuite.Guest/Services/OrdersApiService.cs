@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using RestaurantSuite.Application.DTOs;
 
 namespace RestaurantSuite.Guest.Services;
 
@@ -17,6 +18,14 @@ public class OrdersApiService
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<CreateOrderResponse>();
         return result?.Id ?? Guid.Empty;
+    }
+
+    public async Task<List<OrderDto>> GetMyOrdersAsync(Guid userId)
+    {
+        var response = await _httpClient.GetAsync($"api/orders/user/{userId}");
+        response.EnsureSuccessStatusCode();
+        var orders = await response.Content.ReadFromJsonAsync<List<OrderDto>>();
+        return orders ?? new List<OrderDto>();
     }
 }
 

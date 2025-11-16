@@ -8,16 +8,22 @@ public class AuthService
 {
     private readonly HttpClient _httpClient;
     private readonly ITokenService _tokenService;
+    private readonly ServerSideTokenStorage _serverSideTokenStorage;
     private readonly CustomAuthenticationStateProvider _authStateProvider;
+    private readonly IServiceProvider _serviceProvider;
 
     public AuthService(
         HttpClient httpClient,
         ITokenService tokenService,
-        AuthenticationStateProvider authStateProvider)
+        ServerSideTokenStorage serverSideTokenStorage,
+        AuthenticationStateProvider authStateProvider,
+        IServiceProvider serviceProvider)
     {
         _httpClient = httpClient;
         _tokenService = tokenService;
+        _serverSideTokenStorage = serverSideTokenStorage;
         _authStateProvider = (CustomAuthenticationStateProvider)authStateProvider;
+        _serviceProvider = serviceProvider;
     }
 
     public async Task<AuthResponse> LoginAsync(string email, string password, bool rememberMe = false)
@@ -47,14 +53,24 @@ public class AuthService
 
             if (authResponse != null && authResponse.Success && !string.IsNullOrEmpty(authResponse.AccessToken))
             {
-                // Store tokens
+                // Store tokens in both client-side (localStorage) and server-side storage
                 await _tokenService.SetTokenAsync(
+                    authResponse.AccessToken,
+                    authResponse.RefreshToken,
+                    authResponse.ExpiresAt);
+
+                // Also store in server-side storage for SignalR
+                _serverSideTokenStorage.SetToken(
                     authResponse.AccessToken,
                     authResponse.RefreshToken,
                     authResponse.ExpiresAt);
 
                 // Update authentication state
                 await _authStateProvider.MarkUserAsAuthenticated(authResponse.AccessToken);
+
+                // Reconnect ChatHub with the new authentication token
+                // This ensures SignalR uses the correct user context
+                await ReconnectChatHubAsync();
             }
 
             return authResponse ?? new AuthResponse { Success = false, ErrorMessage = "Invalid response from server" };
@@ -88,7 +104,11 @@ public class AuthService
                 }
             }
 
-            // Clear tokens and update auth state
+            // Disconnect ChatHub before clearing tokens
+            await DisconnectChatHubAsync();
+
+            // Clear tokens from both storages and update auth state
+            _serverSideTokenStorage.ClearTokens();
             await _authStateProvider.MarkUserAsLoggedOut();
             return true;
         }
@@ -147,6 +167,46 @@ public class AuthService
                 Success = false,
                 ErrorMessage = $"Refresh error: {ex.Message}"
             };
+        }
+    }
+
+    private async Task ReconnectChatHubAsync()
+    {
+        try
+        {
+            // Get ChatHubService from DI container
+            // We use IServiceProvider instead of direct injection to avoid circular dependencies
+            var chatHubService = _serviceProvider.GetService<ChatHubService>();
+            if (chatHubService != null)
+            {
+                Console.WriteLine("[AuthService] Reconnecting ChatHub with new authentication token...");
+                await chatHubService.ReconnectWithAuthenticationAsync();
+                Console.WriteLine("[AuthService] ChatHub reconnection completed");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Don't fail login if ChatHub reconnection fails
+            Console.WriteLine($"[AuthService] ChatHub reconnection failed (non-critical): {ex.Message}");
+        }
+    }
+
+    private async Task DisconnectChatHubAsync()
+    {
+        try
+        {
+            var chatHubService = _serviceProvider.GetService<ChatHubService>();
+            if (chatHubService != null)
+            {
+                Console.WriteLine("[AuthService] Disconnecting ChatHub before logout...");
+                await chatHubService.DisconnectAsync();
+                Console.WriteLine("[AuthService] ChatHub disconnection completed");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Don't fail logout if ChatHub disconnection fails
+            Console.WriteLine($"[AuthService] ChatHub disconnection failed (non-critical): {ex.Message}");
         }
     }
 }

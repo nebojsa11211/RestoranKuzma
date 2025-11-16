@@ -16,13 +16,13 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.Users.FindAsync(new object[] { id }, cancellationToken);
+        return await _context.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
     public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return await _context.Users
-            .FirstOrDefaultAsync(u => u.Email == email.ToLowerInvariant(), cancellationToken);
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower(), cancellationToken);
     }
 
     public async Task<User?> GetByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)

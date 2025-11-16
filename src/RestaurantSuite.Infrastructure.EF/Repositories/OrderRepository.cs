@@ -55,6 +55,15 @@ public class OrderRepository : IOrderRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IEnumerable<Order>> GetOrdersByGuestIdAsync(Guid guestId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Orders
+            .Where(o => o.GuestId == guestId)
+            .Include(o => o.OrderItems)
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddAsync(Order order, CancellationToken cancellationToken = default)
     {
         await _context.Orders.AddAsync(order, cancellationToken);

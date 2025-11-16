@@ -11,6 +11,7 @@ public class OrderItem
     public decimal UnitPrice { get; private set; }
     public decimal Subtotal { get; private set; }
     public string? SpecialInstructions { get; private set; }
+    public OrderItemStatus Status { get; private set; }
 
     // Navigation properties
     public Order Order { get; private set; }
@@ -36,11 +37,17 @@ public class OrderItem
             MenuItemId = menuItemId,
             Quantity = quantity,
             UnitPrice = unitPrice,
-            SpecialInstructions = specialInstructions
+            SpecialInstructions = specialInstructions,
+            Status = OrderItemStatus.New
         };
 
         orderItem.RecalculateSubtotal();
         return orderItem;
+    }
+
+    public void UpdateStatus(OrderItemStatus newStatus)
+    {
+        Status = newStatus;
     }
 
     public void UpdateQuantity(int newQuantity)

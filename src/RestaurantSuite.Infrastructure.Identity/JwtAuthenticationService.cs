@@ -2,11 +2,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using RestaurantSuite.Application.Interfaces;
 using RestaurantSuite.Domain.Entities;
 using RestaurantSuite.Domain.Enums;
+using RestaurantSuite.Infrastructure.EF;
 
 namespace RestaurantSuite.Infrastructure.Identity;
 
@@ -14,6 +16,7 @@ public class JwtAuthenticationService : IAuthenticationService
 {
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ApplicationDbContext _context;
     private readonly IConfiguration _configuration;
     private readonly string _jwtSecret;
     private readonly string _jwtIssuer;
@@ -25,10 +28,12 @@ public class JwtAuthenticationService : IAuthenticationService
     public JwtAuthenticationService(
         IUserRepository userRepository,
         IUnitOfWork unitOfWork,
+        ApplicationDbContext context,
         IConfiguration configuration)
     {
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
+        _context = context;
         _configuration = configuration;
 
         _jwtSecret = _configuration["Jwt:Secret"] ?? "development-secret-key-minimum-32-characters-long-for-security";
@@ -88,19 +93,47 @@ public class JwtAuthenticationService : IAuthenticationService
 
     public async Task<AuthenticationResult> LoginAsync(string email, string password, bool rememberMe = false)
     {
-        var user = await _userRepository.GetByEmailAsync(email);
-        if (user == null)
+        Console.WriteLine($"[DEBUG] Login attempt for email: {email}");
+
+        // Get user ID first to avoid tracking conflicts
+        var userId = await _context.Users
+            .Where(u => u.Email.ToLower() == email.ToLower())
+            .Select(u => (Guid?)u.Id)
+            .FirstOrDefaultAsync();
+
+        if (!userId.HasValue)
         {
+            Console.WriteLine($"[DEBUG] User not found for email: {email}");
             return AuthenticationResult.Failure("Invalid email or password");
         }
 
-        if (!VerifyPassword(password, user.PasswordHash))
+        // Load user in a way that minimizes tracking conflicts
+        var user = await _userRepository.GetByIdAsync(userId.Value);
+        if (user == null)
         {
+            Console.WriteLine($"[DEBUG] User not found for ID: {userId.Value}");
+            return AuthenticationResult.Failure("Invalid email or password");
+        }
+
+        Console.WriteLine($"[DEBUG] User found: ID={user.Id}, Email={user.Email}, IsActive={user.IsActive}");
+        Console.WriteLine($"[DEBUG] Provided password: '{password}' (length: {password?.Length ?? 0})");
+        Console.WriteLine($"[DEBUG] Stored password hash: '{user.PasswordHash}' (length: {user.PasswordHash?.Length ?? 0})");
+
+        bool passwordValid = VerifyPassword(password, user.PasswordHash);
+        Console.WriteLine($"[DEBUG] Password verification result: {passwordValid}");
+        
+        if (!passwordValid)
+        {
+            Console.WriteLine($"[DEBUG] Password verification failed - calculating expected hash for debugging");
+            string expectedHash = HashPassword(password);
+            Console.WriteLine($"[DEBUG] Expected hash: '{expectedHash}'");
+            Console.WriteLine($"[DEBUG] Expected hash matches stored: {expectedHash == user.PasswordHash}");
             return AuthenticationResult.Failure("Invalid email or password");
         }
 
         if (!user.IsActive)
         {
+            Console.WriteLine($"[DEBUG] User account is deactivated");
             return AuthenticationResult.Failure("User account is deactivated");
         }
 
@@ -111,10 +144,29 @@ public class JwtAuthenticationService : IAuthenticationService
         // Use extended expiration if "Remember Me" is checked
         var refreshTokenExpirationDays = rememberMe ? _rememberMeRefreshTokenExpirationDays : _refreshTokenExpirationDays;
         var refreshTokenExpires = DateTime.UtcNow.AddDays(refreshTokenExpirationDays);
-        user.SetRefreshToken(refreshToken, refreshTokenExpires);
 
-        _userRepository.Update(user);
-        await _unitOfWork.SaveChangesAsync();
+        Console.WriteLine($"[DEBUG] Before updating refresh token - User.Id={user.Id}");
+
+        // Detach the user entity to avoid tracking conflicts
+        _context.Entry(user).State = EntityState.Detached;
+
+        // Load a fresh instance of the user
+        var userForUpdate = await _userRepository.GetByIdAsync(userId.Value);
+        if (userForUpdate == null)
+        {
+            return AuthenticationResult.Failure("User account no longer exists");
+        }
+
+        // Update the refresh token
+        userForUpdate.SetRefreshToken(refreshToken, refreshTokenExpires);
+
+        // Manually mark the properties as modified since SetRefreshToken uses private setters
+        _context.Entry(userForUpdate).Property("RefreshToken").IsModified = true;
+        _context.Entry(userForUpdate).Property("RefreshTokenExpiresAt").IsModified = true;
+        _context.Entry(userForUpdate).Property("UpdatedAt").IsModified = true;
+
+        var rowsAffected = await _unitOfWork.SaveChangesAsync();
+        Console.WriteLine($"[DEBUG] SaveChangesAsync completed successfully. Rows affected: {rowsAffected}");
 
         return AuthenticationResult.SuccessResult(
             accessToken,
@@ -142,8 +194,26 @@ public class JwtAuthenticationService : IAuthenticationService
         var refreshTokenExpires = DateTime.UtcNow.AddDays(_refreshTokenExpirationDays);
         user.SetRefreshToken(newRefreshToken, refreshTokenExpires);
 
+        // Explicitly mark the user entity as modified to ensure EF Core tracks changes
         _userRepository.Update(user);
-        await _unitOfWork.SaveChangesAsync();
+
+        try
+        {
+            await _unitOfWork.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // If concurrency exception occurs, re-fetch and try again once
+            var refreshedUser = await _userRepository.GetByIdAsync(user.Id);
+            if (refreshedUser == null)
+            {
+                return AuthenticationResult.Failure("User account no longer exists");
+            }
+
+            refreshedUser.SetRefreshToken(newRefreshToken, refreshTokenExpires);
+            _userRepository.Update(refreshedUser);
+            await _unitOfWork.SaveChangesAsync();
+        }
 
         return AuthenticationResult.SuccessResult(
             accessToken,
@@ -161,8 +231,27 @@ public class JwtAuthenticationService : IAuthenticationService
         }
 
         user.RevokeRefreshToken();
+
+        // Explicitly mark the user entity as modified to ensure EF Core tracks changes
         _userRepository.Update(user);
-        await _unitOfWork.SaveChangesAsync();
+
+        try
+        {
+            await _unitOfWork.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // If concurrency exception occurs, re-fetch and try again once
+            var refreshedUser = await _userRepository.GetByIdAsync(user.Id);
+            if (refreshedUser == null)
+            {
+                return false;
+            }
+
+            refreshedUser.RevokeRefreshToken();
+            _userRepository.Update(refreshedUser);
+            await _unitOfWork.SaveChangesAsync();
+        }
 
         return true;
     }

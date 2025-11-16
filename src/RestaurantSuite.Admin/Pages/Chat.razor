@@ -1,5 +1,6 @@
 @page "/chat"
 @page "/chat/{SessionId:guid}"
+@attribute [Authorize(Roles = "Admin")]
 @using RestaurantSuite.Admin.Models
 @using RestaurantSuite.Admin.Services
 @using Microsoft.JSInterop

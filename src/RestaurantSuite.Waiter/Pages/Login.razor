@@ -2,9 +2,6 @@
 @using System.ComponentModel.DataAnnotations
 @using RestaurantSuite.Waiter.Services
 @using RestaurantSuite.Waiter.Models
-@inject AuthService AuthService
-@inject NavigationManager NavigationManager
-
 <PageTitle>Waiter Login - Restaurant Suite</PageTitle>
 
 <div id="waiter-login-container" class="login-container">
@@ -32,7 +29,7 @@
             </div>
         }
 
-        <EditForm Model="@loginRequest" OnValidSubmit="HandleLogin">
+        <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
             <DataAnnotationsValidator />
 
             <div id="waiter-email-group" class="form-group">
@@ -43,8 +40,8 @@
                     </svg>
                     Email
                 </label>
-                <InputText id="waiter-email-input" @bind-Value="loginRequest.Email" class="form-control" placeholder="Enter your email" />
-                <ValidationMessage For="@(() => loginRequest.Email)" />
+                <InputText id="waiter-email-input" @bind-Value="loginModel.Email" class="form-control" placeholder="Enter your email" />
+                <ValidationMessage For="@(() => loginModel.Email)" />
             </div>
 
             <div id="waiter-password-group" class="form-group">
@@ -55,13 +52,32 @@
                     </svg>
                     Password
                 </label>
-                <InputText id="waiter-password-input" type="password" @bind-Value="loginRequest.Password" class="form-control" placeholder="Enter your password" />
-                <ValidationMessage For="@(() => loginRequest.Password)" />
+                <div style="position: relative;">
+                    <InputText id="waiter-password-input" type="@(showPassword ? "text" : "password")" @bind-Value="loginModel.Password" class="form-control" placeholder="Enter your password" style="padding-right: 40px;" />
+                    <button type="button" @onclick="TogglePasswordVisibility" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 5px; color: #666;">
+                        @if (showPassword)
+                        {
+                            <!-- Eye Slash Icon (hide password) -->
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                            </svg>
+                        }
+                        else
+                        {
+                            <!-- Eye Icon (show password) -->
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        }
+                    </button>
+                </div>
+                <ValidationMessage For="@(() => loginModel.Password)" />
             </div>
 
             <div id="waiter-remember-group" class="form-group remember-me">
                 <label id="waiter-remember-label" class="checkbox-label">
-                    <InputCheckbox id="waiter-remember-checkbox" @bind-Value="loginRequest.RememberMe" />
+                    <InputCheckbox id="waiter-remember-checkbox" @bind-Value="loginModel.RememberMe" />
                     <span id="waiter-remember-text">Remember me for 30 days</span>
                 </label>
             </div>
@@ -242,41 +258,3 @@
         margin: 0;
     }
 </style>
-
-@code {
-    private LoginRequest loginRequest = new();
-    private string? errorMessage;
-    private string? successMessage;
-    private bool isLoading = false;
-
-    private async Task HandleLogin()
-    {
-        isLoading = true;
-        errorMessage = null;
-        successMessage = null;
-
-        try
-        {
-            var result = await AuthService.LoginAsync(loginRequest);
-
-            if (result.Success)
-            {
-                successMessage = "Login successful! Welcome back.";
-                await Task.Delay(1000); // Brief delay to show success message
-                NavigationManager.NavigateTo("/", true); // Force full reload
-            }
-            else
-            {
-                errorMessage = result.ErrorMessage ?? "Login failed. Please check your credentials.";
-            }
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"An error occurred: {ex.Message}";
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-}

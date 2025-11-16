@@ -2,9 +2,6 @@
 @using RestaurantSuite.Guest.Services
 @using RestaurantSuite.Guest.Models
 @using Microsoft.AspNetCore.Components.Authorization
-@inject AuthService AuthService
-@inject CustomAuthenticationStateProvider AuthStateProvider
-@inject NavigationManager NavigationManager
 
 <PageTitle>Register - Restaurant Suite</PageTitle>
 
@@ -145,7 +142,7 @@
 
     .form-control:focus {
         outline: none;
-        border-color: #007bff;
+        border-color: #9333EA;
     }
 
     .btn-block {
@@ -185,7 +182,7 @@
     }
 
     .register-footer a {
-        color: #007bff;
+        color: #9333EA;
         text-decoration: none;
     }
 
@@ -193,58 +190,3 @@
         text-decoration: underline;
     }
 </style>
-
-@code {
-    private RegisterRequest registerRequest = new() { Role = "Guest" };
-    private string confirmPassword = string.Empty;
-    private string? errorMessage;
-    private string? successMessage;
-    private bool isLoading = false;
-    private bool showPasswordMismatch = false;
-
-    private async Task HandleRegister()
-    {
-        // Validate password match
-        if (registerRequest.Password != confirmPassword)
-        {
-            showPasswordMismatch = true;
-            return;
-        }
-
-        showPasswordMismatch = false;
-        isLoading = true;
-        errorMessage = null;
-        successMessage = null;
-
-        try
-        {
-            var result = await AuthService.RegisterAsync(registerRequest);
-
-            if (result.Success)
-            {
-                successMessage = "Registration successful! Redirecting to login...";
-
-                // Notify authentication state changed
-                if (!string.IsNullOrEmpty(result.AccessToken))
-                {
-                    AuthStateProvider.NotifyUserAuthentication(result.AccessToken);
-                }
-
-                await Task.Delay(1500); // Brief delay to show success message
-                NavigationManager.NavigateTo("/", forceLoad: true);
-            }
-            else
-            {
-                errorMessage = result.ErrorMessage ?? "Registration failed. Please try again.";
-            }
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"An error occurred: {ex.Message}";
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-}

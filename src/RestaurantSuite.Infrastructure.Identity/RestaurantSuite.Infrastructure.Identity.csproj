@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RestaurantSuite.Domain\RestaurantSuite.Domain.csproj" />
     <ProjectReference Include="..\RestaurantSuite.Application\RestaurantSuite.Application.csproj" />
+    <ProjectReference Include="..\RestaurantSuite.Infrastructure.EF\RestaurantSuite.Infrastructure.EF.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,7 +1,10 @@
 @page "/chat"
 @page "/chat/{SessionId:guid}"
+@attribute [Authorize]
 @implements IAsyncDisposable
 @using Microsoft.Extensions.Localization
+@using RestaurantSuite.Guest.Services
+@using RestaurantSuite.Guest.Models
 @inject IStringLocalizer<Chat> Localizer
 @inject ChatHubService ChatHubService
 @inject ChatApiService ChatApiService

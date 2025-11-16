@@ -58,31 +58,3 @@
         </div>
     }
 </div>
-
-@code {
-    [Parameter] public List<DatabaseTableInfo> Tables { get; set; } = new();
-    [Parameter] public string? SelectedTable { get; set; }
-    [Parameter] public EventCallback<string> OnTableSelected { get; set; }
-    [Parameter] public bool IsLoading { get; set; }
-
-    private string searchTerm = "";
-
-    private List<DatabaseTableInfo> FilteredTables
-    {
-        get
-        {
-            if (string.IsNullOrWhiteSpace(searchTerm))
-                return Tables;
-
-            return Tables.Where(t =>
-                t.TableName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                t.DisplayName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-            ).ToList();
-        }
-    }
-
-    private async Task SelectTable(string tableName)
-    {
-        await OnTableSelected.InvokeAsync(tableName);
-    }
-}

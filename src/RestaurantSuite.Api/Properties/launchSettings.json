@@ -8,8 +8,7 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://localhost:5213",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ConnectionStrings__DefaultConnection": "Data Source=restorankuzma.db"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "https": {

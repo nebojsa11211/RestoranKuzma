@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Components.Authorization;
 using RestaurantSuite.Waiter;
 using RestaurantSuite.Waiter.Services;
 using Blazored.LocalStorage;
@@ -14,8 +15,30 @@ var apiBaseUrl = builder.Configuration.GetValue<string>("ApiBaseUrl") ?? "http:/
 // Register LocalStorage service
 builder.Services.AddBlazoredLocalStorage();
 
-// Register HttpClient and Services
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
+// Register Authentication Services
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(provider =>
+    provider.GetRequiredService<CustomAuthenticationStateProvider>());
+
+// Register AuthMessageHandler for automatic token injection
+builder.Services.AddScoped<AuthMessageHandler>();
+
+// Register HttpClient with AuthMessageHandler
+builder.Services.AddScoped(sp =>
+{
+    var authHandler = sp.GetRequiredService<AuthMessageHandler>();
+    authHandler.InnerHandler = new HttpClientHandler();
+
+    var httpClient = new HttpClient(authHandler)
+    {
+        BaseAddress = new Uri(apiBaseUrl)
+    };
+
+    return httpClient;
+});
+
+// Register Services
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<OrdersApiService>();
 builder.Services.AddScoped<TablesApiService>();

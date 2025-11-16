@@ -1,4 +1,5 @@
 @page "/inventory"
+@attribute [Authorize(Roles = "Admin")]
 @using RestaurantSuite.Application.DTOs
 @using RestaurantSuite.Application.Commands
 @using RestaurantSuite.Domain.Enums

@@ -8,11 +8,16 @@
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.9" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.9" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.9" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.10" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.10" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RestaurantSuite.Application\RestaurantSuite.Application.csproj" />
+    <ProjectReference Include="..\RestaurantSuite.Shared.Blazor\RestaurantSuite.Shared.Blazor.csproj" />
   </ItemGroup>
 
 </Project>

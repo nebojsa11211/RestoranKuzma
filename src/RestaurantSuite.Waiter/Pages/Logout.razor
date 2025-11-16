@@ -1,8 +1,5 @@
 @page "/logout"
 @using RestaurantSuite.Waiter.Services
-@inject AuthService AuthService
-@inject NavigationManager Navigation
-
 <PageTitle>Signing Out - Restaurant Suite</PageTitle>
 
 <div class="min-h-screen flex items-center justify-center bg-slate-50">
@@ -16,17 +13,3 @@
         <p class="text-slate-600">Please wait while we securely log you out.</p>
     </div>
 </div>
-
-@code {
-    protected override async Task OnInitializedAsync()
-    {
-        // Call auth service to logout
-        await AuthService.LogoutAsync();
-
-        // Small delay for UX
-        await Task.Delay(500);
-
-        // Redirect to login page
-        Navigation.NavigateTo("/login", true); // The 'true' forces a full page reload
-    }
-}

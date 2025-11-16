@@ -1,50 +1,639 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
-<PageTitle>Restaurant Suite - Guest Portal</PageTitle>
+<PageTitle>Restaurant Kuzma</PageTitle>
 
 <a href="#main-content" class="skip-to-content">Skip to main content</a>
 
-<div class="flex min-h-screen bg-neutral-50">
-    <!-- Sidebar - Desktop Only -->
-    <aside class="@GetSidebarClasses()">
-        <NavMenu />
-    </aside>
+<div class="mobile-app-container">
+    <!-- Mobile Header (Visible on Mobile Only) -->
+    <header class="mobile-header desktop-hide @(IsScrolled ? "scrolled" : "")" id="mobile-header">
+        <button class="mobile-header-action" @onclick="ToggleMobileMenu" aria-label="Menu">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                @if (mobileMenuOpen)
+                {
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                }
+                else
+                {
+                    <path d="M3 12h18M3 6h18M3 18h18"/>
+                }
+            </svg>
+        </button>
+
+        <h1 class="mobile-header-title">Restaurant Kuzma</h1>
+
+        <button class="mobile-header-action" @onclick="ToggleUserMenu" aria-label="User menu">
+            @if (isLoggedIn)
+            {
+                <div class="user-avatar-small active">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+            }
+            else
+            {
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+            }
+        </button>
+    </header>
+
+    <!-- Desktop Header (Hidden on Mobile) -->
+    <header class="desktop-header mobile-hide" id="desktop-header">
+        <div class="container flex items-center justify-between">
+            <div class="desktop-logo">
+                <h1 class="text-h3 text-primary">Restaurant Kuzma</h1>
+            </div>
+
+            <nav class="desktop-nav">
+                <NavLink href="" Match="NavLinkMatch.All" class="desktop-nav-link">Home</NavLink>
+                <NavLink href="menu" class="desktop-nav-link">Menu</NavLink>
+                <NavLink href="daily-menu" class="desktop-nav-link">Daily Special</NavLink>
+                <NavLink href="order" class="desktop-nav-link">Order</NavLink>
+                <NavLink href="tables" class="desktop-nav-link">Reserve</NavLink>
+                <NavLink href="location" class="desktop-nav-link">Location</NavLink>
+            </nav>
+
+            <div class="desktop-user-section">
+                @if (isLoggedIn)
+                {
+                    <div class="user-info-desktop">
+                        <span class="user-name">@userName</span>
+                        <button @onclick="ToggleUserMenu" class="user-avatar-button">
+                            <div class="user-avatar">
+                                <svg width="20" height="20" fill="white" stroke="white">
+                                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </div>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <button @onclick="SignIn" class="btn btn-primary">Sign In</button>
+                }
+            </div>
+        </div>
+    </header>
 
     <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col min-h-screen lg:ml-64">
-        <!-- Top Navigation Bar -->
-        <header class="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-neutral-200 shadow-soft">
-            <div class="h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-                <!-- Left Section -->
-                <div class="flex items-center gap-3">
-                    <!-- Page Title -->
-                    <h1 class="text-base sm:text-lg font-semibold text-neutral-900">Guest Portal</h1>
-                </div>
+    <main id="main-content" class="main-content @(HasBottomNav ? "with-bottom-nav" : "")">
+        @Body
+    </main>
 
-                <!-- Right Section -->
-                <div class="flex items-center gap-2 sm:gap-4">
-                    <!-- Help Link -->
-                    <a
-                        href="https://learn.microsoft.com/aspnet/core/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 transition-all duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" stroke-width="2"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v-4m0-4h.01"/>
-                        </svg>
-                        <span class="hidden sm:inline">Help</span>
-                    </a>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main id="main-content" class="flex-1 p-4 sm:p-6 lg:p-8 animate-slide-in-bottom main-content-with-bottom-nav">
-            @Body
-        </main>
-    </div>
-
-    <!-- Mobile Bottom Navigation (visible only on mobile) -->
+    <!-- Mobile Bottom Navigation -->
     <MobileBottomNav />
+
+    <!-- Mobile Menu Overlay -->
+    @if (mobileMenuOpen)
+    {
+        <div class="mobile-menu-overlay" @onclick="CloseMobileMenu">
+            <nav class="mobile-menu" @onclick:stopPropagation="true">
+                <div class="mobile-menu-header">
+                    <h2 class="mobile-menu-title">Menu</h2>
+                    <button @onclick="CloseMobileMenu" class="mobile-menu-close" aria-label="Close menu">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="mobile-menu-content">
+                    <NavLink href="" Match="NavLinkMatch.All" class="mobile-menu-item" @onclick="CloseMobileMenu">
+                        <svg class="mobile-menu-icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                            <polyline points="9 22 9 12 15 12 15 22"/>
+                        </svg>
+                        <span>Home</span>
+                    </NavLink>
+
+                    <NavLink href="menu" class="mobile-menu-item" @onclick="CloseMobileMenu">
+                        <svg class="mobile-menu-icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        <span>Menu</span>
+                    </NavLink>
+
+                    <NavLink href="daily-menu" class="mobile-menu-item" @onclick="CloseMobileMenu">
+                        <svg class="mobile-menu-icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                        </svg>
+                        <span>Daily Special</span>
+                    </NavLink>
+
+                    <NavLink href="order" class="mobile-menu-item" @onclick="CloseMobileMenu">
+                        <svg class="mobile-menu-icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"/>
+                            <circle cx="20" cy="21" r="1"/>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+                        </svg>
+                        <span>Order</span>
+                    </NavLink>
+
+                    <NavLink href="tables" class="mobile-menu-item" @onclick="CloseMobileMenu">
+                        <svg class="mobile-menu-icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="8" width="18" height="12" rx="2"/>
+                            <path d="M3 10h18"/>
+                        </svg>
+                        <span>Reserve Table</span>
+                    </NavLink>
+
+                    <NavLink href="location" class="mobile-menu-item" @onclick="CloseMobileMenu">
+                        <svg class="mobile-menu-icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        <span>Location</span>
+                    </NavLink>
+
+                    <NavLink href="chat" class="mobile-menu-item" @onclick="CloseMobileMenu">
+                        <svg class="mobile-menu-icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                        </svg>
+                        <span>Chat Support</span>
+                    </NavLink>
+                </div>
+
+                <div class="mobile-menu-footer">
+                    @if (isLoggedIn)
+                    {
+                        <div class="mobile-menu-user-info">
+                            <div class="user-avatar-large">
+                                <svg width="32" height="32" fill="white" stroke="white">
+                                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </div>
+                            <div class="user-details">
+                                <p class="user-name-large">@userName</p>
+                                <p class="user-status">Logged In</p>
+                            </div>
+                        </div>
+                        <button @onclick="SignOut" class="mobile-menu-logout">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                                <polyline points="16 17 21 12 16 7"/>
+                                <line x1="21" y1="12" x2="9" y2="12"/>
+                            </svg>
+                            <span>Sign Out</span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button @onclick="SignIn" class="btn btn-primary" style="width: 100%;">
+                            Sign In / Register
+                        </button>
+                    }
+                </div>
+            </nav>
+        </div>
+    }
+
+    <!-- User Menu Dropdown -->
+    @if (userMenuOpen)
+    {
+        <div class="user-menu-overlay" @onclick="CloseUserMenu">
+            <div class="user-menu-dropdown" @onclick:stopPropagation="true">
+                @if (isLoggedIn)
+                {
+                    <div class="user-menu-header">
+                        <div class="user-avatar-large">
+                            <svg width="32" height="32" fill="white" stroke="white">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="user-name-large">@userName</p>
+                            <p class="user-email">user@example.com</p>
+                        </div>
+                    </div>
+
+                    <div class="user-menu-items">
+                        <button @onclick="NavigateToProfile" class="user-menu-item">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            <span>My Profile</span>
+                        </button>
+
+                        <button @onclick="NavigateToMyOrders" class="user-menu-item">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="9" y1="9" x2="15" y2="9"/>
+                                <line x1="9" y1="13" x2="15" y2="13"/>
+                                <line x1="9" y1="17" x2="13" y2="17"/>
+                            </svg>
+                            <span>My Orders</span>
+                        </button>
+
+                        <button @onclick="NavigateToReservations" class="user-menu-item">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                            <span>My Reservations</span>
+                        </button>
+                    </div>
+
+                    <div class="user-menu-footer">
+                        <button @onclick="SignOut" class="user-menu-logout">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                                <polyline points="16 17 21 12 16 7"/>
+                                <line x1="21" y1="12" x2="9" y2="12"/>
+                            </svg>
+                            <span>Sign Out</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="user-menu-guest">
+                        <h3>Welcome Guest</h3>
+                        <p>Sign in to access your profile and order history</p>
+                        <button @onclick="SignIn" class="btn btn-primary" style="width: 100%; margin-top: 16px;">
+                            Sign In
+                        </button>
+                        <button @onclick="Register" class="btn btn-secondary" style="width: 100%; margin-top: 8px;">
+                            Create Account
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    }
 </div>
+
+<style>
+    /* Desktop Header */
+    .desktop-header {
+        position: sticky;
+        top: 0;
+        background: var(--glass-background);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border-bottom: 1px solid var(--glass-border);
+        z-index: var(--z-modal);
+        padding: var(--space-4) 0;
+    }
+
+    .desktop-logo {
+        flex-shrink: 0;
+    }
+
+    .desktop-nav {
+        display: flex;
+        gap: var(--space-6);
+        align-items: center;
+    }
+
+    .desktop-nav-link {
+        color: var(--color-neutral-700);
+        text-decoration: none;
+        font-weight: var(--font-medium);
+        transition: color var(--transition-fast);
+        position: relative;
+    }
+
+    .desktop-nav-link:hover {
+        color: var(--color-primary-600);
+    }
+
+    .desktop-nav-link.active {
+        color: var(--color-primary-600);
+    }
+
+    .desktop-nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--gradient-primary);
+    }
+
+    .desktop-user-section {
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+    }
+
+    .user-info-desktop {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+    }
+
+    .user-name {
+        font-weight: var(--font-medium);
+        color: var(--color-neutral-700);
+    }
+
+    .user-avatar-button {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+    }
+
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-full);
+        background: var(--gradient-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform var(--transition-fast);
+    }
+
+    .user-avatar:hover {
+        transform: scale(1.05);
+    }
+
+    .user-avatar-small {
+        width: 32px;
+        height: 32px;
+        border-radius: var(--radius-full);
+        background: var(--color-neutral-300);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-neutral-600);
+    }
+
+    .user-avatar-small.active {
+        background: var(--gradient-primary);
+        color: white;
+    }
+
+    .user-avatar-large {
+        width: 64px;
+        height: 64px;
+        border-radius: var(--radius-full);
+        background: var(--gradient-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Main Content */
+    .main-content {
+        flex: 1;
+        min-height: calc(100vh - var(--mobile-header-height));
+        padding-top: calc(var(--mobile-header-height) + var(--mobile-safe-area-top));
+        animation: fade-in var(--transition-base);
+    }
+
+    .main-content.with-bottom-nav {
+        padding-bottom: calc(var(--mobile-nav-height) + var(--mobile-safe-area-bottom));
+    }
+
+    @@media (min-width: 1024px) {
+        .main-content {
+            padding-top: 0;
+            min-height: calc(100vh - 72px);
+        }
+
+        .main-content.with-bottom-nav {
+            padding-bottom: 0;
+        }
+    }
+
+    /* Mobile Menu Overlay */
+    .mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: var(--z-modal);
+        animation: fade-in var(--transition-fast);
+    }
+
+    .mobile-menu {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 80%;
+        max-width: 320px;
+        background: var(--color-surface);
+        display: flex;
+        flex-direction: column;
+        animation: slide-in-left var(--transition-base);
+    }
+
+    @@keyframes slide-in-left {
+        from {
+            transform: translateX(-100%);
+        }
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    .mobile-menu-header {
+        padding: var(--space-4);
+        border-bottom: 1px solid var(--color-neutral-100);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .mobile-menu-title {
+        font-size: var(--text-lg);
+        font-weight: var(--font-semibold);
+        color: var(--color-neutral-900);
+    }
+
+    .mobile-menu-close {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        color: var(--color-neutral-600);
+        cursor: pointer;
+        border-radius: var(--radius-lg);
+        transition: background var(--transition-fast);
+    }
+
+    .mobile-menu-close:hover {
+        background: var(--color-neutral-100);
+    }
+
+    .mobile-menu-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: var(--space-2) 0;
+    }
+
+    .mobile-menu-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-3) var(--space-4);
+        color: var(--color-neutral-700);
+        text-decoration: none;
+        transition: background var(--transition-fast);
+    }
+
+    .mobile-menu-item:hover,
+    .mobile-menu-item.active {
+        background: var(--color-primary-50);
+        color: var(--color-primary-600);
+    }
+
+    .mobile-menu-icon {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+
+    .mobile-menu-footer {
+        padding: var(--space-4);
+        border-top: 1px solid var(--color-neutral-100);
+    }
+
+    .mobile-menu-user-info {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        margin-bottom: var(--space-4);
+    }
+
+    .user-details {
+        flex: 1;
+    }
+
+    .user-name-large {
+        font-size: var(--text-base);
+        font-weight: var(--font-semibold);
+        color: var(--color-neutral-900);
+    }
+
+    .user-status,
+    .user-email {
+        font-size: var(--text-sm);
+        color: var(--color-neutral-500);
+        margin-top: 2px;
+    }
+
+    .mobile-menu-logout,
+    .user-menu-logout {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        width: 100%;
+        padding: var(--space-3) var(--space-4);
+        background: none;
+        border: 1px solid var(--color-error);
+        color: var(--color-error);
+        border-radius: var(--radius-lg);
+        font-weight: var(--font-medium);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .mobile-menu-logout:hover,
+    .user-menu-logout:hover {
+        background: var(--color-error);
+        color: white;
+    }
+
+    /* User Menu Dropdown */
+    .user-menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: var(--z-popover);
+        animation: fade-in var(--transition-fast);
+    }
+
+    .user-menu-dropdown {
+        position: absolute;
+        top: calc(var(--mobile-header-height) + var(--mobile-safe-area-top) + 8px);
+        right: var(--space-4);
+        width: 280px;
+        background: var(--color-surface);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-xl);
+        overflow: hidden;
+        animation: scale-in var(--transition-fast) var(--ease-spring);
+    }
+
+    @@media (min-width: 1024px) {
+        .user-menu-dropdown {
+            top: 64px;
+        }
+    }
+
+    .user-menu-header {
+        padding: var(--space-4);
+        background: var(--color-primary-50);
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+    }
+
+    .user-menu-items {
+        padding: var(--space-2) 0;
+    }
+
+    .user-menu-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        width: 100%;
+        padding: var(--space-3) var(--space-4);
+        background: none;
+        border: none;
+        color: var(--color-neutral-700);
+        text-align: left;
+        cursor: pointer;
+        transition: background var(--transition-fast);
+    }
+
+    .user-menu-item:hover {
+        background: var(--color-neutral-50);
+    }
+
+    .user-menu-footer {
+        padding: var(--space-4);
+        border-top: 1px solid var(--color-neutral-100);
+    }
+
+    .user-menu-guest {
+        padding: var(--space-4);
+        text-align: center;
+    }
+
+    .user-menu-guest h3 {
+        font-size: var(--text-lg);
+        font-weight: var(--font-semibold);
+        color: var(--color-neutral-900);
+        margin-bottom: var(--space-2);
+    }
+
+    .user-menu-guest p {
+        font-size: var(--text-sm);
+        color: var(--color-neutral-600);
+        margin-bottom: var(--space-4);
+    }
+</style>

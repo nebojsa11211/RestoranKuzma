@@ -1,610 +1,654 @@
 /* ===================================
    Restaurant Suite - Guest Portal
-   Home Page Styles
+   Home Page - Modern Redesign
    =================================== */
 
 /* ===================================
-   Main Container
+   Hero Section - Mobile First
    =================================== */
-#home-page-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    width: 100%;
-    max-width: 100%;
-}
 
-/* ===================================
-   Hero Section
-   =================================== */
 #home-hero-section {
     position: relative;
-    min-height: 400px;
+    min-height: 60vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: var(--gradient-primary);
     overflow: hidden;
-    padding: 3rem 1.5rem;
+    padding: var(--space-8) var(--space-4);
 }
 
-/* Hero overlay for depth */
-#home-hero-overlay {
+@media (min-width: 768px) {
+    #home-hero-section {
+        min-height: 70vh;
+        padding: var(--space-12) var(--space-6);
+    }
+}
+
+/* Animated background pattern */
+#home-hero-section::before {
+    content: '';
     position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.2), transparent 50%);
-    pointer-events: none;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: rotate-slow 30s linear infinite;
 }
 
-/* Hero content wrapper */
-#home-hero-content-wrapper {
+@keyframes rotate-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+#home-hero-content {
     position: relative;
     z-index: 1;
-    max-width: 1200px;
+    text-align: center;
+    max-width: 800px;
     width: 100%;
-    text-align: center;
+    animation: slide-up var(--transition-slow);
 }
 
-/* Hero header */
-#home-hero-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
-}
-
-/* Hero title */
 #home-hero-title {
-    font-size: 2.5rem;
-    font-weight: 800;
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    font-weight: var(--font-extrabold);
     color: white;
-    margin: 0;
+    margin-bottom: var(--space-4);
     line-height: 1.2;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: -0.02em;
 }
 
-/* Hero subtitle */
 #home-hero-subtitle {
-    font-size: 1.125rem;
+    font-size: clamp(1rem, 3vw, 1.25rem);
     color: rgba(255, 255, 255, 0.95);
-    max-width: 600px;
-    margin: 0;
+    margin-bottom: var(--space-8);
     line-height: 1.6;
+    font-weight: var(--font-medium);
 }
 
-/* Hero navigation */
-#home-hero-navigation {
+#home-hero-actions {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 1rem;
+    flex-direction: column;
+    gap: var(--space-3);
+    align-items: center;
 }
 
-/* Hero buttons */
-#home-hero-menu-btn,
-#home-hero-reserve-btn,
-#home-hero-order-btn {
+@media (min-width: 640px) {
+    #home-hero-actions {
+        flex-direction: row;
+        justify-content: center;
+        gap: var(--space-4);
+    }
+}
+
+.hero-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.875rem 1.5rem;
-    background: white;
-    color: #d97706;
-    font-size: 1rem;
-    font-weight: 600;
-    border: 2px solid white;
-    border-radius: 0.75rem;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: var(--touch-large);
+    padding: var(--space-4) var(--space-8);
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    transition: all var(--transition-base);
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-#home-hero-menu-btn:hover,
-#home-hero-reserve-btn:hover,
-#home-hero-order-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    border-color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-#home-hero-menu-btn:active,
-#home-hero-reserve-btn:active,
-#home-hero-order-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Hero button icons */
-#home-hero-menu-icon,
-#home-hero-reserve-icon,
-#home-hero-order-icon {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-}
-
-/* Hero button text */
-#home-hero-menu-text,
-#home-hero-reserve-text,
-#home-hero-order-text {
-    white-space: nowrap;
-}
-
-/* ===================================
-   Quick Actions Section
-   =================================== */
-#home-quick-actions-section {
-    padding: 3rem 1.5rem;
-    background: #f9fafb;
-}
-
-#home-quick-actions-grid-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-}
-
-/* Action Cards */
-.home-action-card {
-    background: white;
-    border-radius: 1rem;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-}
-
-.home-action-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-
-/* Card image wrapper - FIXED: Constrained height */
-#home-menu-card-image-wrapper,
-#home-order-card-image-wrapper,
-#home-service-card-image-wrapper {
-    position: relative;
-    height: 200px; /* Fixed height to prevent icon overflow */
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
-
-#home-order-card-image-wrapper {
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-}
-
-#home-service-card-image-wrapper {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-}
-
-/* Card overlay */
-#home-menu-card-overlay,
-#home-order-card-overlay,
-#home-service-card-overlay {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), transparent 70%);
-    pointer-events: none;
-}
-
-/* Icon container - FIXED: Constrained size */
-#home-menu-card-icon-container,
-#home-order-card-icon-container,
-#home-service-card-icon-container {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 80px; /* Fixed width */
-    height: 80px; /* Fixed height */
-    background: white;
-    border-radius: 50%;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Card icons - FIXED: Constrained to reasonable size */
-#home-menu-card-icon,
-#home-order-card-icon,
-#home-service-card-icon {
-    width: 40px !important; /* Fixed icon size */
-    height: 40px !important; /* Fixed icon size */
-    color: #3b82f6;
-    flex-shrink: 0;
-}
-
-#home-order-card-icon {
-    color: #22c55e;
-}
-
-#home-service-card-icon {
-    color: #f59e0b;
-}
-
-/* Card content wrapper */
-#home-menu-card-content-wrapper,
-#home-order-card-content-wrapper,
-#home-service-card-content-wrapper {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    flex: 1;
-}
-
-/* Card header */
-#home-menu-card-header,
-#home-order-card-header,
-#home-service-card-header {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-/* Card title */
-#home-menu-card-title,
-#home-order-card-title,
-#home-service-card-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #111827;
-    margin: 0;
-}
-
-/* Card description */
-#home-menu-card-description,
-#home-order-card-description,
-#home-service-card-description {
-    font-size: 1rem;
-    color: #6b7280;
-    line-height: 1.6;
-    margin: 0;
-}
-
-/* Card action buttons */
-#home-menu-card-action-btn,
-#home-order-card-action-btn,
-#home-service-card-action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1.25rem;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
     border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-top: auto;
+    width: 100%;
+    max-width: 280px;
 }
 
-#home-order-card-action-btn {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+@media (min-width: 640px) {
+    .hero-btn {
+        width: auto;
+    }
 }
 
-#home-service-card-action-btn {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+.hero-btn-primary {
+    background: white;
+    color: var(--color-primary-600);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
-#home-menu-card-action-btn:hover,
-#home-order-card-action-btn:hover,
-#home-service-card-action-btn:hover {
+.hero-btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
 }
 
-#home-menu-card-action-btn:active,
-#home-order-card-action-btn:active,
-#home-service-card-action-btn:active {
-    transform: translateY(0);
+.hero-btn-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
 }
 
-/* Action button text */
-#home-menu-card-action-text,
-#home-order-card-action-text,
-#home-service-card-action-text {
-    flex: 1;
-}
-
-/* Action button icon */
-#home-menu-card-action-icon,
-#home-order-card-action-icon,
-#home-service-card-action-icon {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
+.hero-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: white;
 }
 
 /* ===================================
-   Restaurant Info Section
+   Quick Actions Grid - Mobile First
    =================================== */
-#home-restaurant-info-section {
-    padding: 3rem 1.5rem;
-    background: white;
+
+#home-quick-actions {
+    padding: var(--space-6) var(--space-4);
+    background: var(--color-background);
 }
 
-#home-restaurant-info-header {
-    max-width: 1200px;
-    margin: 0 auto 2rem;
+@media (min-width: 768px) {
+    #home-quick-actions {
+        padding: var(--space-8) var(--space-6);
+    }
 }
 
-#home-restaurant-info-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #111827;
+#home-quick-actions-title {
     text-align: center;
-    margin: 0;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: var(--font-bold);
+    color: var(--color-neutral-900);
+    margin-bottom: var(--space-6);
 }
 
-#home-restaurant-info-grid-container {
-    max-width: 1200px;
-    margin: 0 auto;
+.quick-actions-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: var(--space-4);
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-/* Info containers */
-#home-restaurant-hours-container,
-#home-restaurant-contact-container {
-    background: #f9fafb;
-    padding: 1.5rem;
-    border-radius: 1rem;
-    border: 1px solid #e5e7eb;
+@media (min-width: 640px) {
+    .quick-actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
-/* Info titles */
-#home-restaurant-hours-title,
-#home-restaurant-contact-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0 0 1rem 0;
+@media (min-width: 1024px) {
+    .quick-actions-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
-/* List containers */
-#home-restaurant-hours-list-container,
-#home-restaurant-contact-list-container {
+.action-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-6);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: all var(--transition-base);
+    cursor: pointer;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-primary-200);
+}
+
+.action-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transition: transform var(--transition-base);
+}
+
+.action-card:hover::before {
+    transform: scaleX(1);
+}
+
+.action-card-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-xl);
     display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-/* Info rows */
-#home-restaurant-hours-weekday-row,
-#home-restaurant-hours-weekend-row,
-#home-restaurant-contact-phone-row,
-#home-restaurant-contact-address-row {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    background: white;
-    border-radius: 0.5rem;
+    justify-content: center;
+    margin-bottom: var(--space-4);
 }
 
-#home-restaurant-contact-phone-row,
-#home-restaurant-contact-address-row {
-    justify-content: flex-start;
+.action-card-icon svg {
+    width: 28px;
+    height: 28px;
 }
 
-/* Info labels */
-#home-restaurant-hours-weekday-label,
-#home-restaurant-hours-weekend-label {
-    font-weight: 500;
-    color: #374151;
+.action-card-icon.menu {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
 }
 
-/* Info values */
-#home-restaurant-hours-weekday-time,
-#home-restaurant-hours-weekend-time,
-#home-restaurant-contact-phone-text,
-#home-restaurant-contact-address-text {
-    color: #6b7280;
+.action-card-icon.order {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
 }
 
-/* Contact icons */
-#home-restaurant-contact-phone-icon,
-#home-restaurant-contact-address-icon {
-    width: 20px;
-    height: 20px;
-    color: #f59e0b;
-    flex-shrink: 0;
+.action-card-icon.reserve {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.action-card-icon.location {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+}
+
+.action-card-title {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--color-neutral-900);
+    margin-bottom: var(--space-2);
+}
+
+.action-card-description {
+    font-size: var(--text-sm);
+    color: var(--color-neutral-600);
+    line-height: 1.5;
 }
 
 /* ===================================
    Special Offers Section
    =================================== */
-#home-special-offers-section {
-    padding: 3rem 1.5rem;
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+
+#home-special-offers {
+    padding: var(--space-6) var(--space-4);
+    background: white;
 }
 
-#home-special-offers-header {
+@media (min-width: 768px) {
+    #home-special-offers {
+        padding: var(--space-8) var(--space-6);
+    }
+}
+
+.special-offers-header {
+    text-align: center;
+    margin-bottom: var(--space-6);
+}
+
+.special-offers-title {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: var(--font-bold);
+    color: var(--color-neutral-900);
+    margin-bottom: var(--space-2);
+}
+
+.special-offers-subtitle {
+    font-size: var(--text-base);
+    color: var(--color-neutral-600);
+}
+
+.offers-carousel {
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: var(--space-4);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.offers-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.offer-card {
+    flex: 0 0 280px;
+    background: var(--gradient-warm);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-6);
+    color: white;
+    scroll-snap-align: start;
+    position: relative;
+    overflow: hidden;
+}
+
+@media (min-width: 640px) {
+    .offer-card {
+        flex: 0 0 320px;
+    }
+}
+
+.offer-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+}
+
+.offer-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--font-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-3);
+}
+
+.offer-title {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-2);
+}
+
+.offer-description {
+    font-size: var(--text-base);
+    line-height: 1.5;
+    opacity: 0.95;
+    margin-bottom: var(--space-4);
+}
+
+.offer-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: white;
+    color: var(--color-primary-600);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    font-weight: var(--font-semibold);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.offer-cta:hover {
+    transform: translateX(4px);
+}
+
+/* ===================================
+   Features Section
+   =================================== */
+
+#home-features {
+    padding: var(--space-6) var(--space-4);
+    background: var(--color-background);
+}
+
+@media (min-width: 768px) {
+    #home-features {
+        padding: var(--space-8) var(--space-6);
+    }
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
     max-width: 1200px;
-    margin: 0 auto 2rem;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    .features-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.feature-card {
+    text-align: center;
+    padding: var(--space-6);
+}
+
+.feature-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto var(--space-4);
+    background: var(--color-primary-100);
+    border-radius: var(--radius-full);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
+    color: var(--color-primary-600);
 }
 
-#home-special-offers-icon {
+.feature-icon svg {
     width: 32px;
     height: 32px;
-    color: #d97706;
 }
 
-#home-special-offers-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #92400e;
-    margin: 0;
+.feature-title {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--color-neutral-900);
+    margin-bottom: var(--space-2);
 }
 
-#home-special-offers-grid-container {
+.feature-description {
+    font-size: var(--text-sm);
+    color: var(--color-neutral-600);
+    line-height: 1.5;
+}
+
+/* ===================================
+   Restaurant Info Section
+   =================================== */
+
+#home-info {
+    padding: var(--space-6) var(--space-4);
+    background: white;
+}
+
+@media (min-width: 768px) {
+    #home-info {
+        padding: var(--space-8) var(--space-6);
+    }
+}
+
+.info-container {
     max-width: 1200px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: var(--space-6);
 }
 
-/* Special offer cards */
-.home-special-offer-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border: 2px solid #fbbf24;
+@media (min-width: 768px) {
+    .info-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-8);
+    }
 }
 
-/* Offer headers */
-#home-special-offer-happy-hour-header,
-#home-special-offer-chef-special-header {
+.info-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-6);
+    border: 1px solid var(--color-neutral-100);
+}
+
+.info-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.info-card-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--color-primary-100);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary-600);
+}
+
+.info-card-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.info-card-title {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--color-neutral-900);
+}
+
+.info-list {
+    space-y: var(--space-3);
+}
+
+.info-item {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 0.75rem;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-neutral-50);
 }
 
-/* Offer titles */
-#home-special-offer-happy-hour-title,
-#home-special-offer-chef-special-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0;
+.info-item:last-child {
+    border-bottom: none;
 }
 
-/* Offer times */
-#home-special-offer-happy-hour-time,
-#home-special-offer-chef-special-time {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #d97706;
-    background: #fef3c7;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
+.info-label {
+    font-weight: var(--font-medium);
+    color: var(--color-neutral-700);
 }
 
-/* Offer descriptions */
-#home-special-offer-happy-hour-description,
-#home-special-offer-chef-special-description {
-    font-size: 1rem;
-    color: #6b7280;
-    margin: 0;
-    line-height: 1.6;
+.info-value {
+    color: var(--color-neutral-600);
 }
 
 /* ===================================
-   Responsive Design
+   CTA Section
    =================================== */
 
-/* Tablet (768px and up) */
+#home-cta {
+    padding: var(--space-8) var(--space-4);
+    background: var(--gradient-primary);
+    text-align: center;
+}
+
 @media (min-width: 768px) {
-    #home-hero-title {
-        font-size: 3rem;
-    }
-
-    #home-hero-subtitle {
-        font-size: 1.25rem;
-    }
-
-    #home-quick-actions-grid-container {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    #home-restaurant-info-grid-container {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    #home-special-offers-grid-container {
-        grid-template-columns: repeat(2, 1fr);
+    #home-cta {
+        padding: var(--space-12) var(--space-6);
     }
 }
 
-/* Desktop (1024px and up) */
-@media (min-width: 1024px) {
-    #home-hero-title {
-        font-size: 3.75rem;
-    }
-
-    #home-quick-actions-grid-container {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    #home-quick-actions-section,
-    #home-restaurant-info-section,
-    #home-special-offers-section {
-        padding: 4rem 2rem;
-    }
+.cta-content {
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-/* Large Desktop (1280px and up) */
-@media (min-width: 1280px) {
-    #home-hero-section {
-        min-height: 500px;
+.cta-title {
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
+    font-weight: var(--font-bold);
+    color: white;
+    margin-bottom: var(--space-4);
+}
+
+.cta-description {
+    font-size: var(--text-lg);
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: var(--space-6);
+}
+
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: white;
+    color: var(--color-primary-600);
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-full);
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    text-decoration: none;
+    transition: all var(--transition-base);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+}
+
+/* ===================================
+   Mobile Optimizations
+   =================================== */
+
+@media (max-width: 640px) {
+    /* Reduce padding on mobile */
+    #home-hero-section,
+    #home-quick-actions,
+    #home-special-offers,
+    #home-features,
+    #home-info,
+    #home-cta {
+        padding-left: var(--space-3);
+        padding-right: var(--space-3);
+    }
+
+    /* Stack elements better on mobile */
+    .action-card {
+        padding: var(--space-4);
+    }
+
+    .offer-card {
+        flex: 0 0 240px;
     }
 }
 
 /* ===================================
-   Accessibility
+   Animations
    =================================== */
 
-/* Focus states */
-#home-hero-menu-btn:focus,
-#home-hero-reserve-btn:focus,
-#home-hero-order-btn:focus,
-#home-menu-card-action-btn:focus,
-#home-order-card-action-btn:focus,
-#home-service-card-action-btn:focus {
-    outline: 2px solid #f59e0b;
-    outline-offset: 2px;
-}
-
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-    .home-action-card,
-    #home-hero-menu-btn,
-    #home-hero-reserve-btn,
-    #home-hero-order-btn,
-    #home-menu-card-action-btn,
-    #home-order-card-action-btn,
-    #home-service-card-action-btn {
-        transition: none !important;
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-/* Print styles */
-@media print {
-    #home-hero-navigation,
-    #home-menu-card-action-btn,
-    #home-order-card-action-btn,
-    #home-service-card-action-btn {
-        display: none;
-    }
+.animate-on-scroll {
+    opacity: 0;
+    animation: slide-up var(--transition-slow) forwards;
+}
 
-    #home-hero-section {
-        min-height: auto;
-        padding: 2rem 1rem;
-    }
+/* Stagger animation for grid items */
+.action-card:nth-child(1) { animation-delay: 0.1s; }
+.action-card:nth-child(2) { animation-delay: 0.2s; }
+.action-card:nth-child(3) { animation-delay: 0.3s; }
+.action-card:nth-child(4) { animation-delay: 0.4s; }
 
-    .home-action-card {
-        break-inside: avoid;
-    }
+/* ===================================
+   Loading States
+   =================================== */
+
+.card-skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--color-neutral-100) 0%,
+        var(--color-neutral-50) 50%,
+        var(--color-neutral-100) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: var(--radius-2xl);
+    height: 200px;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }

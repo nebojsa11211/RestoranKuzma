@@ -51,7 +51,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         }
     }
 
-    public async Task MarkUserAsAuthenticated(string accessToken)
+    public Task MarkUserAsAuthenticated(string accessToken)
     {
         var jwtToken = _jwtHandler.ReadJwtToken(accessToken);
         var claims = jwtToken.Claims.ToList();
@@ -60,6 +60,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         var user = new ClaimsPrincipal(identity);
 
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+        return Task.CompletedTask;
     }
 
     public async Task MarkUserAsLoggedOut()

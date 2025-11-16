@@ -1,7 +1,24 @@
-﻿<CascadingAuthenticationState>
+﻿@using RestaurantSuite.Guest.Components
+@using Microsoft.AspNetCore.Components.Authorization
+
+<CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
-            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    @if (context.User.Identity?.IsAuthenticated != true)
+                    {
+                        <RedirectToLogin />
+                    }
+                    else
+                    {
+                        <div class="unauthorized-container">
+                            <h1>Unauthorized</h1>
+                            <p>You don't have permission to access this page.</p>
+                        </div>
+                    }
+                </NotAuthorized>
+            </AuthorizeRouteView>
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
         <NotFound>

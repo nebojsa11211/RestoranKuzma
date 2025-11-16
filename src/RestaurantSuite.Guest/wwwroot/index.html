@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
 
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#2563eb" />
+    <meta name="theme-color" content="#9333EA" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -28,10 +28,25 @@
     <link rel="apple-touch-icon" href="icon-192.png" />
 
     <!-- Stylesheets -->
-    <link href="css/tailwind.output.css" rel="stylesheet" />
-    <link href="css/mobile.css" rel="stylesheet" />
+    <!-- Base styles (load first) -->
     <link href="css/app.css" rel="stylesheet" />
+
+    <!-- Tailwind framework -->
+    <link href="css/tailwind.output.css" rel="stylesheet" />
+
+    <!-- Design system (purple theme overrides) -->
+    <link href="css/design-system.css" rel="stylesheet" />
+
+    <!-- Blazor scoped CSS bundle -->
+    <link href="RestaurantSuite.Guest.styles.css" rel="stylesheet" />
+
+    <!-- Page-specific styles -->
     <link href="css/home.css" rel="stylesheet" />
+    <link href="css/order.css" rel="stylesheet" />
+
+    <!-- Mobile optimizations (load last) -->
+    <link href="css/mobile.css" rel="stylesheet" />
+    <link href="css/mobile-fixes.css" rel="stylesheet" />
 </head>
 
 <body>

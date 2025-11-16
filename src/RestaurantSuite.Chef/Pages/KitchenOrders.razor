@@ -1,8 +1,6 @@
 @page "/kitchen"
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Chef")]
-@inject OrdersApiService OrdersApiService
-
 <PageTitle>Kitchen Orders - Chef</PageTitle>
 
 <div id="chef-kitchen-container" class="kitchen-container">
@@ -393,58 +391,3 @@
         }
     }
 </style>
-
-@code {
-    private List<Order> confirmedOrders = new();
-    private List<Order> inProgressOrders = new();
-    private bool isLoading = true;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadOrders();
-    }
-
-    private async Task LoadOrders()
-    {
-        isLoading = true;
-        StateHasChanged();
-
-        var response = await OrdersApiService.GetOrdersAsync();
-        if (response.Success)
-        {
-            var orders = response.Orders ?? new List<Order>();
-            confirmedOrders = orders.Where(o => o.Status == OrderStatus.Confirmed).OrderBy(o => o.CreatedAt).ToList();
-            inProgressOrders = orders.Where(o => o.Status == OrderStatus.InProgress).OrderBy(o => o.CreatedAt).ToList();
-        }
-
-        isLoading = false;
-        StateHasChanged();
-    }
-
-    private async Task StartPreparation(Guid orderId)
-    {
-        var result = await OrdersApiService.StartPreparationAsync(orderId);
-        if (result.Success)
-        {
-            await LoadOrders();
-        }
-    }
-
-    private async Task MarkAsReady(Guid orderId)
-    {
-        var result = await OrdersApiService.MarkAsReadyAsync(orderId);
-        if (result.Success)
-        {
-            await LoadOrders();
-        }
-    }
-
-    private string GetTimeAgo(DateTime createdAt)
-    {
-        var timeSpan = DateTime.UtcNow - createdAt;
-        if (timeSpan.TotalMinutes < 1) return "Just now";
-        if (timeSpan.TotalMinutes < 60) return $"{(int)timeSpan.TotalMinutes}m ago";
-        if (timeSpan.TotalHours < 24) return $"{(int)timeSpan.TotalHours}h ago";
-        return $"{(int)timeSpan.TotalDays}d ago";
-    }
-}

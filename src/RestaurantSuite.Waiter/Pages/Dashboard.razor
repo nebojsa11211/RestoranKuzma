@@ -3,9 +3,6 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using RestaurantSuite.Waiter.Services
-@inject AuthenticationStateProvider AuthStateProvider
-@inject AuthService AuthService
-
 <PageTitle>Dashboard - Waiter</PageTitle>
 
 <div id="waiter-dashboard-container" class="dashboard-container">
@@ -229,18 +226,3 @@
         }
     }
 </style>
-
-@code {
-    private string waiterName = "Waiter";
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated == true)
-        {
-            waiterName = user.Identity.Name ?? "Waiter";
-        }
-    }
-}

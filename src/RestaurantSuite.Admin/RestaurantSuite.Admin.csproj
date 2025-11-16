@@ -8,9 +8,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RestaurantSuite.Application\RestaurantSuite.Application.csproj" />
+    <ProjectReference Include="..\RestaurantSuite.Shared.Blazor\RestaurantSuite.Shared.Blazor.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
   </ItemGroup>
 

@@ -48,7 +48,7 @@ function showUpdateNotification() {
         top: 0;
         left: 0;
         right: 0;
-        background: #2563eb;
+        background: #9333EA;
         color: white;
         padding: 12px 16px;
         text-align: center;
@@ -61,7 +61,7 @@ function showUpdateNotification() {
         <button onclick="window.location.reload()" style="
             margin-left: 12px;
             background: white;
-            color: #2563eb;
+            color: #9333EA;
             border: none;
             padding: 6px 12px;
             border-radius: 4px;
@@ -121,7 +121,7 @@ function showInstallPromotion() {
             <div style="font-size: 14px; color: #64748b;">Add to your home screen for quick access</div>
         </div>
         <button id="install-button" style="
-            background: #2563eb;
+            background: #9333EA;
             color: white;
             border: none;
             padding: 10px 20px;

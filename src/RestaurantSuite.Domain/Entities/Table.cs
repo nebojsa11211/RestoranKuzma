@@ -8,6 +8,7 @@ public class Table
     public string TableNumber { get; private set; }
     public int Capacity { get; private set; }
     public TableStatus Status { get; private set; }
+    public Guid QRCodeIdentifier { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
@@ -27,6 +28,7 @@ public class Table
             TableNumber = tableNumber,
             Capacity = capacity,
             Status = TableStatus.Available,
+            QRCodeIdentifier = Guid.NewGuid(),
             CreatedAt = DateTime.UtcNow
         };
     }

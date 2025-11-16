@@ -1,4 +1,5 @@
 @page "/profile"
+@attribute [Authorize(Roles = "Admin")]
 
 <PageTitle>Profile - Restaurant Suite</PageTitle>
 
@@ -119,21 +120,3 @@
         </button>
     </div>
 </div>
-
-@code {
-    private string firstName = "Admin";
-    private string lastName = "User";
-    private string email = "admin@restorankuzma.rs";
-    private string phoneNumber = "+381 11 123 4567";
-
-    private bool emailNotifications = true;
-    private bool pushNotifications = true;
-    private bool weeklyReports = false;
-
-    private void SaveProfile()
-    {
-        // TODO: Implement profile save logic
-        // For now, just show a message in console
-        Console.WriteLine("Profile saved");
-    }
-}

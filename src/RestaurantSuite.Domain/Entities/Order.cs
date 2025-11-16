@@ -8,6 +8,7 @@ public class Order
     public Guid TableId { get; private set; }
     public Guid WaiterId { get; private set; }
     public Guid? GuestId { get; private set; }
+    public Guid? OrderSessionId { get; private set; }
     public OrderStatus Status { get; private set; }
     public decimal TotalAmount { get; private set; }
     public DateTime CreatedAt { get; private set; }
@@ -23,7 +24,7 @@ public class Order
 
     private Order() { }
 
-    public static Order Create(Guid tableId, Guid waiterId, Guid? guestId = null)
+    public static Order Create(Guid tableId, Guid waiterId, Guid? guestId = null, Guid? orderSessionId = null)
     {
         return new Order
         {
@@ -31,6 +32,7 @@ public class Order
             TableId = tableId,
             WaiterId = waiterId,
             GuestId = guestId,
+            OrderSessionId = orderSessionId,
             Status = OrderStatus.Pending,
             TotalAmount = 0,
             CreatedAt = DateTime.UtcNow

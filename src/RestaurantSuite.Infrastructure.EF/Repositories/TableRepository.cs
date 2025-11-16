@@ -19,6 +19,12 @@ public class TableRepository : ITableRepository
         return await _context.Tables.FindAsync(new object[] { id }, cancellationToken);
     }
 
+    public async Task<Table?> GetByQRCodeIdentifierAsync(Guid qrCodeIdentifier, CancellationToken cancellationToken = default)
+    {
+        return await _context.Tables
+            .FirstOrDefaultAsync(t => t.QRCodeIdentifier == qrCodeIdentifier, cancellationToken);
+    }
+
     public async Task<IEnumerable<Table>> GetByRestaurantIdAsync(Guid restaurantId, CancellationToken cancellationToken = default)
     {
         // Single-restaurant architecture: no RestaurantId filtering needed
